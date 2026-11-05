@@ -1,0 +1,286 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "MCHF-Data-Dictionary",
+  "exportedAt": "2026-11-05T18:02:52Z",
+  "lists": [
+    {
+      "key": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+      "name": "MCHF Submissions",
+      "description": "Soumissions de codage de dons",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": true,
+          "maxLength": 7
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Constituent_x0020_System_x0020_I",
+          "displayName": "Constituent System ID",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Type",
+          "displayName": "Payment Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Date",
+          "displayName": "Gift Date",
+          "type": "date",
+          "required": true,
+          "dateOnly": true
+        },
+        {
+          "name": "Gift_x0020_Type",
+          "displayName": "Gift Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Amount",
+          "displayName": "Gift Amount",
+          "type": "currency",
+          "required": true,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Fees",
+          "displayName": "Fees",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Net_x0020_Amount",
+          "displayName": "Net Amount",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Campaign",
+          "displayName": "Campaign",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Appeal",
+          "displayName": "Appeal",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Fund",
+          "displayName": "Fund",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Package",
+          "displayName": "Package",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Assigned_x0020_Solicitor",
+          "displayName": "Assigned Solicitor",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Reference",
+          "displayName": "Payment Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Status",
+          "displayName": "Status",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "Submitted",
+            "Under Review",
+            "Needs Information",
+            "Rejected",
+            "Recording in Progress",
+            "Added to NXT Batch",
+            "Transfer Failed",
+            "Cancelled"
+          ],
+          "defaultValue": "Submitted"
+        }
+      ],
+      "items": []
+    },
+    {
+      "key": "240294e9-4751-4259-8c04-cd2c60fd746f",
+      "name": "MCHF Fund Lines",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Submission",
+          "displayName": "Submission",
+          "type": "lookup",
+          "required": true,
+          "lookupListId": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+          "lookupColumn": "Title"
+        },
+        {
+          "name": "Submission_x0020_Reference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Amount",
+          "displayName": "Amount",
+          "type": "currency",
+          "required": true,
+          "currencyCode": "CAD"
+        }
+      ],
+      "items": []
+    },
+    {
+      "key": "28d68322-8a1a-424c-8e42-ce784eb6cddd",
+      "name": "MCHF Gift Types",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Active",
+          "displayName": "Active",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": true
+        },
+        {
+          "name": "Sort_x0020_Order",
+          "displayName": "Sort Order",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "items": [
+        {
+          "Title": "One-time gift",
+          "Active": true,
+          "Sort_x0020_Order": 1
+        },
+        {
+          "Title": "Pledge",
+          "Active": true,
+          "Sort_x0020_Order": 2
+        },
+        {
+          "Title": "Pledge Payment",
+          "Active": true,
+          "Sort_x0020_Order": 3
+        }
+      ]
+    },
+    {
+      "key": "090bc4f3-574a-4cd4-824b-9c2c93a6bb20",
+      "name": "MCHF Payment Types",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Active",
+          "displayName": "Active",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "name": "Sort_x0020_Order",
+          "displayName": "Sort Order",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "items": [
+        {
+          "Title": "Cash",
+          "Active": true,
+          "Sort_x0020_Order": 1
+        },
+        {
+          "Title": "Personal Cheque",
+          "Active": true,
+          "Sort_x0020_Order": 2
+        },
+        {
+          "Title": "Business Cheque",
+          "Active": true,
+          "Sort_x0020_Order": 3
+        },
+        {
+          "Title": "Credit Card",
+          "Active": true,
+          "Sort_x0020_Order": 4
+        },
+        {
+          "Title": "Direct Debit",
+          "Active": true,
+          "Sort_x0020_Order": 5
+        },
+        {
+          "Title": "EFT",
+          "Active": true,
+          "Sort_x0020_Order": 6
+        },
+        {
+          "Title": "Stock Donation",
+          "Active": true,
+          "Sort_x0020_Order": 7
+        },
+        {
+          "Title": "Other",
+          "Active": true,
+          "Sort_x0020_Order": 8
+        }
+      ]
+    }
+  ],
+  "flows": [],
+  "apps": []
+}
