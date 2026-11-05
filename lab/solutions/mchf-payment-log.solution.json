@@ -2,7 +2,7 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "mchf-payment-log",
-  "exportedAt": "2026-11-05T03:36:42Z",
+  "exportedAt": "2026-11-05T23:31:00Z",
   "lists": [
     {
       "key": "ca35538f-cb37-45df-a763-dc87b3fa5395",
@@ -19,12 +19,6 @@
         {
           "name": "ConstituentID",
           "displayName": "Constituent ID",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Constituent_x0020_Name",
-          "displayName": "Constituent Name",
           "type": "text",
           "required": true
         },
@@ -96,58 +90,54 @@
           "displayName": "Submission Reference",
           "type": "text",
           "required": false
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
         }
       ],
       "items": [
         {
           "Title": "Reference test",
           "ConstituentID": "1234567",
-          "Constituent_x0020_Name": "Camille Exemple",
           "PaymentType": "Personal Cheque",
           "GiftDate": "2026-11-05",
           "GiftAmount": 100,
-          "Reference": "PAY-00007",
-          "Status": "Unclaimed"
+          "Reference": "PAY-00012",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
         },
         {
           "Title": "Reference test",
           "ConstituentID": "1234567",
-          "Constituent_x0020_Name": "Camille Exemple",
           "PaymentType": "Personal Cheque",
           "GiftDate": "2026-11-05",
           "GiftAmount": 100,
-          "Reference": "PAY-00008",
-          "Status": "Unclaimed"
+          "Reference": "PAY-00013",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
         },
         {
           "Title": "Reference test",
           "ConstituentID": "1234567",
-          "Constituent_x0020_Name": "Camille Exemple",
           "PaymentType": "Personal Cheque",
           "GiftDate": "2026-11-05",
           "GiftAmount": 100,
-          "Reference": "PAY-00009",
-          "Status": "Unclaimed"
+          "Reference": "PAY-00014",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
         },
         {
           "Title": "Reference test",
           "ConstituentID": "1234567",
-          "Constituent_x0020_Name": "Camille Exemple",
           "PaymentType": "Personal Cheque",
           "GiftDate": "2026-11-05",
           "GiftAmount": 100,
-          "Reference": "PAY-00010",
-          "Status": "Unclaimed"
-        },
-        {
-          "Title": "Reference test",
-          "ConstituentID": "1234567",
-          "Constituent_x0020_Name": "Camille Exemple",
-          "PaymentType": "Personal Cheque",
-          "GiftDate": "2026-11-05",
-          "GiftAmount": 100,
-          "Reference": "PAY-00011",
-          "Status": "Unclaimed"
+          "Reference": "PAY-00015",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
         }
       ]
     }
@@ -217,15 +207,6 @@
               {
                 "name": "ConstituentID",
                 "displayName": "Constituent ID",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Constituent_x0020_Name",
-                "displayName": "Constituent Name",
                 "type": "text",
                 "multiple": false,
                 "required": true,
@@ -323,6 +304,15 @@
                 "type": "text",
                 "multiple": false,
                 "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
                 "choices": [],
                 "lookupListId": null
               }
