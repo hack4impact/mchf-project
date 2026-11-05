@@ -1,0 +1,207 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "Ma solution",
+  "exportedAt": "2026-11-05T02:34:22Z",
+  "lists": [],
+  "flows": [
+    {
+      "key": "6af4d853-5708-429f-bf6e-9e0a326e1049",
+      "name": "MCHF - Lookup demo flow",
+      "description": "",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "manual": {
+            "type": "Request",
+            "kind": "Button",
+            "inputs": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "x-ms-content-hint": "TEXT",
+                    "title": "ConstituentID",
+                    "description": "7-digit Constituent ID",
+                    "x-ms-dynamically-added": true
+                  }
+                },
+                "required": [
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "actions": {
+          "Search_for_constituents": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "SearchConstituents"
+              },
+              "parameters": {
+                "search_text": "@triggerBody()?['text']",
+                "search_field": "lookup_id",
+                "strict_search": true
+              }
+            },
+            "runAfter": {}
+          },
+          "Condition": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "equals": [
+                    "@length(outputs('Search_for_constituents')?['body/value'])",
+                    1
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "System_ID": {
+                "type": "Compose",
+                "inputs": "@{first(outputs('Search_for_constituents')?['body/value'])?['id']}",
+                "runAfter": {}
+              }
+            },
+            "else": {
+              "actions": {
+                "Not_found": {
+                  "type": "Compose",
+                  "inputs": "No donor with this Constituent ID",
+                  "runAfter": {}
+                }
+              }
+            },
+            "runAfter": {
+              "Search_for_constituents": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Lookup_failed": {
+            "type": "Compose",
+            "inputs": "@concat('Error ', string(outputs('Search_for_constituents')?['statusCode']))",
+            "runAfter": {
+              "Search_for_constituents": [
+                "Failed",
+                "TimedOut"
+              ],
+              "Condition": [
+                "Skipped"
+              ]
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
+  "apps": [
+    {
+      "key": "80973585-c4e8-4592-87ed-fc7d56d17872",
+      "name": "MCHF - Lookup demo",
+      "description": "",
+      "definition": {
+        "id": "80973585-c4e8-4592-87ed-fc7d56d17872",
+        "name": "MCHF - Lookup demo",
+        "locale": "en",
+        "width": 1366,
+        "height": 768,
+        "properties": {
+          "OnStart": ""
+        },
+        "screens": [
+          {
+            "name": "Screen1",
+            "properties": {
+              "Fill": "RGBA(255, 255, 255, 1)",
+              "OnVisible": ""
+            },
+            "controls": [
+              {
+                "name": "txtConstituentId",
+                "type": "TextInput",
+                "properties": {
+                  "X": "58",
+                  "Y": "42",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "btnLookup",
+                "type": "Button",
+                "properties": {
+                  "X": "82",
+                  "Y": "124",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Look up\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With({typedId: Trim(txtConstituentId.Text)},\nIf(!IsMatch(typedId, \"\\d{7}\"),\n  Set(varDonor, {state: \"invalid\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Enter the 7-digit Constituent ID.\"}),\n  Set(varDonor, IfError(\n    With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n      Switch(CountRows(r),\n        0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n        1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n        {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n    {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"}))))"
+                },
+                "children": []
+              },
+              {
+                "name": "lblLookup",
+                "type": "Label",
+                "properties": {
+                  "X": "84",
+                  "Y": "168",
+                  "Width": "600",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "varDonor.state & \" · \" & varDonor.name & \" \" & varDonor.message",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              }
+            ]
+          }
+        ],
+        "dataSources": [
+          {
+            "kind": "connector",
+            "name": "RENXT",
+            "id": "renxt"
+          }
+        ]
+      }
+    }
+  ]
+}
