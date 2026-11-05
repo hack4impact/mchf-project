@@ -16,8 +16,9 @@ Only fictional data is used in the lab.
 
 | Internal name | Display name | Type | Required | Default |
 |---|---|---|---|---|
+| Title | Titre | Single line of text | Yes | None |
 | ConstituentID | Constituent ID | Single line of text | Yes | None |
-| Constituent_x0020_Name | Constituent Name | Single line of text | Yes | None |
+| ConstituentName | Constituent Name | Single line of text | Yes | None |
 | PaymentType | Payment Type | Single line of text | Yes | None |
 | GiftDate | Gift Date | Date only | Yes | None |
 | GiftAmount | Gift Amount | Currency, minimum 0.01 | Yes | None |
@@ -25,7 +26,7 @@ Only fictional data is used in the lab.
 | AssignedSolicitor | Assigned Solicitor | Single line of text | No | None |
 | Notes | Notes | Multiple lines of text | No | None |
 | Reference | Reference | Single line of text | No | None |
-| Status | Status | Choice | No | Unclaimed |
+| Status | Status | Choice | Yes | Unclaimed |
 | ClaimedByName | Claimed By Name | Single line of text | No | None |
 | SubmissionReference | Submission Reference | Single line of text | No | None |
 
@@ -121,7 +122,7 @@ a reference. Reference generation currently runs through this button.
 | Payment received and logged | Unclaimed | Assign the payment reference |
 | Fundraiser claims the payment | Claimed | Store the fundraiser's name |
 | Linked submission approved | Coded | Retain the linked submission reference |
-| Linked submission rejected or cancelled | Unclaimed | Clear the claimant's name so the payment can be claimed again |
+| Linked submission rejected or cancelled | Unclaimed | Clear ClaimedByName and SubmissionReference so the payment can be claimed and linked to a new submission |
 
 **Coded does not confirm a successful NXT transfer.**
 
@@ -156,8 +157,9 @@ empty for submissions created independently.
 The Payment Log's SubmissionReference column stores the reference
 of the associated submission.
 
-The submission reference format and exact shared field names remain
-to be confirmed with Dev 2's completed data dictionary.
+Submission references use the SUB-00001 format, as confirmed
+in PR #18. SubmissionReference stores the reference of the
+submission currently linked to the payment.
 
 ## Reminder rule
 
