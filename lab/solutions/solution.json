@@ -114,7 +114,7 @@
         },
         {
           "name": "Status",
-          "displayName": "Status",
+          "displayName": "Processing status",
           "type": "choice",
           "required": true,
           "choices": [
@@ -228,7 +228,8 @@
           "name": "Active",
           "displayName": "Active",
           "type": "boolean",
-          "required": true
+          "required": true,
+          "defaultValue": true
         },
         {
           "name": "Sort_x0020_Order",
