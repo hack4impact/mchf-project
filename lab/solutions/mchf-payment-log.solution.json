@@ -2,7 +2,7 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "mchf-payment-log",
-  "exportedAt": "2026-11-05T03:15:55Z",
+  "exportedAt": "2026-11-05T03:36:42Z",
   "lists": [
     {
       "key": "ca35538f-cb37-45df-a763-dc87b3fa5395",
@@ -46,7 +46,7 @@
           "displayName": "Gift Amount",
           "type": "currency",
           "required": true,
-          "min": 0,
+          "min": 0.01,
           "currencyCode": "CAD"
         },
         {
