@@ -1,0 +1,325 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "mchf-payment-log",
+  "exportedAt": "2026-11-05T23:31:00Z",
+  "lists": [
+    {
+      "key": "ca35538f-cb37-45df-a763-dc87b3fa5395",
+      "name": "MCHF - Payment Log",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "PaymentType",
+          "displayName": "Payment Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "GiftDate",
+          "displayName": "Gift Date",
+          "type": "date",
+          "required": true,
+          "dateOnly": true
+        },
+        {
+          "name": "GiftAmount",
+          "displayName": "Gift Amount",
+          "type": "currency",
+          "required": true,
+          "min": 0.01,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "GiftType",
+          "displayName": "Gift Type",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "AssignedSolicitor",
+          "displayName": "Assigned Solicitor",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Notes",
+          "displayName": "Notes",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "Reference",
+          "displayName": "Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Status",
+          "displayName": "Status",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "Claimed",
+            "Unclaimed",
+            "Coded"
+          ],
+          "defaultValue": "Unclaimed"
+        },
+        {
+          "name": "ClaimedByName",
+          "displayName": "Claimed By Name",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "SubmissionReference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "items": [
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00012",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00013",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00014",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00015",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        }
+      ]
+    }
+  ],
+  "flows": [],
+  "apps": [
+    {
+      "key": "ccd61875-9b4c-49b8-9be4-ea4a67bf2c3c",
+      "name": "MCHF - Payment Log Reference Test",
+      "description": "",
+      "definition": {
+        "id": "ccd61875-9b4c-49b8-9be4-ea4a67bf2c3c",
+        "name": "MCHF - Payment Log Reference Test",
+        "locale": "en",
+        "width": 1366,
+        "height": 768,
+        "properties": {
+          "OnStart": ""
+        },
+        "screens": [
+          {
+            "name": "Screen1",
+            "properties": {
+              "Fill": "RGBA(255, 255, 255, 1)",
+              "OnVisible": ""
+            },
+            "controls": [
+              {
+                "name": "btnTestReference",
+                "type": "Button",
+                "properties": {
+                  "X": "40",
+                  "Y": "40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Bouton\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Set(     rec,     Patch(         'MCHF - Payment Log',         Defaults('MCHF - Payment Log'),         {             Title: \"Reference test\",             'Constituent ID': \"1234567\",             'Constituent Name': \"Camille Exemple\",             'Payment Type': \"Personal Cheque\",             'Gift Date': Today(),             'Gift Amount': 100,             Status: {Value: \"Unclaimed\"}         }     ) ); Patch(     'MCHF - Payment Log',     rec,     {Reference: \"PAY-\" & Text(rec.ID, \"00000\")} )"
+                },
+                "children": []
+              }
+            ]
+          }
+        ],
+        "dataSources": [
+          {
+            "kind": "list",
+            "name": "MCHF - Payment Log",
+            "id": "ca35538f-cb37-45df-a763-dc87b3fa5395",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentID",
+                "displayName": "Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PaymentType",
+                "displayName": "Payment Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftDate",
+                "displayName": "Gift Date",
+                "type": "date",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftAmount",
+                "displayName": "Gift Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftType",
+                "displayName": "Gift Type",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AssignedSolicitor",
+                "displayName": "Assigned Solicitor",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Notes",
+                "displayName": "Notes",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Reference",
+                "displayName": "Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Status",
+                "displayName": "Status",
+                "type": "choice",
+                "multiple": false,
+                "required": true,
+                "choices": [
+                  "Claimed",
+                  "Unclaimed",
+                  "Coded"
+                ],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedByName",
+                "displayName": "Claimed By Name",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "SubmissionReference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
