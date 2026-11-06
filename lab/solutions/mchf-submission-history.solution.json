@@ -1,0 +1,61 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "Ma solution",
+  "exportedAt": "2026-11-06T14:43:04Z",
+  "lists": [
+    {
+      "key": "9dbb055f-d506-4abc-8044-eed4f5659e36",
+      "name": "MCHF - Submission History",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "SubmissionReference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "FromStatus",
+          "displayName": "From Status",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ToStatus",
+          "displayName": "To Status",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "ActorEmail",
+          "displayName": "Actor Email",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Comment",
+          "displayName": "Comment",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "ActionAt",
+          "displayName": "Action At",
+          "type": "date",
+          "required": true,
+          "dateOnly": false
+        }
+      ]
+    }
+  ],
+  "flows": [],
+  "apps": []
+}
