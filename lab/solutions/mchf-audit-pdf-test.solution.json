@@ -1,0 +1,114 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "Ma solution",
+  "exportedAt": "2026-11-06T15:30:38Z",
+  "lists": [],
+  "flows": [
+    {
+      "key": "d7f5e5c6-8bde-457d-b14c-a16e6cd9ae67",
+      "name": "MCHF -  Audit PDF test",
+      "description": "",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "manual": {
+            "type": "Request",
+            "kind": "Button",
+            "inputs": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "actions": {
+          "HTML": {
+            "type": "Compose",
+            "inputs": "<h1>Gift coding record</h1>\n<p><strong>Submission reference:</strong> SUB-00001</p>\n<p><strong>Payment reference:</strong> None</p>\n\n<h2>Donor</h2>\n<table>\n<tr><td><strong>Constituent ID</strong></td><td>1234567</td></tr>\n<tr><td><strong>Constituent name</strong></td><td>Camille Exemple</td></tr>\n<tr><td><strong>Constituent system ID</strong></td><td>11001</td></tr>\n</table>\n\n<h2>Gift</h2>\n<table>\n<tr><td><strong>Gift type</strong></td><td>One-time gift</td></tr>\n<tr><td><strong>Payment type</strong></td><td>Personal Cheque</td></tr>\n<tr><td><strong>Gift date</strong></td><td>2026-11-02</td></tr>\n<tr><td><strong>Gift amount</strong></td><td>$100.00</td></tr>\n<tr><td><strong>Fees</strong></td><td>$0.00</td></tr>\n<tr><td><strong>Net amount</strong></td><td>$100.00</td></tr>\n</table>\n\n<h2>Coding</h2>\n<table>\n<tr><td><strong>Campaign</strong></td><td>AC-2026-2027</td></tr>\n<tr><td><strong>Appeal</strong></td><td>MG-I-2026</td></tr>\n<tr><td><strong>Fund</strong></td><td>HA-CARD0110</td></tr>\n<tr><td><strong>Package</strong></td><td></td></tr>\n<tr><td><strong>Assigned solicitor</strong></td><td></td></tr>\n</table>\n\n<h2>Fund lines</h2>\n<table>\n<tr><td><strong>Fund</strong></td><td><strong>Amount</strong></td></tr>\n<tr><td>HA-CARD0110</td><td>$60.00</td></tr>\n<tr><td>HA-ONCO0220</td><td>$40.00</td></tr>\n<tr><td><strong>Total</strong></td><td><strong>$100.00</strong></td></tr>\n</table>\n\n<h2>People</h2>\n<table>\n<tr><td><strong>Submitted by</strong></td><td>fundraiser.test@example.org</td></tr>\n<tr><td><strong>Submitted at</strong></td><td>2026-11-04 10:15</td></tr>\n<tr><td><strong>Approved by</strong></td><td>giftprocessing.test@example.org</td></tr>\n<tr><td><strong>Approved at</strong></td><td>2026-11-04 15:30</td></tr>\n</table>\n\n<p>Generated at approval. The NXT transfer result is not part of this record.</p>\n",
+            "runAfter": {}
+          },
+          "Create_HTML_file": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_onedriveforbusiness",
+                "connectionName": "shared_onedriveforbusiness",
+                "operationId": "CreateFile"
+              },
+              "parameters": {
+                "folderPath": "/MCHF-Audit",
+                "name": "@concat('SUB-00001-', formatDateTime(utcNow(), 'yyyyMMdd-HHmmss'), '.html')",
+                "body": "@outputs('HTML')"
+              }
+            },
+            "runAfter": {
+              "HTML": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Wait": {
+            "type": "Wait",
+            "inputs": {
+              "interval": {
+                "count": 1,
+                "unit": "Minute"
+              }
+            },
+            "runAfter": {
+              "Create_HTML_file": [
+                "Succeeded"
+              ]
+            }
+          },
+          "To_PDF": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_onedriveforbusiness",
+                "connectionName": "shared_onedriveforbusiness",
+                "operationId": "ConvertFile"
+              },
+              "parameters": {
+                "type": "PDF",
+                "id": "@outputs('Create_HTML_file')?['body/Id']"
+              }
+            },
+            "runAfter": {
+              "Wait": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Create_PDF_file": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "CreateFile"
+              },
+              "parameters": {
+                "folderPath": "/MCHF - Audit documents",
+                "name": "@concat('SUB-00001-', formatDateTime(utcNow(), 'yyyyMMdd-HHmmss'), '.pdf')",
+                "body": "@body('To_PDF')"
+              }
+            },
+            "runAfter": {
+              "To_PDF": [
+                "Succeeded"
+              ]
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
+  "apps": []
+}
