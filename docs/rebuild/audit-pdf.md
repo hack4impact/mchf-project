@@ -23,9 +23,10 @@ Plain HTML only: `<h1>`, `<h2>`, `<p>`, `<table>`, `<tr>`, `<td>`,
 Sections, in order:
 
 1. Header: "Gift coding record", submission reference, payment reference
+   when there is one
 2. Donor
 3. Gift: types, date, amounts
-4. Coding: campaign, appeal, fund, package, solicitor
+4. Coding: campaign, appeal, primary fund, package, solicitor
 5. Fund lines, with their total
 6. People: who submitted and when, who approved and when
 7. Footer: "Generated at approval. The NXT transfer result is not part of
@@ -43,7 +44,6 @@ dynamic content from **Get submission**.
 | Placeholder | Source |
 |---|---|
 | `{{Title}}` | Submission reference, `SUB-00001` |
-| `{{Payment_x0020_Reference}}` | Payment reference. The flow writes `None` when it is empty |
 | `{{ConstituentID}}` | Constituent ID |
 | `{{ConstituentName}}` | Constituent name |
 | `{{Constituent_x0020_System_x0020_I}}` | Constituent system ID |
@@ -55,20 +55,30 @@ dynamic content from **Get submission**.
 | `{{Net_x0020_Amount}}` | Net amount |
 | `{{Campaign}}` | Campaign |
 | `{{Appeal}}` | Appeal |
-| `{{Fund}}` | Fund |
+| `{{Fund}}` | Primary fund. The split between funds is in the fund lines |
 | `{{Package}}` | Package |
 | `{{Assigned_x0020_Solicitor}}` | Assigned solicitor |
 | `{{ApprovedByEmail}}` | Who approved (#4) |
 | `{{ApprovedAt}}` | When it was approved (#4) |
 
-Four placeholders are not columns. The flow builds them:
+Five placeholders are not columns. The flow builds them:
 
 | Placeholder | Built from |
 |---|---|
+| `{{PaymentReferenceLine}}` | `<p><strong>Payment reference:</strong> PAY-00001</p>` when `Payment_x0020_Reference` has a value, empty otherwise |
 | `{{FundLineRows}}` | One `<tr>` per row of `MCHF Fund Lines` for this submission |
 | `{{FundLinesTotal}}` | Sum of the fund line amounts |
 | `{{SubmittedBy}}` | System column Author (Créé par) of the submission |
 | `{{SubmittedAt}}` | System column Created (Créé) of the submission |
+
+For `{{PaymentReferenceLine}}`, the flow uses:
+
+```
+@{if(empty(body('Get_submission')?['Payment_x0020_Reference']), '', concat('<p><strong>Payment reference:</strong> ', body('Get_submission')?['Payment_x0020_Reference'], '</p>'))}
+```
+
+The test case does not come from the registry, so its PDF has no payment
+reference line.
 
 Empty fields (Package, Assigned solicitor in the test case) stay in the
 table with an empty value.
@@ -150,3 +160,5 @@ Constituent ID `1234567`, one-time gift, $100, Personal Cheque, gift date
   Get submission, Get fund lines, the loop, then the steps of section 6,
   then save the link in `AuditPDF`.
 - Check the date and amount formats once real submissions exist.
+- Test a submission that has a payment reference, to see the payment
+  reference line.
