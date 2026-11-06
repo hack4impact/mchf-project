@@ -194,12 +194,17 @@ no adaptive cards or mentions.
 - The app does not refresh by itself. It must be reopened to see the
   status set by the flow.
 
+## Deliverables
+
+- Rebuild document: `docs/rebuild/review-audit.md`
+- Lab export of the history list:
+  `lab/solutions/mchf-submission-history.solution.json`
+- The six columns of section 6 are added to `MCHF Submissions` in Équipe.
+  They appear in the next export of that list (#1).
+
 ## Remaining work
 
-- Create the history list in Établi and commit its lab export under
-  `lab/solutions/`.
 - Confirm the cancel proposal (section 5) with Marc and Yelene.
-- Tell Yasmine about the new columns (section 6) and add them.
 - Send the transitions table to Hadyle for the review screen.
 - The transitions are documented rules. They are built in the review
   screen (#12) and the approval flow (#15). Test constituents from #2:
