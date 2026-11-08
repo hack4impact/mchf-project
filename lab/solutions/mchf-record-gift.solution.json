@@ -1,0 +1,939 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "MCHF - Record gift in NXT",
+  "exportedAt": "2026-11-07T22:13:00Z",
+  "lists": [
+    {
+      "key": "de63ac1b-2d8c-43f8-abfa-c876527fe687",
+      "name": "MCHF Submissions",
+      "description": "Soumissions de codage de dons",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": true,
+          "maxLength": 7
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Constituent_x0020_System_x0020_I",
+          "displayName": "Constituent System ID",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Type",
+          "displayName": "Payment Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Date",
+          "displayName": "Gift Date",
+          "type": "date",
+          "required": true,
+          "dateOnly": true
+        },
+        {
+          "name": "Gift_x0020_Type",
+          "displayName": "Gift Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Amount",
+          "displayName": "Gift Amount",
+          "type": "currency",
+          "required": true,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Fees",
+          "displayName": "Fees",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Net_x0020_Amount",
+          "displayName": "Net Amount",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Campaign",
+          "displayName": "Campaign",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Appeal",
+          "displayName": "Appeal",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Fund",
+          "displayName": "Fund",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Package",
+          "displayName": "Package",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Assigned_x0020_Solicitor",
+          "displayName": "Assigned Solicitor",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Reference",
+          "displayName": "Payment Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Status",
+          "displayName": "Processing status",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "Submitted",
+            "Under Review",
+            "Needs Information",
+            "Rejected",
+            "Recording in Progress",
+            "Added to NXT Batch",
+            "Transfer Failed",
+            "Cancelled"
+          ],
+          "defaultValue": "Submitted"
+        }
+      ]
+    },
+    {
+      "key": "e6711665-a0f7-4291-be96-48c1f65767b1",
+      "name": "MCHF Fund Lines",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Submission_x0020_Reference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Amount",
+          "displayName": "Amount",
+          "type": "currency",
+          "required": true,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Submission",
+          "displayName": "Submission",
+          "type": "lookup",
+          "required": true,
+          "lookupListId": "de63ac1b-2d8c-43f8-abfa-c876527fe687",
+          "lookupColumn": "Title"
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "key": "309d3448-93ae-4cb6-84dc-a8c6b7e7741c",
+      "name": "MCHF - Record gift in NXT",
+      "description": "Records an approved submission in an NXT gift batch (issue #13). Called by MCHF - ApproveGift with Run a Child Flow.",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "manual": {
+            "type": "Request",
+            "kind": "Button",
+            "inputs": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "number",
+                    "title": "SubmissionId",
+                    "description": "ID of the item in MCHF Submissions",
+                    "x-ms-content-hint": "NUMBER",
+                    "x-ms-dynamically-added": true
+                  }
+                },
+                "required": [
+                  "number"
+                ]
+              }
+            }
+          }
+        },
+        "actions": {
+          "Initialize_outcome": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "outcome",
+                  "type": "string",
+                  "value": "failure"
+                }
+              ]
+            },
+            "runAfter": {}
+          },
+          "Initialize_detail": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "detail",
+                  "type": "string",
+                  "value": "The recording flow stopped before calling NXT. Open its run history."
+                }
+              ]
+            },
+            "runAfter": {
+              "Initialize_outcome": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_batch_id": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "batch_id",
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            },
+            "runAfter": {
+              "Initialize_detail": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_splits": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "splits",
+                  "type": "array",
+                  "value": []
+                }
+              ]
+            },
+            "runAfter": {
+              "Initialize_batch_id": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_problems": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "problems",
+                  "type": "array",
+                  "value": []
+                }
+              ]
+            },
+            "runAfter": {
+              "Initialize_splits": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_total": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "total",
+                  "type": "float",
+                  "value": 0
+                }
+              ]
+            },
+            "runAfter": {
+              "Initialize_problems": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Get_submission": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItem"
+              },
+              "parameters": {
+                "table": "de63ac1b-2d8c-43f8-abfa-c876527fe687",
+                "id": "@triggerBody()?['number']"
+              }
+            },
+            "runAfter": {
+              "Initialize_total": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Get_fund_lines": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "e6711665-a0f7-4291-be96-48c1f65767b1",
+                "$filter": "Submission_x0020_Reference eq '@{body('Get_submission')?['Title']}'",
+                "$top": 100
+              }
+            },
+            "runAfter": {
+              "Get_submission": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Payment_methods": {
+            "type": "Compose",
+            "inputs": [
+              {
+                "form": "cash",
+                "nxt": "Cash",
+                "reference": ""
+              },
+              {
+                "form": "personal cheque",
+                "nxt": "PersonalCheck",
+                "reference": ""
+              },
+              {
+                "form": "business cheque",
+                "nxt": "PersonalCheck",
+                "reference": ""
+              },
+              {
+                "form": "credit card",
+                "nxt": "CreditCard",
+                "reference": ""
+              },
+              {
+                "form": "direct debit",
+                "nxt": "DirectDebit",
+                "reference": ""
+              },
+              {
+                "form": "eft",
+                "nxt": "Other",
+                "reference": "EFT"
+              },
+              {
+                "form": "stock donation",
+                "nxt": "Other",
+                "reference": "Stock"
+              },
+              {
+                "form": "other",
+                "nxt": "Other",
+                "reference": ""
+              }
+            ],
+            "runAfter": {
+              "Get_fund_lines": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Gift_types": {
+            "type": "Compose",
+            "inputs": [
+              {
+                "form": "one-time gift",
+                "nxt": "Donation"
+              }
+            ],
+            "runAfter": {
+              "Payment_methods": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Find_payment_method": {
+            "type": "Query",
+            "inputs": {
+              "from": "@outputs('Payment_methods')",
+              "where": "@equals(item()?['form'], toLower(trim(coalesce(body('Get_submission')?['Payment_x0020_Type'], ''))))"
+            },
+            "runAfter": {
+              "Gift_types": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Find_gift_type": {
+            "type": "Query",
+            "inputs": {
+              "from": "@outputs('Gift_types')",
+              "where": "@equals(item()?['form'], toLower(trim(coalesce(body('Get_submission')?['Gift_x0020_Type'], ''))))"
+            },
+            "runAfter": {
+              "Find_payment_method": [
+                "Succeeded"
+              ]
+            }
+          },
+          "List_funds": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "ListFunds"
+              },
+              "parameters": {
+                "limit": 5000
+              }
+            },
+            "runAfter": {
+              "Find_gift_type": [
+                "Succeeded"
+              ]
+            }
+          },
+          "List_campaigns": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "ListCampaigns"
+              },
+              "parameters": {
+                "limit": 5000
+              }
+            },
+            "runAfter": {
+              "List_funds": [
+                "Succeeded"
+              ]
+            }
+          },
+          "List_appeals": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "ListAppeals"
+              },
+              "parameters": {
+                "limit": 5000
+              }
+            },
+            "runAfter": {
+              "List_campaigns": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Find_campaign": {
+            "type": "Query",
+            "inputs": {
+              "from": "@outputs('List_campaigns')?['body/value']",
+              "where": "@equals(item()?['lookup_id'], trim(coalesce(body('Get_submission')?['Campaign'], '')))"
+            },
+            "runAfter": {
+              "List_appeals": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Find_appeal": {
+            "type": "Query",
+            "inputs": {
+              "from": "@outputs('List_appeals')?['body/value']",
+              "where": "@equals(item()?['lookup_id'], trim(coalesce(body('Get_submission')?['Appeal'], '')))"
+            },
+            "runAfter": {
+              "Find_campaign": [
+                "Succeeded"
+              ]
+            }
+          },
+          "List_gift_batches": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "ListGiftBatches"
+              },
+              "parameters": {
+                "search_text": "@{body('Get_submission')?['Title']}",
+                "limit": 5000
+              }
+            },
+            "runAfter": {
+              "Find_appeal": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Batches_with_a_gift": {
+            "type": "Query",
+            "inputs": {
+              "from": "@outputs('List_gift_batches')?['body/value']",
+              "where": "@and(equals(item()?['batch_description'], body('Get_submission')?['Title']), greater(int(coalesce(item()?['number_of_gifts'], 0)), 0))"
+            },
+            "runAfter": {
+              "List_gift_batches": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Fund_lines": {
+            "type": "Compose",
+            "inputs": "@if(empty(outputs('Get_fund_lines')?['body/value']), createArray(json(concat('{\"Title\":\"', trim(coalesce(body('Get_submission')?['Fund'], '')), '\",\"Amount\":', string(float(body('Get_submission')?['Gift_x0020_Amount'])), '}'))), outputs('Get_fund_lines')?['body/value'])",
+            "runAfter": {
+              "Batches_with_a_gift": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Each_line": {
+            "type": "Foreach",
+            "foreach": "@outputs('Fund_lines')",
+            "actions": {
+              "Find_fund": {
+                "type": "Query",
+                "inputs": {
+                  "from": "@outputs('List_funds')?['body/value']",
+                  "where": "@equals(item()?['lookup_id'], trim(coalesce(items('Each_line')?['Title'], '')))"
+                },
+                "runAfter": {}
+              },
+              "Fund_found": {
+                "type": "If",
+                "expression": {
+                  "and": [
+                    {
+                      "not": {
+                        "equals": [
+                          "@length(body('Find_fund'))",
+                          0
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "actions": {
+                  "Append_split": {
+                    "type": "AppendToArrayVariable",
+                    "inputs": {
+                      "name": "splits",
+                      "value": {
+                        "fund_id": "@{first(body('Find_fund'))?['id']}",
+                        "campaign_id": "@{first(body('Find_campaign'))?['id']}",
+                        "appeal_id": "@{first(body('Find_appeal'))?['id']}",
+                        "amount": {
+                          "value": "@float(items('Each_line')?['Amount'])"
+                        }
+                      }
+                    },
+                    "runAfter": {}
+                  }
+                },
+                "else": {
+                  "actions": {
+                    "Append_missing_fund": {
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "problems",
+                        "value": "Fund code not found in NXT: @{items('Each_line')?['Title']}."
+                      },
+                      "runAfter": {}
+                    }
+                  }
+                },
+                "runAfter": {
+                  "Find_fund": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Add_to_total": {
+                "type": "IncrementVariable",
+                "inputs": {
+                  "name": "total",
+                  "value": "@float(items('Each_line')?['Amount'])"
+                },
+                "runAfter": {
+                  "Fund_found": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            },
+            "runConfiguration": {
+              "concurrency": {
+                "repetitions": 1
+              }
+            },
+            "runAfter": {
+              "Fund_lines": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Checks": {
+            "type": "Compose",
+            "inputs": [
+              "@{if(empty(body('Batches_with_a_gift')), '', concat('NXT already has a gift batch \"', body('Get_submission')?['Title'], '\" with a gift in it (batch ID ', string(first(body('Batches_with_a_gift'))?['id']), '): not sent again. Check that batch in NXT.'))}",
+              "@{if(empty(trim(coalesce(body('Get_submission')?['Constituent_x0020_System_x0020_I'], ''))), 'Constituent System ID is empty: look up the donor again in the coding form.', '')}",
+              "@{if(empty(body('Find_gift_type')), concat('Gift type \"', body('Get_submission')?['Gift_x0020_Type'], '\" cannot be sent with Add a gift to batch (pledges are still open, see nxt-mapping.md).'), '')}",
+              "@{if(empty(body('Find_payment_method')), concat('Payment type \"', body('Get_submission')?['Payment_x0020_Type'], '\" has no NXT payment method.'), '')}",
+              "@{if(empty(body('Find_campaign')), concat('Campaign code not found in NXT: ', body('Get_submission')?['Campaign'], '.'), '')}",
+              "@{if(empty(body('Find_appeal')), concat('Appeal code not found in NXT: ', body('Get_submission')?['Appeal'], '.'), '')}",
+              "@{if(and(equals(body('Get_submission')?['TaxReceipt'], true), equals(string(coalesce(body('Get_submission')?['ReceiptAmount'], '')), '')), 'Tax receipt is Yes but the Receipt Amount is empty.', '')}",
+              "@{if(and(less(sub(variables('total'), float(body('Get_submission')?['Gift_x0020_Amount'])), 0.005), greater(sub(variables('total'), float(body('Get_submission')?['Gift_x0020_Amount'])), -0.005)), '', concat('The fund lines add up to ', string(variables('total')), ' but the Gift Amount is ', string(float(body('Get_submission')?['Gift_x0020_Amount'])), '.'))}"
+            ],
+            "runAfter": {
+              "Each_line": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Problems": {
+            "type": "Query",
+            "inputs": {
+              "from": "@union(outputs('Checks'), variables('problems'))",
+              "where": "@not(empty(item()))"
+            },
+            "runAfter": {
+              "Checks": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Ready": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "equals": [
+                    "@length(body('Problems'))",
+                    0
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "Record": {
+                "type": "Scope",
+                "actions": {
+                  "Create_a_gift_batch": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "apiId": "/providers/lab/apis/shared_renxt",
+                        "connectionName": "shared_renxt",
+                        "operationId": "CreateGiftBatch"
+                      },
+                      "parameters": {
+                        "body/batch_description": "@{body('Get_submission')?['Title']}",
+                        "body/expected_number": 1,
+                        "body/expected_batch_total": "@float(body('Get_submission')?['Gift_x0020_Amount'])"
+                      }
+                    },
+                    "runAfter": {}
+                  },
+                  "Set_batch_id": {
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "batch_id",
+                      "value": "@{outputs('Create_a_gift_batch')?['body/batch_id']}"
+                    },
+                    "runAfter": {
+                      "Create_a_gift_batch": [
+                        "Succeeded"
+                      ]
+                    }
+                  },
+                  "Add_a_gift_to_batch": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "apiId": "/providers/lab/apis/shared_renxt",
+                        "connectionName": "shared_renxt",
+                        "operationId": "AddGiftToBatch"
+                      },
+                      "parameters": {
+                        "batch_id": "@variables('batch_id')",
+                        "body/gifts/constituent_id": "@{trim(body('Get_submission')?['Constituent_x0020_System_x0020_I'])}",
+                        "body/gifts/amount/value": "@float(body('Get_submission')?['Gift_x0020_Amount'])",
+                        "body/gifts/date": "@{formatDateTime(body('Get_submission')?['Gift_x0020_Date'], 'yyyy-MM-dd')}",
+                        "body/gifts/type": "@{first(body('Find_gift_type'))?['nxt']}",
+                        "body/gifts/gift_splits": "@variables('splits')",
+                        "body/gifts/payments/payment_method": "@{first(body('Find_payment_method'))?['nxt']}",
+                        "body/gifts/payments/reference": "@{first(body('Find_payment_method'))?['reference']}",
+                        "body/gifts/reference": "@{body('Get_submission')?['Title']}",
+                        "body/gifts/receipts/status": "@{if(equals(body('Get_submission')?['TaxReceipt'], true), 'NeedsReceipt', 'DoNotReceipt')}",
+                        "body/gifts/receipts/amount/value": "@if(equals(body('Get_submission')?['TaxReceipt'], true), float(body('Get_submission')?['ReceiptAmount']), 0)"
+                      }
+                    },
+                    "runAfter": {
+                      "Set_batch_id": [
+                        "Succeeded"
+                      ]
+                    }
+                  },
+                  "Added": {
+                    "type": "If",
+                    "expression": {
+                      "and": [
+                        {
+                          "equals": [
+                            "@length(coalesce(outputs('Add_a_gift_to_batch')?['body/gifts'], createArray()))",
+                            1
+                          ]
+                        },
+                        {
+                          "equals": [
+                            "@length(coalesce(outputs('Add_a_gift_to_batch')?['body/errors'], createArray()))",
+                            0
+                          ]
+                        }
+                      ]
+                    },
+                    "actions": {
+                      "Set_success": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "outcome",
+                          "value": "success"
+                        },
+                        "runAfter": {}
+                      },
+                      "Set_success_detail": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "detail",
+                          "value": "Gift added to the NXT gift batch \"@{body('Get_submission')?['Title']}\" (batch ID @{variables('batch_id')})."
+                        },
+                        "runAfter": {
+                          "Set_success": [
+                            "Succeeded"
+                          ]
+                        }
+                      }
+                    },
+                    "else": {
+                      "actions": {
+                        "Set_refused_detail": {
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "detail",
+                            "value": "NXT did not add the gift to batch @{variables('batch_id')}: @{string(outputs('Add_a_gift_to_batch')?['body/errors'])}"
+                          },
+                          "runAfter": {}
+                        }
+                      }
+                    },
+                    "runAfter": {
+                      "Add_a_gift_to_batch": [
+                        "Succeeded"
+                      ]
+                    }
+                  }
+                },
+                "runAfter": {}
+              },
+              "Handle_failure": {
+                "type": "Scope",
+                "actions": {
+                  "No_answer": {
+                    "type": "If",
+                    "expression": {
+                      "or": [
+                        {
+                          "equals": [
+                            "@outputs('Add_a_gift_to_batch')?['statusCode']",
+                            504
+                          ]
+                        },
+                        {
+                          "equals": [
+                            "@actions('Add_a_gift_to_batch')?['status']",
+                            "TimedOut"
+                          ]
+                        }
+                      ]
+                    },
+                    "actions": {
+                      "Set_uncertain": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "outcome",
+                          "value": "uncertain"
+                        },
+                        "runAfter": {}
+                      },
+                      "Set_uncertain_detail": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "detail",
+                          "value": "The gift may or may not be in NXT. Check before doing anything: in NXT, open the gift batch \"@{body('Get_submission')?['Title']}\" and look for the gift before any retry."
+                        },
+                        "runAfter": {
+                          "Set_uncertain": [
+                            "Succeeded"
+                          ]
+                        }
+                      }
+                    },
+                    "else": {
+                      "actions": {
+                        "Set_failure_detail": {
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "detail",
+                            "value": "@{if(equals(actions('Create_a_gift_batch')?['status'], 'Succeeded'), concat('Add a gift to batch failed (HTTP ', string(outputs('Add_a_gift_to_batch')?['statusCode']), '): ', coalesce(actions('Add_a_gift_to_batch')?['error']?['message'], string(outputs('Add_a_gift_to_batch')?['body'])), ' Nothing was added to batch ', variables('batch_id'), '.'), concat('Create a gift batch failed (HTTP ', string(outputs('Create_a_gift_batch')?['statusCode']), '): ', coalesce(actions('Create_a_gift_batch')?['error']?['message'], string(outputs('Create_a_gift_batch')?['body'])), ' No gift was sent.'))}"
+                          },
+                          "runAfter": {}
+                        }
+                      }
+                    },
+                    "runAfter": {}
+                  }
+                },
+                "runAfter": {
+                  "Record": [
+                    "Failed",
+                    "TimedOut"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "actions": {
+                "Set_problems_detail": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "detail",
+                    "value": "Not sent to NXT: @{join(body('Problems'), ' ')}"
+                  },
+                  "runAfter": {}
+                }
+              }
+            },
+            "runAfter": {
+              "Problems": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Status": {
+            "type": "Compose",
+            "inputs": "@{if(equals(variables('outcome'), 'success'), 'Added to NXT Batch', 'Transfer Failed')}",
+            "runAfter": {
+              "Ready": [
+                "Succeeded",
+                "Failed",
+                "Skipped",
+                "TimedOut"
+              ]
+            }
+          },
+          "Respond_to_a_PowerApp_or_flow": {
+            "type": "Response",
+            "kind": "PowerApp",
+            "inputs": {
+              "statusCode": 200,
+              "body": {
+                "outcome": "@{variables('outcome')}",
+                "status": "@{outputs('Status')}",
+                "detail": "@{variables('detail')}",
+                "batch_id": "@{variables('batch_id')}"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "outcome": {
+                    "type": "string",
+                    "title": "outcome",
+                    "x-ms-dynamically-added": true
+                  },
+                  "status": {
+                    "type": "string",
+                    "title": "status",
+                    "x-ms-dynamically-added": true
+                  },
+                  "detail": {
+                    "type": "string",
+                    "title": "detail",
+                    "x-ms-dynamically-added": true
+                  },
+                  "batch_id": {
+                    "type": "string",
+                    "title": "batch_id",
+                    "x-ms-dynamically-added": true
+                  }
+                }
+              }
+            },
+            "runAfter": {
+              "Status": [
+                "Succeeded"
+              ]
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
+  "apps": []
+}
