@@ -32,6 +32,12 @@ Stores one record per coded donation submitted by fundraisers.
 | **Assigned Solicitor** | `Assigned_x0020_Solicitor` | Single line of text | No | RE NXT SKY API | Credited solicitor. Must never default to the submitting user (`User()`). |
 | **Payment Reference** | `Payment_x0020_Reference` | Single line of text | No | Linked Payment | Holds the `PAY-00001` reference when claimed from the Payment Log Register; empty otherwise. Filled by prefilled form (#8). |
 | **Processing status** | `Status` | Choice | Yes | Configured choices | Options: `Submitted`, `Under Review`, `Needs Information`, `Rejected`, `Recording in Progress`, `Added to NXT Batch`, `Transfer Failed`, `Cancelled`. Default: `Submitted`. Transition logic owned by Yanis (#4). |
+| **Reviewer Email** | `ReviewerEmail` | Single line of text | No | Review app (#15) | Gift Processing member who claimed the submission (#4). |
+| **Review Comment** | `ReviewComment` | Multiple lines of text | No | Review app (#15) | Last comment from Return, Reject or Cancel. Shown to the fundraiser. |
+| **Approved By Email** | `ApprovedByEmail` | Single line of text | No | Review app (#15) | Who approved. Shown in the audit PDF (#11). |
+| **Approved At** | `ApprovedAt` | Date and Time | No | Review app (#15) | When it was approved. Shown in the audit PDF (#11). |
+| **Audit PDF** | `AuditPDF` | Single line of text | No | Flow `MCHF - ApproveGift` (#15) | Link to the audit PDF in `MCHF - Audit documents`. Text column: the lab has no hyperlink column. |
+| **Audit HTML** | `AuditHTML` | Multiple lines of text | No | Flow `MCHF - ApproveGift` (#15) | Fallback if the lab's file actions are not ready. Not used: the PDF chain works in the lab. |
 
 > *Note on Platform Constraints:* In Établi, the minimum constraint UI for Currency columns accepts integer values only (set to `0`). Strict validation (`Value > 0.00`) is enforced at the Power Fx application layer.
 
