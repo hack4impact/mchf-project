@@ -2,7 +2,7 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "mchf-reminder",
-  "exportedAt": "2026-11-10T03:35:27Z",
+  "exportedAt": "2026-11-10T22:45:40Z",
   "lists": [
     {
       "key": "9408f077-e995-42fa-a34b-36563d0eef57",
@@ -28,6 +28,165 @@
         {
           "Title": "UnclaimedReminderDays",
           "SettingValue": 3
+        }
+      ]
+    },
+    {
+      "key": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
+      "name": "MCHF - Payment Log",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "PaymentType",
+          "displayName": "Payment Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "GiftDate",
+          "displayName": "Gift Date",
+          "type": "date",
+          "required": true,
+          "dateOnly": true
+        },
+        {
+          "name": "GiftAmount",
+          "displayName": "Gift Amount",
+          "type": "currency",
+          "required": true,
+          "min": 0.01,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "GiftType",
+          "displayName": "Gift Type",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "AssignedSolicitor",
+          "displayName": "Assigned Solicitor",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Notes",
+          "displayName": "Notes",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "Reference",
+          "displayName": "Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Status",
+          "displayName": "Status",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "Claimed",
+            "Unclaimed",
+            "Coded"
+          ],
+          "defaultValue": "Unclaimed"
+        },
+        {
+          "name": "ClaimedByName",
+          "displayName": "Claimed By Name",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "SubmissionReference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "items": [
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00012",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00013",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00014",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00015",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Test 15",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-02",
+          "GiftAmount": 100,
+          "Reference": "PAY-00016",
+          "Status": "Coded",
+          "ClaimedByName": "Yanis",
+          "SubmissionReference": "SUB-TEST15A",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Test 15 reject",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-02",
+          "GiftAmount": 100,
+          "Reference": "PAY-00017",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
         }
       ]
     }
@@ -151,7 +310,7 @@
                     "type": "AppendToStringVariable",
                     "inputs": {
                       "name": "lines",
-                      "value": "<li>@{coalesce(items('Each_payment')?['Reference'], concat('ID ', items('Each_payment')?['ID']))} · @{items('Each_payment')?['ConstituentName']} · @{items('Each_payment')?['GiftAmount']} $ · logged @{formatDateTime(items('Each_payment')?['Created'], 'yyyy-MMdd')}</li>"
+                      "value": "<li>@{coalesce(items('Each_payment')?['Reference'], concat('ID ', items('Each_payment')?['ID']))} · @{items('Each_payment')?['ConstituentName']} · @{items('Each_payment')?['GiftAmount']} $ · logged @{formatDateTime(items('Each_payment')?['Created'], 'yyyy-MM-dd')}</li>"
                     },
                     "runAfter": {}
                   }
