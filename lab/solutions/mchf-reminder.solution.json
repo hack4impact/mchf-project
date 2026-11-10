@@ -1,0 +1,199 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "mchf-reminder",
+  "exportedAt": "2026-11-10T03:35:27Z",
+  "lists": [
+    {
+      "key": "9408f077-e995-42fa-a34b-36563d0eef57",
+      "name": "MCHF - Settings",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "SettingValue",
+          "displayName": "Setting Value",
+          "type": "number",
+          "required": true,
+          "min": 0
+        }
+      ],
+      "items": [
+        {
+          "Title": "UnclaimedReminderDays",
+          "SettingValue": 3
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "key": "633a79e2-ea5a-4b7f-9165-00fc46989326",
+      "name": "MCHF - Unclaimed Reminder",
+      "description": "",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "Recurrence": {
+            "type": "Recurrence",
+            "recurrence": {
+              "frequency": "Day",
+              "interval": 1,
+              "schedule": {
+                "hours": [
+                  9
+                ],
+                "minutes": [
+                  0
+                ]
+              },
+              "timeZone": "Eastern Standard Time"
+            }
+          }
+        },
+        "actions": {
+          "Get_settings": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "9408f077-e995-42fa-a34b-36563d0eef57",
+                "$filter": "Title eq 'UnclaimedReminderDays'"
+              }
+            },
+            "runAfter": {}
+          },
+          "Delay_days": {
+            "type": "Compose",
+            "inputs": "@int(first(outputs('Get_settings')?['body/value'])?['SettingValue'])",
+            "runAfter": {
+              "Get_settings": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Cutoff": {
+            "type": "Compose",
+            "inputs": "@addDays(utcNow(), mul(-1, outputs('Delay_days')))",
+            "runAfter": {
+              "Delay_days": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Get_overdue_payments": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
+                "$filter": "Status eq 'Unclaimed' and Created le '@{outputs('Cutoff')}'",
+                "$orderby": "Created asc"
+              }
+            },
+            "runAfter": {
+              "Cutoff": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_variable": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "lines",
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            },
+            "runAfter": {
+              "Get_overdue_payments": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Any_overdue": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "greater": [
+                    "@length(outputs('Get_overdue_payments')?['body/value'])",
+                    0
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "Each_payment": {
+                "type": "Foreach",
+                "foreach": "@outputs('Get_overdue_payments')?['body/value']",
+                "actions": {
+                  "Append_to_string_variable": {
+                    "type": "AppendToStringVariable",
+                    "inputs": {
+                      "name": "lines",
+                      "value": "<li>@{coalesce(items('Each_payment')?['Reference'], concat('ID ', items('Each_payment')?['ID']))} · @{items('Each_payment')?['ConstituentName']} · @{items('Each_payment')?['GiftAmount']} $ · logged @{formatDateTime(items('Each_payment')?['Created'], 'yyyy-MMdd')}</li>"
+                    },
+                    "runAfter": {}
+                  }
+                },
+                "runAfter": {}
+              },
+              "Post_reminder": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_teams",
+                    "connectionName": "shared_teams",
+                    "operationId": "PostMessageToConversation"
+                  },
+                  "parameters": {
+                    "poster": "Flow bot",
+                    "location": "Channel",
+                    "body/recipient/groupId": "MCHF Lab",
+                    "body/recipient/channelId": "Fundraisers",
+                    "body/messageBody": "<p>@{length(outputs('Get_overdue_payments')?['body/value'])} payment(s) still unclaimed after @{outputs('Delay_days')}\nday(s).\nOpen the Payment Log registry and claim yours.</p><ul>@{variables('lines')}</ul>"
+                  }
+                },
+                "runAfter": {
+                  "Each_payment": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "actions": {}
+            },
+            "runAfter": {
+              "Initialize_variable": [
+                "Succeeded"
+              ]
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
+  "apps": []
+}
