@@ -1,7 +1,7 @@
 # Rebuild Guide: Coding Form (Simple Gift - Issue #8)
 
 ## 1. Screens & Layout
-- **Écran principal** : `Screen1` (Format Tablette 1366 × 768)[cite: 46].
+- **Écran principal** : `Screen1` (Format Tablette 1366 × 768).
 
 ### Entête
 - `rectHeaderBg` (Rectangle) : Bandeau supérieur vert foncé.
@@ -10,8 +10,8 @@
 ### Colonne de gauche (Identification Donateur & Montants)
 - **Donateur** :
   - `lblDonatorID` (Label) : Libellé « ID Donateur ».
-  - `txtConstituentId` (Text Input) : Champ de saisie pour l'identifiant donateur (7 chiffres)[cite: 52].
-  - `btnSearchDonor` (Button) : Bouton « Lookup » déclenchant la recherche via l'API RENXT[cite: 49].
+  - `txtConstituentId` (Text Input) : Champ de saisie pour l'identifiant donateur (7 chiffres).
+  - `btnSearchDonor` (Button) : Bouton « Lookup » déclenchant la recherche via l'API RENXT.
   - `lblConstituentName` (Label) : Affichage en gras du nom du donateur retourné, positionné à droite du bouton Lookup.
   - `lblDonorMsg` (Label) : Affichage des messages d'erreur ou d'alerte en rouge, situé au-dessus de la bascule.
   - `lblErrorConstituentId` (Label) : Message de validation rouge sous le champ ID donateur.
@@ -20,42 +20,59 @@
   - `btnNewDonorLink` (Button / Link) : Action d'aide à la création de fiche donateur.
 - **Montants & Calculs** :
   - `lblGiftAmount` (Label) : Libellé « Montant du don ($) ».
-  - `txtGiftAmount` (Text Input) : Saisie du montant brut du don.
+  - `txtGiftAmount` (Text Input) : Saisie du montant brut du don (laissé vide par défaut pour éviter tout enregistrement accidentel).
   - `lblFees` (Label) : Libellé « Frais ($) ».
-  - `txtFees` (Text Input) : Saisie des frais de traitement bancaire.
+  - `txtFees` (Text Input) : Saisie des frais bancaires (laissé vide par défaut).
   - `lblNetAmountText` (Label) : Libellé statique « Montant net : ».
   - `lblNetAmount` (Label) : Affichage dynamique du montant net calculé.
 
 ### Colonne de droite (Détails & Imputation comptable)
 - `lblGiftDate` (Label) : Libellé « Date du don ».
-- `dpGiftDate` (Date Picker) : Sélection de la date de réception du don[cite: 47].
+- `dpGiftDate` (Date Picker) : Sélection de la date de réception du don.
 - `lblGiftType` (Label) : Libellé « Type de don ».
-- `ddGiftType` (Dropdown) : Menu déroulant pour le type de don[cite: 47].
+- `ddGiftType` (Dropdown) : Menu déroulant pour le type de don (invite neutre par défaut).
 - `lblPaymentType` (Label) : Libellé « Mode de paiement ».
-- `ddPaymentType` (Dropdown) : Menu déroulant du mode de règlement[cite: 47].
+- `ddPaymentType` (Dropdown) : Menu déroulant du mode de règlement (invite neutre par défaut).
 - `lblCampaign` (Label) : Libellé « Campagne ».
-- `ddCampaign` (Dropdown) : Menu déroulant alimenté dynamiquement via RENXT[cite: 47, 49].
+- `ddCampaign` (Dropdown) : Menu déroulant alimenté dynamiquement via RENXT (invite neutre par défaut).
 - `lblAppeal` (Label) : Libellé « Appel ».
-- `ddAppeal` (Dropdown) : Menu déroulant alimenté dynamiquement via RENXT[cite: 47, 49].
+- `ddAppeal` (Dropdown) : Menu déroulant alimenté dynamiquement via RENXT (invite neutre par défaut).
 - `lblFunds` (Label) : Libellé « Fonds ».
-- `ddFund` (Dropdown) : Menu déroulant d'imputation comptable via RENXT[cite: 47, 49].
-- `btnSubmit` (Button) : Bouton d'enregistrement et de soumission finale[cite: 47].
+- `ddFund` (Dropdown) : Menu déroulant d'imputation comptable via RENXT (invite neutre par défaut).
+- `btnSubmit` (Button) : Bouton d'enregistrement et de soumission finale.
 
 ### Fenêtre modale de confirmation (Succès)
-- `rectOverlay` (Rectangle) : Fond grisé semi-transparent couvrant l'écran[cite: 47].
-- `rectModalCard` (Rectangle) : Carte centrale blanche du pop-up[cite: 47].
-- `lblSuccessTitle` (Label) : Titre de confirmation (« Soumission réussie »)[cite: 47].
-- `lblSuccessRef` (Label) : Affichage de la référence unique générée (`varSubmissionRef`)[cite: 47].
-- `btnClosePopup` (Button) : Bouton pour fermer la fenêtre modale[cite: 47].
+- `rectOverlay` (Rectangle) : Fond grisé semi-transparent couvrant l'écran.
+- `rectModalCard` (Rectangle) : Carte centrale blanche du pop-up.
+- `lblSuccessTitle` (Label) : Titre de confirmation (« Soumission réussie »).
+- `lblSuccessRef` (Label) : Affichage de la référence unique générée (`varSubmissionRef`).
+- `btnClosePopup` (Button) : Bouton pour fermer la fenêtre modale.
 
 ---
 
 ## 2. Business Rules & Logic
-- **Chargement dynamique RENXT (Guide Dev 2 - Section 2.2)** : Les listes `Campagne`, `Appel` et `Fonds` sont chargées dynamiquement au démarrage depuis l'API RE NXT simulée via `ClearCollect`[cite: 49]. Application du motif standard `{Value: lookup_id & " - " & description, code: lookup_id}` : l'interface affiche `Value` pour l'utilisateur et le système enregistre `code` dans SharePoint[cite: 49].
-- **Gestion et validation du donateur (Guide Dev 2 - Section 2.3)** : Validation par expression régulière (`^\d{7}$`)[cite: 52]. Déclenchement de `RENXT.SearchConstituents(txtConstituentId.Text, {search_field: "lookup_id"})` et gestion déterministe des quatre états : `found`, `notfound`, `invalid` et `error`[cite: 49, 52]. Si `tglNewDonor.Value` est activé, l'enregistrement force `Constituent ID` à `"NEW"` et `Constituent Name` à `"Nouveau donateur"`.
-- **Calcul dynamique du montant net (Guide Dev 2 - Section 2.4)** : Formule : `Value(txtGiftAmount.Text) - Value(txtFees.Text)`. Le montant brut reste intact dans `txtGiftAmount.Text`.
-- **Validation bloquante (Guide Dev 2 - Section 2.4)** : Conditionnée par la variable `varTried`. Si un champ requis est manquant ou si le donateur n'est pas validé, la soumission est bloquée, un toast d'erreur est émis et les messages d'avertissement contextuels s'affichent sous les champs[cite: 48].
-- **Liaison bidirectionnelle Payment Log & Submissions (Guide Dev 2 - Section 2.5 et Section 3)** : Lecture du paramètre d'URL `Param("paymentId")` pour préremplir le donateur, le montant et la date[cite: 48]. La soumission génère une référence unique formatée `SUB-YYYYMMDD-HHMMSS` inscrite dans `'Payment Reference'`[cite: 48]. Rétro-écriture immédiate dans la liste `MCHF - Payment Log` via `Patch` pour alimenter le champ `'Submission Reference'` avec cette clé unique[cite: 48].
+- **Formulaire vierge et absence de préremplissage par défaut** :
+  - Pour éviter qu'un utilisateur ne valide des valeurs non souhaitées par mégarde, aucun champ monétaire ni menu déroulant n'est prérempli à l'ouverture standard du formulaire.
+  - Les champs `txtGiftAmount` et `txtFees` ont une propriété `Default` vide (`""`).
+  - L'ensemble des 5 menus déroulants (`ddPaymentType`, `ddGiftType`, `ddCampaign`, `ddAppeal`, `ddFund`) s'initialisent sur une ligne d'invite neutre (`"Sélectionner..."` ou `code: ""`) sans présélection de valeur métier.
+- **Chargement dynamique RENXT (Guide Dev 2 - Section 2.2)** :
+  - Les listes `Campagne`, `Appel` et `Fonds` sont alimentées au démarrage via les appels API `RENXT.ListCampaigns()`, `ListAppeals()` et `ListFunds()`.
+  - Application du motif standard `{Value: lookup_id & " - " & description, code: lookup_id}` précédé de la ligne d'invite `{Value: "Sélectionner...", code: ""}` pour afficher une description lisible tout en stockant le code comptable.
+- **Gestion et validation du donateur (Guide Dev 2 - Section 2.3)** :
+  - Validation du format à 7 chiffres par regex (`^\d{7}$`).
+  - Requête via `RENXT.SearchConstituents(txtConstituentId.Text, {search_field: "lookup_id"})` avec bascule déterministe entre les états `found`, `notfound`, `invalid` et `error`.
+  - En mode `tglNewDonor.Value = true`, enregistrement forcé de `Constituent ID` à `"NEW"` et `Constituent Name` à `"Nouveau donateur"`.
+- **Calcul dynamique du montant net (Guide Dev 2 - Section 2.4)** :
+  - Calcul instantané : `Value(txtGiftAmount.Text) - Value(txtFees.Text)`.
+  - Préservation intégrale du montant brut saisi dans `txtGiftAmount.Text`.
+- **Validation bloquante (Guide Dev 2 - Section 2.4 & 2.5)** :
+  - La variable `varTried` passe à `true` lors du clic sur `btnSubmit`.
+  - La soumission est strictement bloquée si un donateur valide n'est pas identifié (sauf si `tglNewDonor` est actif), si le montant brut est vide ou non strictement supérieur à 0, ou si l'un des 5 menus déroulants est resté sur son invite neutre (`code: ""` ou texte d'invite).
+  - Affichage conditionnel des bandeaux et messages d'erreur rouges sous les champs en faute.
+- **Liaison bidirectionnelle Payment Log & Submissions (Guide Dev 2 - Section 2.5 et Section 3)** :
+  - Si le paramètre d'URL `Param("paymentId")` est fourni, lecture du paiement associé dans `varPaymentRecord` pour préremplir l'identifiant donateur, le montant et la date.
+  - Génération d'une référence unique au format `SUB-YYYYMMDD-HHMMSS` stockée dans `Title` et reportée dans `'Payment Reference'`.
+  - Patch réciproque sur l'enregistrement de `MCHF - Payment Log` pour inscrire cette référence dans `'Submission Reference'`.
 
 ---
 
@@ -75,10 +92,11 @@ Set(
     )
 );
 
-// 2. Initialisation des types de paiement et types de don
+// 2. Types de paiement et types de don avec invite neutre obligatoire
 ClearCollect(
     colPaymentTypes, 
     Table(
+        {Value: "Sélectionner un mode de paiement..."},
         {Value: "Personal Cheque"},
         {Value: "Credit Card"},
         {Value: "Cash"},
@@ -90,17 +108,41 @@ ClearCollect(
 ClearCollect(
     colGiftTypes, 
     Table(
+        {Value: "Sélectionner un type de don..."},
         {Value: "One-time gift"},
         {Value: "Pledge"},
         {Value: "Pledge Payment"}
     )
 );
 
-// 3. Chargement dynamique des listes RENXT (motif {Value: ..., code: ...})
+// 3. Chargement dynamique des listes RENXT précédées d'une invite neutre (code: "")
 IfError(
-    ClearCollect(colCampaigns, ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & " - " & ThisRecord.description, code: ThisRecord.lookup_id}));
-    ClearCollect(colAppeals, ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & " - " & ThisRecord.description, code: ThisRecord.lookup_id}));
-    ClearCollect(colFunds, ForAll(RENXT.ListFunds().value, {Value: ThisRecord.lookup_id & " - " & ThisRecord.description, code: ThisRecord.lookup_id})),
+    ClearCollect(
+        colCampaigns, 
+        Table({Value: "Sélectionner une campagne...", code: ""})
+    );
+    Collect(
+        colCampaigns, 
+        ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & " - " & ThisRecord.description, code: ThisRecord.lookup_id})
+    );
+
+    ClearCollect(
+        colAppeals, 
+        Table({Value: "Sélectionner un appel...", code: ""})
+    );
+    Collect(
+        colAppeals, 
+        ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & " - " & ThisRecord.description, code: ThisRecord.lookup_id})
+    );
+
+    ClearCollect(
+        colFunds, 
+        Table({Value: "Sélectionner un fonds...", code: ""})
+    );
+    Collect(
+        colFunds, 
+        ForAll(RENXT.ListFunds().value, {Value: ThisRecord.lookup_id & " - " & ThisRecord.description, code: ThisRecord.lookup_id})
+    ),
     Notify("NXT lists are unavailable. Reopen the form to retry.", NotificationType.Error)
 );
 
@@ -218,12 +260,12 @@ varTried && !tglNewDonor.Value && varDonorState <> "found"
 
 - **`txtGiftAmount.Default`** :
 ```powerfx
-If(!IsBlank(varPaymentRecord), Text(varPaymentRecord.'Gift Amount'), "100.00")
+If(!IsBlank(varPaymentRecord), Text(varPaymentRecord.'Gift Amount'), "")
 ```
 
 - **`txtFees.Default`** :
 ```powerfx
-"0.00"
+""
 ```
 
 - **`lblNetAmount.Text`** :
@@ -276,8 +318,10 @@ colFunds
 ```powerfx
 UpdateContext({ varTried: true });
 
+UpdateContext({ varTried: true });
+
 If(
-    // Contrôle des conditions obligatoires
+    // Contrôle des conditions obligatoires (champs non vides et menus sélectionnés)
     (tglNewDonor.Value || varDonorState = "found") && 
     !IsBlank(ddPaymentType.Selected.Value) && 
     !IsBlank(ddGiftType.Selected.Value) && 
@@ -311,7 +355,7 @@ If(
             Campaign: ddCampaign.Selected.code, 
             Appeal: ddAppeal.Selected.code,
             Fund: ddFund.Selected.code,
-            Processing status: {Value: "Submitted"},
+            'Processing status': {Value: "Submitted"},
             'Payment Reference': Coalesce(varPaymentRecord.Title, varPaymentIdParam, "")
         }
     );
@@ -338,7 +382,7 @@ If(
         varTried: false 
     }),
 
-    // Notification si le formulaire est invalide
+    // Notification si le formulaire est incomplet ou invalide
     Notify("Some fields need your attention.", NotificationType.Error)
 )
 ```
@@ -390,12 +434,13 @@ UpdateContext({ varShowSuccessPopup: false })
 ---
 
 ## 4. Tests & Acceptance Criteria Validation
+- **Formule vierge au démarrage** : Sans paramètre d'URL, les champs montant et frais sont vides et les menus déroulants affichent leur état initial vide sans valeur par défaut.
 - **Résolution Connexion RENXT (Erreur 401)** : Connexion autorisée avec succès dans l'environnement Établi ; chargement automatique des listes au démarrage sans avertissement[cite: 50].
 - **Listes d'imputation dynamiques** : `ddCampaign`, `ddAppeal` et `ddFund` affichent les codes et libellés réels (`AC-2025-2026...`, `EV-GOLF-2026...`, `HA-GENE0001...`).
 - **Lookup Donateur** :
   - Saisie de `12345` : Message d'erreur « Enter the 7-digit Constituent ID. »[cite: 52].
   - Saisie de `1234567` : Récupération confirmée du donateur `Camille Exemple` affiché sans superposition[cite: 52].
-- **Calcul net** : Montant net calculé dynamiquement à $97.50 (100.00$ de don brut et 2.50$ de frais), le montant brut restant intact à 100.00$.
+- **Calcul net** : Montant net calculé dynamiquement à 97.50$ (100.00$ de don brut et 2.50$ de frais), le montant brut restant intact à 100.00$.
 - **Validation bloquante** : Blocage vérifié lors d'une tentative de soumission sans donateur validé ou sans sélection d'options.
 - **Liaison Payment Log** : Rétro-écriture validée de `SUB-YYYYMMDD-HHMMSS` dans la colonne `'Submission Reference'` de `MCHF - Payment Log`.
 
