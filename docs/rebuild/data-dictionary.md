@@ -16,7 +16,7 @@ Stores one record per coded donation submitted by fundraisers.
 | Display Name | Internal Name (Backend / Flows) | Établi / SharePoint Type | Required | Source / Options | Validation & Business Rules |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Title** | `Title` | Single line of text | Yes | System generated | Format: `SUB-00001` (assigned post-creation as `SUB-` + 5-digit ID). Temporary value `"NEW"` on initial save. Max 255 chars. |
-| **Constituent ID** | `ConstituentID` | Single line of text | Yes*|User Input|Exactly 7 numeric digits (`\d{7}`).Max 7 chars.*Optional only if "New donor" = Yes. |
+| **Constituent ID** | `ConstituentID` | Single line of text | Yes*|User Input|Exactly 7 numeric digits (`\d{7}`).Max 7 chars.*Optional only if "New donor" = Yes. Not required at list level (a list column cannot be required on a condition): the coding form enforces it, and a new donor's submission is saved without it (PRD acceptance #19). |
 | **Constituent Name** | `ConstituentName` | Single line of text | Yes | RE NXT lookup | Populated automatically via constituent lookup. |
 | **Constituent System ID** | `Constituent_x0020_System_x0020_I` | Single line of text | No | RE NXT lookup | Numerical SKY API internal system ID (e.g. `11001`). Used by backend flows. |
 | **Payment Type** | `Payment_x0020_Type` | Single line of text | Yes | `MCHF Payment Types` | Selected from active options. For pledges, represents the intended future payment method. |
