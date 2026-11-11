@@ -1,0 +1,358 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "mchf-reminder",
+  "exportedAt": "2026-11-10T22:45:40Z",
+  "lists": [
+    {
+      "key": "9408f077-e995-42fa-a34b-36563d0eef57",
+      "name": "MCHF - Settings",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "SettingValue",
+          "displayName": "Setting Value",
+          "type": "number",
+          "required": true,
+          "min": 0
+        }
+      ],
+      "items": [
+        {
+          "Title": "UnclaimedReminderDays",
+          "SettingValue": 3
+        }
+      ]
+    },
+    {
+      "key": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
+      "name": "MCHF - Payment Log",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "PaymentType",
+          "displayName": "Payment Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "GiftDate",
+          "displayName": "Gift Date",
+          "type": "date",
+          "required": true,
+          "dateOnly": true
+        },
+        {
+          "name": "GiftAmount",
+          "displayName": "Gift Amount",
+          "type": "currency",
+          "required": true,
+          "min": 0.01,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "GiftType",
+          "displayName": "Gift Type",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "AssignedSolicitor",
+          "displayName": "Assigned Solicitor",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Notes",
+          "displayName": "Notes",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "Reference",
+          "displayName": "Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Status",
+          "displayName": "Status",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "Claimed",
+            "Unclaimed",
+            "Coded"
+          ],
+          "defaultValue": "Unclaimed"
+        },
+        {
+          "name": "ClaimedByName",
+          "displayName": "Claimed By Name",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "SubmissionReference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "items": [
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00012",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00013",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00014",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Reference test",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-05",
+          "GiftAmount": 100,
+          "Reference": "PAY-00015",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Test 15",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-02",
+          "GiftAmount": 100,
+          "Reference": "PAY-00016",
+          "Status": "Coded",
+          "ClaimedByName": "Yanis",
+          "SubmissionReference": "SUB-TEST15A",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Test 15 reject",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-02",
+          "GiftAmount": 100,
+          "Reference": "PAY-00017",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "key": "633a79e2-ea5a-4b7f-9165-00fc46989326",
+      "name": "MCHF - Unclaimed Reminder",
+      "description": "",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "Recurrence": {
+            "type": "Recurrence",
+            "recurrence": {
+              "frequency": "Day",
+              "interval": 1,
+              "schedule": {
+                "hours": [
+                  9
+                ],
+                "minutes": [
+                  0
+                ]
+              },
+              "timeZone": "Eastern Standard Time"
+            }
+          }
+        },
+        "actions": {
+          "Get_settings": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "9408f077-e995-42fa-a34b-36563d0eef57",
+                "$filter": "Title eq 'UnclaimedReminderDays'"
+              }
+            },
+            "runAfter": {}
+          },
+          "Delay_days": {
+            "type": "Compose",
+            "inputs": "@int(first(outputs('Get_settings')?['body/value'])?['SettingValue'])",
+            "runAfter": {
+              "Get_settings": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Cutoff": {
+            "type": "Compose",
+            "inputs": "@addDays(utcNow(), mul(-1, outputs('Delay_days')))",
+            "runAfter": {
+              "Delay_days": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Get_overdue_payments": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
+                "$filter": "Status eq 'Unclaimed' and Created le '@{outputs('Cutoff')}'",
+                "$orderby": "Created asc"
+              }
+            },
+            "runAfter": {
+              "Cutoff": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_variable": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "lines",
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            },
+            "runAfter": {
+              "Get_overdue_payments": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Any_overdue": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "greater": [
+                    "@length(outputs('Get_overdue_payments')?['body/value'])",
+                    0
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "Each_payment": {
+                "type": "Foreach",
+                "foreach": "@outputs('Get_overdue_payments')?['body/value']",
+                "actions": {
+                  "Append_to_string_variable": {
+                    "type": "AppendToStringVariable",
+                    "inputs": {
+                      "name": "lines",
+                      "value": "<li>@{coalesce(items('Each_payment')?['Reference'], concat('ID ', items('Each_payment')?['ID']))} · @{items('Each_payment')?['ConstituentName']} · @{items('Each_payment')?['GiftAmount']} $ · logged @{formatDateTime(items('Each_payment')?['Created'], 'yyyy-MM-dd')}</li>"
+                    },
+                    "runAfter": {}
+                  }
+                },
+                "runAfter": {}
+              },
+              "Post_reminder": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_teams",
+                    "connectionName": "shared_teams",
+                    "operationId": "PostMessageToConversation"
+                  },
+                  "parameters": {
+                    "poster": "Flow bot",
+                    "location": "Channel",
+                    "body/recipient/groupId": "MCHF Lab",
+                    "body/recipient/channelId": "Fundraisers",
+                    "body/messageBody": "<p>@{length(outputs('Get_overdue_payments')?['body/value'])} payment(s) still unclaimed after @{outputs('Delay_days')}\nday(s).\nOpen the Payment Log registry and claim yours.</p><ul>@{variables('lines')}</ul>"
+                  }
+                },
+                "runAfter": {
+                  "Each_payment": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "actions": {}
+            },
+            "runAfter": {
+              "Initialize_variable": [
+                "Succeeded"
+              ]
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
+  "apps": []
+}

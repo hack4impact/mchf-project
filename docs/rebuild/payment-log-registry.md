@@ -1,6 +1,7 @@
 # Payment Log — Data and Rules
 
 Related issue: [#3](https://github.com/hack4impact/mchf-project/issues/3)
+Related issue: [#24](https://github.com/hack4impact/mchf-project/issues/24) 
 
 ## List
 
@@ -163,21 +164,65 @@ submission currently linked to the payment.
 
 ## Reminder rule
 
-A reminder applies when a payment remains Unclaimed longer than
-a configurable delay, measured from when the payment was logged.
+Implemented in issue #24.
 
-Proposed configuration:
-- Setting name: UnclaimedReminderDays
-- Location: a shared configuration list
-- Initial value: 3 days
-- Recipients: to be confirmed
+The flow `MCHF - Unclaimed reminder` runs daily at 9 a.m. Eastern time.
+It selects Unclaimed payments whose Created date is at or before
+the current time minus the configured delay.
 
-The location and initial delay are proposals requiring team confirmation.
+### Settings
 
-The reminder should include the payment reference and direct recipients
-to the Payment Log Register.
+List: `MCHF - Settings`
 
-Reminder automation has not been implemented in this issue.
+| Internal name | Display name | Type | Required | Default |
+|---|---|---|---|---|
+| Title | Titre | Single line of text | Yes | None |
+| SettingValue | Setting Value | Number, minimum 0, no decimals | Yes | None |
+
+The list contains one setting:
+- Title: `UnclaimedReminderDays`
+- Setting Value: `3`
+
+Create SettingValue without spaces first, then rename it to Setting Value.
+The delay can be changed in this list without editing the flow.
+
+### Flow steps
+
+| Card | Action | Purpose |
+|---|---|---|
+| Recurrence | Scheduled trigger | Every day at 9:00, Eastern Standard Time |
+| Get settings | Get items | Read the UnclaimedReminderDays setting |
+| Delay days | Compose | Convert SettingValue to a number |
+| Cutoff | Compose | Subtract the delay from the current time |
+| Get overdue payments | Get items | Select Unclaimed payments at or before the cutoff, ordered by Created ascending |
+| Initialize variable | Initialize variable | Create an empty String variable named lines |
+| Any overdue | Condition | Check whether any payments were found |
+| Each payment | Apply to each | In Si oui, append each payment's details to lines |
+| Post reminder | Post message in a chat or channel | After the loop, post one message as Flow bot |
+
+Si non is empty, so no message is posted when no payments are overdue.
+
+### Reminder message
+
+Lab destination: Teams channel `MCHF Lab / Fundraisers`.
+
+The message includes the payment count, configured delay, and each
+payment's reference, constituent name, amount and Created date.
+If a reference is missing, the payment's ID is shown instead.
+
+It directs fundraisers to open the Payment Log registry and claim
+their payments. Production recipients remain to be confirmed with Marc.
+
+### Reminder tests
+
+| Test | Result |
+|---|---|
+| Delay 0 lists every Unclaimed payment and only those | Passed |
+| Changing a payment to Claimed excludes it from the next reminder | Passed |
+| No payments past the delay results in no new Teams message | Passed |
+| Changing the setting changes the results without editing the flow | Passed |
+
+The delay was restored to 3 after testing.
 
 ## Tests
 
@@ -196,8 +241,9 @@ All tests used fictional data in Établi.
 - Rebuild document: docs/rebuild/payment-log-registry.md
 - Lab export committed under lab/solutions/
 - Branch: feature/3-payment-log-data-and-rules
+- Reminder export: lab/solutions/mchf-reminder.solution.json
+- Reminder branch: feature/24-unclaimed-reminder
 
 ## Remaining work
 
-- Confirm shared field names and the submission reference format
-  with Dev 2's completed data dictionary.
+N/A
