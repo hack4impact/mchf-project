@@ -1,8 +1,8 @@
 {
   "format": "lowcode-lab-solution",
   "version": 1,
-  "name": "Ma solution",
-  "exportedAt": "2026-11-09T04:10:50Z",
+  "name": "MCHF-Review-Approval",
+  "exportedAt": "2026-11-12T05:49:53Z",
   "lists": [
     {
       "key": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
@@ -20,7 +20,7 @@
           "name": "ConstituentID",
           "displayName": "Constituent ID",
           "type": "text",
-          "required": true,
+          "required": false,
           "maxLength": 7
         },
         {
@@ -509,13 +509,13 @@
                   },
                   "parameters": {
                     "table": "9dbb055f-d506-4abc-8044-eed4f5659e36",
-                    "item/Title": "Recording result ",
                     "item/SubmissionReference": "@outputs('Get_submission')?['body/Title']",
                     "item/FromStatus": "Recording in Progress",
                     "item/ToStatus": "Added to NXT Batch",
                     "item/ActorEmail": "System",
                     "item/Comment": "@{body('Record_in_NXT')?['detail']}",
-                    "item/ActionAt": "@{utcNow()}"
+                    "item/ActionAt": "@{utcNow()}",
+                    "item/Title": "Recording result"
                   }
                 },
                 "runAfter": {
@@ -701,7 +701,7 @@
                 "type": "Button",
                 "properties": {
                   "X": "640",
-                  "Y": "40",
+                  "Y": "480",
                   "Width": "120",
                   "Height": "40",
                   "Visible": "varSel.'Processing status'.Value = \"Submitted\"",
@@ -800,11 +800,473 @@
                   "OnSelect": "If(IsBlank(txtComment.Text),   Notify(\"Write why the submission is cancelled.\", NotificationType.Error),   Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Cancel\",     'Submission Reference': varSel.Title, 'From Status': varSel.'Processing status'.Value, 'To Status': \"Cancelled\",     Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});   Set(varSel, Patch('MCHF Submissions', varSel, {'Processing status': {Value: \"Cancelled\"},     'Review Comment': txtComment.Text}));   If(!IsBlank(varSel.'Payment Reference'),     Patch('MCHF - Payment Log', LookUp('MCHF - Payment Log', Reference = varSel.'Payment Reference'),       {Status: {Value: \"Unclaimed\"}, 'Claimed By Name': \"\", 'Submission Reference': \"\"}));   Reset(txtComment);   Notify(\"Cancelled.\", NotificationType.Success))"
                 },
                 "children": []
+              },
+              {
+                "name": "btnToReturned",
+                "type": "Button",
+                "properties": {
+                  "X": "1140",
+                  "Y": "690",
+                  "Width": "180",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"My returned submissions\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Navigate(scrReturned)"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "name": "scrReturned",
+            "properties": {
+              "Fill": "RGBA(255, 255, 255, 1)",
+              "OnVisible": ""
+            },
+            "controls": [
+              {
+                "name": "galReturned",
+                "type": "Gallery",
+                "properties": {
+                  "X": "40",
+                  "Y": "40",
+                  "Width": "560",
+                  "Height": "690",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "Filter('MCHF Submissions', 'Processing status'.Value = \"Needs Information\" && Author.Email = User().Email)",
+                  "TemplateSize": "80",
+                  "TemplateFill": "RGBA(0, 0, 0, 0)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "OnSelect": "false"
+                },
+                "children": [
+                  {
+                    "name": "Title2",
+                    "type": "Label",
+                    "properties": {
+                      "X": "16",
+                      "Y": "8",
+                      "Width": "360",
+                      "Height": "32",
+                      "Text": "ThisItem.Title",
+                      "Size": "14",
+                      "FontWeight": "FontWeight.Semibold"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "Subtitle2",
+                    "type": "Label",
+                    "properties": {
+                      "X": "16",
+                      "Y": "40",
+                      "Width": "360",
+                      "Height": "28",
+                      "Text": "ThisItem.'Constituent Name' & \" · \" & Text(ThisItem.'Gift Amount') & \" $\"",
+                      "Size": "12"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "name": "lblRetComment",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "40",
+                  "Width": "680",
+                  "Height": "120",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(IsBlank(galReturned.Selected), \"Select a returned submission.\",   galReturned.Selected.Title & \" was returned by Gift Processing:\" & Char(10) & galReturned.Selected.'Review Comment')",
+                  "Color": "RGBA(164, 38, 44, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle",
+                  "OnSelect": "false"
+                },
+                "children": []
+              },
+              {
+                "name": "lblRetAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "180",
+                  "Width": "200",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Gift amount\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtRetAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "860",
+                  "Y": "180",
+                  "Width": "300",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(IsBlank(galReturned.Selected), \"\", Text(galReturned.Selected.'Gift Amount', \"0.00\"))",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblRetCampaign",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "240",
+                  "Width": "200",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Campaign\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtRetCampaign",
+                "type": "TextInput",
+                "properties": {
+                  "X": "860",
+                  "Y": "240",
+                  "Width": "300",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "galReturned.Selected.Campaign",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblRetAppeal",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "300",
+                  "Width": "200",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Appeal\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtRetAppeal",
+                "type": "TextInput",
+                "properties": {
+                  "X": "860",
+                  "Y": "300",
+                  "Width": "300",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "galReturned.Selected.Appeal",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "btnResubmit",
+                "type": "Button",
+                "properties": {
+                  "X": "640",
+                  "Y": "380",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Resubmit\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With({amt: Trim(txtRetAmount.Text)},   If(IsBlank(galReturned.Selected),       Notify(\"Select a returned submission.\", NotificationType.Error),     !IsMatch(amt, \"^\\d+(\\.\\d{1,2})?$\") || Value(amt) <= 0,       Notify(\"Gift amount: a number more than 0, for example 100.00.\", NotificationType.Error),     IsBlank(Trim(txtRetCampaign.Text)) || IsBlank(Trim(txtRetAppeal.Text)),       Notify(\"Campaign and appeal are required.\", NotificationType.Error),     Refresh('MCHF Submissions'); Refresh('MCHF Fund Lines');     With({cur: LookUp('MCHF Submissions', ID = galReturned.Selected.ID),           lines: Filter('MCHF Fund Lines', 'Submission Reference' = galReturned.Selected.Title)},       If(cur.'Processing status'.Value <> \"Needs Information\",           Notify(cur.Title & \" is now \" & cur.'Processing status'.Value & \". Nothing was changed.\", NotificationType.Error),         Value(amt) <> cur.'Gift Amount' && CountRows(lines) > 1,           Notify(\"This gift is split across several funds. Ask Gift Processing before changing the amount.\", NotificationType.Error),         Value(amt) < Coalesce(cur.Fees, 0),           Notify(\"The gift amount can't be less than the fees (\" & Text(cur.Fees) & \").\", NotificationType.Error),         Patch('MCHF Submissions', cur, {'Gift Amount': Value(amt),           'Net Amount': Value(amt) - Coalesce(cur.Fees, 0),           Campaign: Trim(txtRetCampaign.Text), Appeal: Trim(txtRetAppeal.Text),           'Processing status': {Value: \"Submitted\"}});         If(CountRows(lines) = 1, Patch('MCHF Fund Lines', First(lines), {Amount: Value(amt)}));         Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Resubmit\",           'Submission Reference': cur.Title, 'From Status': \"Needs Information\", 'To Status': \"Submitted\",           Comment: \"Amount \" & Text(cur.'Gift Amount') & \" → \" & amt & \"; Campaign \" & cur.Campaign & \" → \" & Trim(txtRetCampaign.Text) & \"; Appeal \" & cur.Appeal & \" → \" & Trim(txtRetAppeal.Text),           'Actor Email': User().Email, 'Action At': Now()});         Refresh('MCHF Submissions');         Notify(cur.Title & \" was resubmitted.\", NotificationType.Success)))))"
+                },
+                "children": []
+              },
+              {
+                "name": "btnToReview",
+                "type": "Button",
+                "properties": {
+                  "X": "1140",
+                  "Y": "690",
+                  "Width": "180",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Back to review\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Navigate(scrReview)"
+                },
+                "children": []
               }
             ]
           }
         ],
         "dataSources": [
+          {
+            "kind": "list",
+            "name": "MCHF - Payment Log",
+            "id": "ca35538f-cb37-45df-a763-dc87b3fa5395",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentID",
+                "displayName": "Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PaymentType",
+                "displayName": "Payment Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftDate",
+                "displayName": "Gift Date",
+                "type": "date",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftAmount",
+                "displayName": "Gift Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftType",
+                "displayName": "Gift Type",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AssignedSolicitor",
+                "displayName": "Assigned Solicitor",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Notes",
+                "displayName": "Notes",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Reference",
+                "displayName": "Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Status",
+                "displayName": "Status",
+                "type": "choice",
+                "multiple": false,
+                "required": true,
+                "choices": [
+                  "Claimed",
+                  "Unclaimed",
+                  "Coded"
+                ],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedByName",
+                "displayName": "Claimed By Name",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "SubmissionReference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF Fund Lines",
+            "id": "240294e9-4751-4259-8c04-cd2c60fd746f",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Submission",
+                "displayName": "Submission",
+                "type": "lookup",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": "8739ddec-2c50-4b13-b7e1-9a09019faa77"
+              },
+              {
+                "name": "Submission_x0020_Reference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Amount",
+                "displayName": "Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "flow",
+            "name": "MCHF-ApproveGift",
+            "id": "76880ab5-ccb1-4c74-a932-e6683c78c8b6",
+            "inputs": [
+              {
+                "name": "number",
+                "type": "number",
+                "required": true
+              }
+            ],
+            "outputs": [
+              {
+                "name": "text",
+                "type": "text",
+                "required": false
+              }
+            ]
+          },
           {
             "kind": "list",
             "name": "MCHF Submissions",
@@ -824,7 +1286,7 @@
                 "displayName": "Constituent ID",
                 "type": "text",
                 "multiple": false,
-                "required": true,
+                "required": false,
                 "choices": [],
                 "lookupListId": null
               },
@@ -1095,196 +1557,6 @@
                 "required": true,
                 "choices": [],
                 "lookupListId": null
-              }
-            ]
-          },
-          {
-            "kind": "list",
-            "name": "MCHF - Payment Log",
-            "id": "ca35538f-cb37-45df-a763-dc87b3fa5395",
-            "columns": [
-              {
-                "name": "Title",
-                "displayName": "Titre",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "ConstituentID",
-                "displayName": "Constituent ID",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "PaymentType",
-                "displayName": "Payment Type",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "GiftDate",
-                "displayName": "Gift Date",
-                "type": "date",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "GiftAmount",
-                "displayName": "Gift Amount",
-                "type": "currency",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "GiftType",
-                "displayName": "Gift Type",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "AssignedSolicitor",
-                "displayName": "Assigned Solicitor",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Notes",
-                "displayName": "Notes",
-                "type": "note",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Reference",
-                "displayName": "Reference",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Status",
-                "displayName": "Status",
-                "type": "choice",
-                "multiple": false,
-                "required": true,
-                "choices": [
-                  "Claimed",
-                  "Unclaimed",
-                  "Coded"
-                ],
-                "lookupListId": null
-              },
-              {
-                "name": "ClaimedByName",
-                "displayName": "Claimed By Name",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "SubmissionReference",
-                "displayName": "Submission Reference",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "ConstituentName",
-                "displayName": "Constituent Name",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              }
-            ]
-          },
-          {
-            "kind": "list",
-            "name": "MCHF Fund Lines",
-            "id": "240294e9-4751-4259-8c04-cd2c60fd746f",
-            "columns": [
-              {
-                "name": "Title",
-                "displayName": "Titre",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Submission",
-                "displayName": "Submission",
-                "type": "lookup",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": "8739ddec-2c50-4b13-b7e1-9a09019faa77"
-              },
-              {
-                "name": "Submission_x0020_Reference",
-                "displayName": "Submission Reference",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Amount",
-                "displayName": "Amount",
-                "type": "currency",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              }
-            ]
-          },
-          {
-            "kind": "flow",
-            "name": "MCHF-ApproveGift",
-            "id": "76880ab5-ccb1-4c74-a932-e6683c78c8b6",
-            "inputs": [
-              {
-                "name": "number",
-                "type": "number",
-                "required": true
-              }
-            ],
-            "outputs": [
-              {
-                "name": "text",
-                "type": "text",
-                "required": false
               }
             ]
           }

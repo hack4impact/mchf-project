@@ -102,7 +102,7 @@ Coded means approved, not added to NXT (see #3).
 |---|---|---|
 | Submitted | Claim submission, Cancel | Cancel |
 | Under Review | Correct, Return with comment, Reject, Approve, Cancel | None |
-| Needs Information | Cancel | Resubmit (in the coding form), Cancel |
+| Needs Information | Cancel | Resubmit (screen "My returned submissions" of MCHF - Review, #15), Cancel |
 | Recording in Progress | None | None |
 | Transfer Failed | "Gift is in NXT"; "Gift is not in NXT, record again" | None |
 | Added to NXT Batch, Rejected, Cancelled | None | None |

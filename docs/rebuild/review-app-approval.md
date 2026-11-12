@@ -8,6 +8,8 @@ Gift Processing reviews a submission in the app **MCHF - Review**: claim,
 return with a comment, reject, approve or cancel. Approve calls the flow
 **MCHF - ApproveGift**, which saves the audit PDF (#11), then calls the
 recording flow of #13 and writes Added to NXT Batch or Transfer Failed.
+A second screen of the same app lets the fundraiser fix a returned
+submission and resubmit it.
 
 The statuses and transitions come from `review-audit.md` (#4). The PDF
 template comes from `audit-pdf.md` (#11). The recording flow is described
@@ -34,7 +36,8 @@ The app uses display names. The flow uses internal names
 
 Flows › Nouveau flow in Équipe, name `MCHF - ApproveGift`, trigger **When
 Power Apps calls a flow (V2)** with a **Nombre** input named
-`SubmissionId`. In the app the flow appears as `'MCHF-ApproveGift'`.
+`SubmissionID`. Picked with ⚡, it is written `@triggerBody()?['number']`.
+In the app the flow appears as `'MCHF-ApproveGift'`.
 
 Rename every card as in the table: the expressions use those names. A card
 added in the wrong place (inside or outside the loop) cannot be moved in
@@ -43,8 +46,8 @@ the lab: delete it and add it again with the right **+**.
 | Card (renamed) | Action | Key settings |
 |---|---|---|
 | Answer the app | Respond to a PowerApp or flow | First action. One text output, value `started`. The app gets its answer at once and doesn't wait for the Delay |
-| Get submission | Get item | `MCHF Submissions`, Id = `SubmissionId` (picked with ⚡) |
-| Get fund lines | Get items | `MCHF Fund Lines`, filter `Submission_x0020_Reference eq '@{body('Get_submission')?['Title']}'` (no space before the closing `'`) |
+| Get submission | Get item | `MCHF Submissions`, Id = `SubmissionID` (picked with ⚡) |
+| Get fund lines | Get items | `MCHF Fund Lines`, filter `Submission_x0020_Reference eq '@{outputs('Get_submission')?['body/Title']}'` (no space before the closing `'`) |
 | Initialize variable | Initialize variable | `rows`, String, empty |
 | Initialize variable 2 | Initialize variable | `total`, Float, `0` |
 | Each line | Apply to each | `@outputs('Get_fund_lines')?['body/value']` |
@@ -56,12 +59,12 @@ the lab: delete it and add it again with the right **+**.
 | To PDF | OneDrive for Business, Convert file | File `@outputs('Create_HTML_file')?['body/Id']`, target type PDF |
 | Create PDF file | SharePoint, Create file | Site: environment of the flow, folder `/MCHF - Audit documents`, name `@{outputs('Create_HTML_file')?['body/NameNoExt']}.pdf`, content `@body('To_PDF')` |
 | Get link | Get file properties | Library `MCHF - Audit documents`, Id `@outputs('Create_PDF_file')?['body/ItemId']` |
-| Save link | Update item | `MCHF Submissions`, Id = `SubmissionId`, Audit PDF = `@{outputs('Get_link')?['body/{Link}']}`. Every other field empty |
-| Record in NXT | Run a Child Flow | Child flow `MCHF - Record gift in NXT` (#13), SubmissionId = `SubmissionId` |
+| Save link | Update item | `MCHF Submissions`, Id = `SubmissionID`, Audit PDF = `@{outputs('Get_link')?['body/{Link}']}`. Every other field empty |
+| Record in NXT | Run a Child Flow | Child flow `MCHF - Record gift in NXT` (#13), its input SubmissionId = `SubmissionID` of the trigger |
 | Added | Condition | `@equals(body('Record_in_NXT')?['outcome'], 'success')`. **Configure run after**: Record in NXT *is successful*, *has failed*, *has timed out* |
-| Set added (Added, yes) | Update item | `MCHF Submissions`, Id = `SubmissionId`, Processing status = `Added to NXT Batch` |
+| Set added (Added, yes) | Update item | `MCHF Submissions`, Id = `SubmissionID`, Processing status = `Added to NXT Batch` |
 | History added (Added, yes) | Create item | `MCHF - Submission History`, see below |
-| Set failed (Added, no) | Update item | `MCHF Submissions`, Id = `SubmissionId`, Processing status = `Transfer Failed` |
+| Set failed (Added, no) | Update item | `MCHF Submissions`, Id = `SubmissionID`, Processing status = `Transfer Failed` |
 | History failed (Added, no) | Create item | `MCHF - Submission History`, see below |
 
 The two history rows:
@@ -69,7 +72,7 @@ The two history rows:
 | Field | History added | History failed |
 |---|---|---|
 | Title | `Recording result` | `Recording result` |
-| Submission Reference | `@{body('Get_submission')?['Title']}` | same |
+| Submission Reference | `@outputs('Get_submission')?['body/Title']` | same |
 | From Status | `Recording in Progress` | `Recording in Progress` |
 | To Status | `Added to NXT Batch` | `Transfer Failed` |
 | Actor Email | `System` | `System` |
@@ -269,6 +272,73 @@ If(IsBlank(txtComment.Text),
   Notify("Cancelled.", NotificationType.Success))
 ```
 
+`btnToReturned` (on `scrReview`): Text `"My returned submissions"`, X 1140,
+Y 690, Width 180, Height 40, OnSelect `Navigate(scrReturned)`.
+
+### Fundraiser screen: scrReturned (T5)
+
+The fundraiser sees their own submissions in Needs Information, reads the
+comment of Gift Processing, fixes the amount, campaign or appeal, and
+resubmits. The coding form of #8 is not changed.
+
+| Control | Settings |
+|---|---|
+| Gallery `galReturned` | X 40, Y 40, Width 560, Height 690. Items `Filter('MCHF Submissions', 'Processing status'.Value = "Needs Information" && Author.Email = User().Email)` |
+| Label `Title2` (in galReturned) | Text `ThisItem.Title` |
+| Label `Subtitle2` (in galReturned) | Text `ThisItem.'Constituent Name' & " · " & Text(ThisItem.'Gift Amount') & " $"` |
+| Label `lblRetComment` | X 640, Y 40, Width 680, Height 120, Color `RGBA(164, 38, 44, 1)`. Text below |
+| Labels `lblRetAmount`, `lblRetCampaign`, `lblRetAppeal` | X 640, Y 180 / 240 / 300, Width 200, Height 40. Text `"Gift amount"`, `"Campaign"`, `"Appeal"` |
+| Text input `txtRetAmount` | X 860, Y 180, Width 300, Height 40. Default `If(IsBlank(galReturned.Selected), "", Text(galReturned.Selected.'Gift Amount', "0.00"))` |
+| Text inputs `txtRetCampaign`, `txtRetAppeal` | X 860, Y 240 / 300, Width 300, Height 40. Default `galReturned.Selected.Campaign` / `galReturned.Selected.Appeal` |
+| Button `btnResubmit` | Text `"Resubmit"`, X 640, Y 380, Width 160, Height 40. OnSelect below |
+| Button `btnToReview` | Text `"Back to review"`, X 1140, Y 690, Width 180, Height 40. OnSelect `Navigate(scrReview)` |
+
+Every control of the screen reads `galReturned.Selected` (no variable). In
+the lab, `Filter` takes a single condition: join conditions with `&&`.
+
+`lblRetComment.Text`:
+
+```
+If(IsBlank(galReturned.Selected), "Select a returned submission.",
+  galReturned.Selected.Title & " was returned by Gift Processing:" & Char(10) & galReturned.Selected.'Review Comment')
+```
+
+`btnResubmit.OnSelect`. It checks the fields, reads the submission again to
+make sure it is still in Needs Information, refuses an amount change on a
+gift split across several funds and an amount below the fees, then saves,
+updates the single fund line, and adds one history row with the old and new
+values:
+
+```
+With({amt: Trim(txtRetAmount.Text)},
+  If(IsBlank(galReturned.Selected),
+      Notify("Select a returned submission.", NotificationType.Error),
+    !IsMatch(amt, "^\d+(\.\d{1,2})?$") || Value(amt) <= 0,
+      Notify("Gift amount: a number more than 0, for example 100.00.", NotificationType.Error),
+    IsBlank(Trim(txtRetCampaign.Text)) || IsBlank(Trim(txtRetAppeal.Text)),
+      Notify("Campaign and appeal are required.", NotificationType.Error),
+    Refresh('MCHF Submissions'); Refresh('MCHF Fund Lines');
+    With({cur: LookUp('MCHF Submissions', ID = galReturned.Selected.ID),
+          lines: Filter('MCHF Fund Lines', 'Submission Reference' = galReturned.Selected.Title)},
+      If(cur.'Processing status'.Value <> "Needs Information",
+          Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error),
+        Value(amt) <> cur.'Gift Amount' && CountRows(lines) > 1,
+          Notify("This gift is split across several funds. Ask Gift Processing before changing the amount.", NotificationType.Error),
+        Value(amt) < Coalesce(cur.Fees, 0),
+          Notify("The gift amount can't be less than the fees (" & Text(cur.Fees) & ").", NotificationType.Error),
+        Patch('MCHF Submissions', cur, {'Gift Amount': Value(amt),
+          'Net Amount': Value(amt) - Coalesce(cur.Fees, 0),
+          Campaign: Trim(txtRetCampaign.Text), Appeal: Trim(txtRetAppeal.Text),
+          'Processing status': {Value: "Submitted"}});
+        If(CountRows(lines) = 1, Patch('MCHF Fund Lines', First(lines), {Amount: Value(amt)}));
+        Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Resubmit",
+          'Submission Reference': cur.Title, 'From Status': "Needs Information", 'To Status': "Submitted",
+          Comment: "Amount " & Text(cur.'Gift Amount') & " → " & amt & "; Campaign " & cur.Campaign & " → " & Trim(txtRetCampaign.Text) & "; Appeal " & cur.Appeal & " → " & Trim(txtRetAppeal.Text),
+          'Actor Email': User().Email, 'Action At': Now()});
+        Refresh('MCHF Submissions');
+        Notify(cur.Title & " was resubmitted.", NotificationType.Success)))))
+```
+
 ## 5. Differences with the Dev 4 guide
 
 | Guide | What was built | Why |
@@ -279,6 +349,8 @@ If(IsBlank(txtComment.Text),
 | Reject clears `'Claimed By Email'` | Not cleared | The Payment Log has no such column |
 | `Set(varSel, ThisItem)` on the gallery | `Set(varSel, galSubs.Selected)` | `ThisItem` isn't recognized there in the lab |
 | Run a Child Flow "added later" | Available | Used here and in test 14 of #13 |
+| Issue: a "fix a returned submission" mode in the coding form of #8 | The screen `scrReturned` in `MCHF - Review` | The coding form stays as #8 left it. The guide also allows a simple fundraiser screen |
+| Issue: "the flow sets the status to Recording in Progress" | The app sets it, before calling the flow | As in the guide and `review-audit.md` (T7): the status is right even before the flow starts |
 
 ## 6. Tests
 
@@ -296,11 +368,27 @@ fund line of $100 with the same Submission Reference.
 | 6 | Reject without a comment (`SUB-TEST15R`) | Passed: error message, status unchanged |
 | 7 | Reject with a comment (`SUB-TEST15R`, `PAY-00017`) | Passed: Rejected, Review Comment saved, no buttons left. `PAY-00017` is Unclaimed, Claimed By Name and Submission Reference empty |
 | 8 | Return with a comment (`SUB-TEST15N`) | Passed: Needs Information, Review Comment saved, only Cancel left |
+| 9 | My returned submissions, `SUB-TEST15N`, Appeal `MG-I-2026` → `MG-I-2026-B`, Resubmit | Passed: the comment shows in red, Submitted, the submission leaves the list, history row "Resubmit" with "Appeal MG-I-2026 → MG-I-2026-B" |
+| 10 | Claim, then Return, on a new-donor submission without Constituent ID (`SUB-TEST15D`) | Passed after the list was added again in Données (section 7) |
+| 11 | My returned submissions | Passed: only the returned submissions created by the user (`SUB-TEST15D`), not `SUB-TEST15N` once resubmitted |
+| 12 | Resubmit `SUB-TEST15D` (fees $5) with a gift amount of 3 | Passed: "The gift amount can't be less than the fees (5).", nothing saved |
+| 13 | Cancel `SUB-TEST15D` from Needs Information (`PAY-00017`) | Passed: Cancelled, `PAY-00017` is Unclaimed, Claimed By Name and Submission Reference empty |
 
 ## 7. Limits
 
-- The app doesn't refresh by itself (no `Refresh` in the lab). Reopen it
-  about 2 minutes after Approve to see the result of the flow.
+- The review screen doesn't refresh by itself. Reopen the app about 2
+  minutes after Approve to see the result of the flow. `Refresh` now exists
+  in the lab (used by Resubmit); the review buttons get it in #27.
+- Resubmit can change only the amount, the campaign and the appeal. Its
+  history comment lists the three fields even when one didn't change.
+- The fundraiser screen shows the submissions created by the person using
+  the app (`Author`). Security by role comes in Sprint 4.
+- An app keeps the columns of a list as they were when the list was added.
+  After `Constituent ID` became optional (#8), `MCHF Submissions` had to be
+  removed and added again in Données, otherwise a submission without
+  Constituent ID could not be claimed. Do the same after any column change.
+- A comment made only of spaces is accepted by Return, Reject and Cancel.
+  #27 adds `Trim` and the status check to every review button.
 - If a card of the PDF chain fails, the flow stops and the submission stays
   in Recording in Progress. Fix the card, then **Resoumettre** the run in
   Historique.
@@ -328,8 +416,5 @@ fund line of $100 with the same Submission Reference.
 
 ## Remaining work
 
-- "Fix a returned submission" mode in the coding form of #8: open the
-  returned submission with its values and fund lines, show the Review
-  Comment, and a Resubmit button (Needs Information → Submitted, T5). Waits
-  for #8, to agree with Yasmine first. `SUB-TEST15N` is ready for it.
-- The Transfer Failed buttons T11 and T12.
+- The Transfer Failed buttons T11 and T12, and the status check in every
+  review button (#27).
