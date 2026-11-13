@@ -98,6 +98,9 @@ Coded means approved, not added to NXT (see #3).
 
 ## 4. Buttons by status (for the review screen, #12)
 
+Built in the app MCHF - Review (#15, #27). The formula of each button is
+in `review-app-approval.md`, section 4.
+
 | Status | Buttons for Gift Processing | Buttons for the fundraiser |
 |---|---|---|
 | Submitted | Claim submission, Cancel | Cancel |
