@@ -1,8 +1,8 @@
 {
   "format": "lowcode-lab-solution",
   "version": 1,
-  "name": "MCHF-Data-Dictionary",
-  "exportedAt": "2026-11-05T18:02:52Z",
+  "name": "Ma solution",
+  "exportedAt": "2026-11-13T19:46:21Z",
   "lists": [
     {
       "key": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
@@ -20,7 +20,7 @@
           "name": "ConstituentID",
           "displayName": "Constituent ID",
           "type": "text",
-          "required": true,
+          "required": false,
           "maxLength": 7
         },
         {
@@ -128,9 +128,358 @@
             "Cancelled"
           ],
           "defaultValue": "Submitted"
+        },
+        {
+          "name": "ReviewerEmail",
+          "displayName": "Reviewer Email",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ReviewComment",
+          "displayName": "Review Comment",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "ApprovedByEmail",
+          "displayName": "Approved By Email",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ApprovedAt",
+          "displayName": "Approved At",
+          "type": "date",
+          "required": false,
+          "dateOnly": false
+        },
+        {
+          "name": "AuditPDF",
+          "displayName": "Audit PDF",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "AuditHTML",
+          "displayName": "Audit HTML",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "Notes",
+          "displayName": "Notes",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "TaxReceipt",
+          "displayName": "Tax Receipt",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
+        },
+        {
+          "name": "ReceiptAmount",
+          "displayName": "Receipt Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "BenefitAmount",
+          "displayName": "Benefit Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "NewDonor",
+          "displayName": "New Donor",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
         }
       ],
-      "items": []
+      "items": [
+        {
+          "Title": "SUB-20261108-162152",
+          "ConstituentID": "NEW",
+          "ConstituentName": "Nouveau donateur",
+          "Payment_x0020_Type": "Credit Card",
+          "Gift_x0020_Date": "2026-11-08",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Fees": 0,
+          "Net_x0020_Amount": 100,
+          "Campaign": "Campagne Annuelle 2026",
+          "Appeal": "Appel Web / En Ligne",
+          "Fund": "Fonds général non restreint",
+          "Status": "Submitted"
+        },
+        {
+          "Title": "SUB-20261108-182049",
+          "ConstituentID": "NEW",
+          "ConstituentName": "Nouveau donateur",
+          "Payment_x0020_Type": "Credit Card",
+          "Gift_x0020_Date": "2026-11-08",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Fees": 5,
+          "Net_x0020_Amount": 95,
+          "Campaign": "Campagne Annuelle 2026",
+          "Appeal": "Appel Web / En Ligne",
+          "Fund": "Fonds général non restreint",
+          "Status": "Submitted"
+        },
+        {
+          "Title": "SUB-20261108-225252",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Credit Card",
+          "Gift_x0020_Date": "2026-11-08",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Fees": 2.5,
+          "Net_x0020_Amount": 97.5,
+          "Campaign": "AC-2025-2026",
+          "Appeal": "EV-GOLF-2026",
+          "Fund": "HA-GENE0001",
+          "Status": "Submitted"
+        },
+        {
+          "Title": "SUB-20261108-225831",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Credit Card",
+          "Gift_x0020_Date": "2026-11-08",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Fees": 2.5,
+          "Net_x0020_Amount": 97.5,
+          "Campaign": "AC-2025-2026",
+          "Appeal": "EV-GOLF-2026",
+          "Fund": "HA-GENE0001",
+          "Status": "Submitted"
+        },
+        {
+          "Title": "SUB-20261108-233540",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Credit Card",
+          "Gift_x0020_Date": "2026-11-08",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Fees": 3.5,
+          "Net_x0020_Amount": 96.5,
+          "Campaign": "AC-2025-2026",
+          "Appeal": "EV-GOLF-2026",
+          "Fund": "HA-GENE0001",
+          "Status": "Submitted"
+        },
+        {
+          "Title": "SUB-20261108-234434",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Credit Card",
+          "Gift_x0020_Date": "2026-11-08",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Fees": 2,
+          "Net_x0020_Amount": 98,
+          "Campaign": "AC-2025-2026",
+          "Appeal": "EV-GOLF-2026",
+          "Fund": "HA-GENE0001",
+          "Status": "Submitted"
+        },
+        {
+          "Title": "SUB-TEST15",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-02",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-I-2026",
+          "Fund": "HA-CARD0110",
+          "Status": "Added to NXT Batch",
+          "AuditPDF": "https://lab.jeremieanglaret.com/sites/ccb63468-42f6-4652-b4fb-6334dd28a27c/MCHF%20-%20Audit%20documents/SUB-TEST15-20261109-022212.pdf"
+        },
+        {
+          "Title": "SUB-TEST15F",
+          "ConstituentID": "9999001",
+          "ConstituentName": "Test Failure",
+          "Constituent_x0020_System_x0020_I": "11002",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-02",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-I-2026",
+          "Fund": "HA-CARD0110",
+          "Status": "Transfer Failed",
+          "AuditPDF": "https://lab.jeremieanglaret.com/sites/ccb63468-42f6-4652-b4fb-6334dd28a27c/MCHF%20-%20Audit%20documents/SUB-TEST15F-20261109-022617.pdf"
+        },
+        {
+          "Title": "SUB-TEST15A",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-02",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-I-2026",
+          "Fund": "HA-CARD0110",
+          "Payment_x0020_Reference": "PAY-00016",
+          "Status": "Added to NXT Batch",
+          "ReviewerEmail": "yanis.ben-boudaoud@etud.polymtl.ca",
+          "ApprovedByEmail": "yanis.ben-boudaoud@etud.polymtl.ca",
+          "ApprovedAt": "2026-11-09T03:53:14.789Z",
+          "AuditPDF": "https://lab.jeremieanglaret.com/sites/ccb63468-42f6-4652-b4fb-6334dd28a27c/MCHF%20-%20Audit%20documents/SUB-TEST15A-20261109-035314.pdf"
+        },
+        {
+          "Title": "SUB-TEST15R",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-02",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-I-2026",
+          "Fund": "HA-CARD0110",
+          "Payment_x0020_Reference": "PAY-00017",
+          "Status": "Rejected",
+          "ReviewComment": "Test: duplicate of SUB-TEST15A."
+        },
+        {
+          "Title": "SUB-TEST15N",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-02",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Net_x0020_Amount": 100,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-I-2026-B",
+          "Fund": "HA-CARD0110",
+          "Payment_x0020_Reference": "PAY-00017",
+          "Status": "Rejected",
+          "ReviewerEmail": "yanis.ben-boudaoud@etud.polymtl.ca",
+          "ReviewComment": "Test: duplicate."
+        },
+        {
+          "Title": "SUB-20261109-233047",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-09",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Fees": 2.5,
+          "Net_x0020_Amount": 97.5,
+          "Campaign": "AC-2025-2026",
+          "Appeal": "DM-AUTOMNE-2026",
+          "Fund": "HA-NEUR0780",
+          "Status": "Submitted"
+        },
+        {
+          "Title": "SUB-20261110-001004",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Credit Card",
+          "Gift_x0020_Date": "2026-11-10",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 34,
+          "Fees": 0,
+          "Net_x0020_Amount": 34,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-O-2027",
+          "Fund": "HA-URGE0450",
+          "Status": "Submitted"
+        },
+        {
+          "Title": "SUB-TEST15D",
+          "ConstituentName": "Julie Test",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-02",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Fees": 5,
+          "Net_x0020_Amount": 95,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-I-2026",
+          "Fund": "HA-CARD0110",
+          "Payment_x0020_Reference": "PAY-00017",
+          "Status": "Cancelled",
+          "ReviewerEmail": "yanis.ben-boudaoud@etud.polymtl.ca",
+          "ReviewComment": "Test: sent in error."
+        },
+        {
+          "Title": "SUB-TEST27C",
+          "ConstituentID": "9999003",
+          "ConstituentName": "Test Uncertain",
+          "Constituent_x0020_System_x0020_I": "11004",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-02",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-I-2026",
+          "Fund": "HA-CARD0110",
+          "Status": "Added to NXT Batch",
+          "ApprovedByEmail": "yanis.ben-boudaoud@etud.polymtl.ca",
+          "ApprovedAt": "2026-11-13T03:19:47.518Z",
+          "AuditPDF": "https://lab.jeremieanglaret.com/sites/ccb63468-42f6-4652-b4fb-6334dd28a27c/MCHF%20-%20Audit%20documents/SUB-TEST27C-20261113-031947.pdf"
+        },
+        {
+          "Title": "SUB-TEST27B",
+          "ConstituentID": "9999002",
+          "ConstituentName": "Test Timeout",
+          "Constituent_x0020_System_x0020_I": "11003",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-02",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-I-2026",
+          "Fund": "HA-CARD0110",
+          "Status": "Transfer Failed",
+          "ApprovedByEmail": "yanis.ben-boudaoud@etud.polymtl.ca",
+          "ApprovedAt": "2026-11-13T03:29:12.470Z",
+          "AuditPDF": "https://lab.jeremieanglaret.com/sites/ccb63468-42f6-4652-b4fb-6334dd28a27c/MCHF%20-%20Audit%20documents/SUB-TEST27B-20261113-032912.pdf"
+        },
+        {
+          "Title": "SUB-TEST15E",
+          "ConstituentID": "1234567",
+          "ConstituentName": "Camille Exemple",
+          "Constituent_x0020_System_x0020_I": "11001",
+          "Payment_x0020_Type": "Personal Cheque",
+          "Gift_x0020_Date": "2026-11-02",
+          "Gift_x0020_Type": "One-time gift",
+          "Gift_x0020_Amount": 100,
+          "Campaign": "AC-2026-2027",
+          "Appeal": "MG-I-2026",
+          "Fund": "HA-CARD0110",
+          "Status": "Cancelled",
+          "ReviewComment": "   Test: one history row."
+        }
+      ]
     },
     {
       "key": "240294e9-4751-4259-8c04-cd2c60fd746f",
@@ -166,7 +515,33 @@
           "currencyCode": "CAD"
         }
       ],
-      "items": []
+      "items": [
+        {
+          "Title": "HA-CARD0110",
+          "Submission_x0020_Reference": "SUB-TEST15",
+          "Amount": 100
+        },
+        {
+          "Title": "HA-CARD0110",
+          "Submission_x0020_Reference": "SUB-TEST15F",
+          "Amount": 100
+        },
+        {
+          "Title": "HA-CARD0110",
+          "Submission_x0020_Reference": "SUB-TEST15A",
+          "Amount": 100
+        },
+        {
+          "Title": "HA-CARD0110",
+          "Submission_x0020_Reference": "SUB-TEST27C",
+          "Amount": 100
+        },
+        {
+          "Title": "HA-CARD0110",
+          "Submission_x0020_Reference": "SUB-TEST27b",
+          "Amount": 100
+        }
+      ]
     },
     {
       "key": "28d68322-8a1a-424c-8e42-ce784eb6cddd",
