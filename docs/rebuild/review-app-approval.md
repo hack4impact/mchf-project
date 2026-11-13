@@ -1,11 +1,12 @@
 # Review App, Approval Flow and Simulated Transfer
 
-Related issue: [#15](https://github.com/hack4impact/mchf-project/issues/15)
-Branch: `feature/15-correction-loop-and-transfer`
+Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27)
+Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`
 Environment: Équipe
 
 Gift Processing reviews a submission in the app **MCHF - Review**: claim,
-return with a comment, reject, approve or cancel. Approve calls the flow
+return with a comment, reject, approve or cancel, and after a Transfer
+Failed checks NXT before recording again. Approve calls the flow
 **MCHF - ApproveGift**, which saves the audit PDF (#11), then calls the
 recording flow of #13 and writes Added to NXT Batch or Transfer Failed.
 A second screen of the same app lets the fundraiser fix a returned
@@ -53,13 +54,14 @@ the lab: delete it and add it again with the right **+**.
 | Each line | Apply to each | `@outputs('Get_fund_lines')?['body/value']` |
 | Append to string variable (in Each line) | Append to string variable | `rows`, value `<tr><td>@{items('Each_line')?['Title']}</td><td>@{items('Each_line')?['Amount']}</td></tr>` |
 | Increment variable (in Each line) | Increment variable | `total`, value `@items('Each_line')?['Amount']` (no braces, so the value stays a number) |
-| HTML | Compose | The template of #11 with every placeholder replaced (section 3). After the loop, not inside it |
-| Create HTML file | OneDrive for Business, Create file | Folder `/MCHF-Audit`, name `@{body('Get_submission')?['Title']}-@{formatDateTime(utcNow(), 'yyyyMMdd-HHmmss')}.html`, content `@outputs('HTML')` |
-| Wait | Delay | 1 minute |
-| To PDF | OneDrive for Business, Convert file | File `@outputs('Create_HTML_file')?['body/Id']`, target type PDF |
-| Create PDF file | SharePoint, Create file | Site: environment of the flow, folder `/MCHF - Audit documents`, name `@{outputs('Create_HTML_file')?['body/NameNoExt']}.pdf`, content `@body('To_PDF')` |
-| Get link | Get file properties | Library `MCHF - Audit documents`, Id `@outputs('Create_PDF_file')?['body/ItemId']` |
-| Save link | Update item | `MCHF Submissions`, Id = `SubmissionID`, Audit PDF = `@{outputs('Get_link')?['body/{Link}']}`. Every other field empty |
+| PDF Needed | Condition | After the loop. `{"and": [{"equals": ["@empty(body('Get_submission')?['AuditPDF'])", true]}]}`. The 7 cards below are in its yes branch; the no branch is empty (#27) |
+| HTML (in PDF Needed, yes) | Compose | The template of #11 with every placeholder replaced (section 3) |
+| Create HTML file (in PDF Needed, yes) | OneDrive for Business, Create file | Folder `/MCHF-Audit`, name `@{body('Get_submission')?['Title']}-@{formatDateTime(utcNow(), 'yyyyMMdd-HHmmss')}.html`, content `@outputs('HTML')` |
+| Wait (in PDF Needed, yes) | Delay | 1 minute |
+| To PDF (in PDF Needed, yes) | OneDrive for Business, Convert file | File `@outputs('Create_HTML_file')?['body/Id']`, target type PDF |
+| Create PDF file (in PDF Needed, yes) | SharePoint, Create file | Site: environment of the flow, folder `/MCHF - Audit documents`, name `@{outputs('Create_HTML_file')?['body/NameNoExt']}.pdf`, content `@body('To_PDF')` |
+| Get link (in PDF Needed, yes) | Get file properties | Library `MCHF - Audit documents`, Id `@outputs('Create_PDF_file')?['body/ItemId']` |
+| Save link (in PDF Needed, yes) | Update item | `MCHF Submissions`, Id = `SubmissionID`, Audit PDF = `@{outputs('Get_link')?['body/{Link}']}`. Every other field empty |
 | Record in NXT | Run a Child Flow | Child flow `MCHF - Record gift in NXT` (#13), its input SubmissionId = `SubmissionID` of the trigger |
 | Added | Condition | `@equals(body('Record_in_NXT')?['outcome'], 'success')`. **Configure run after**: Record in NXT *is successful*, *has failed*, *has timed out* |
 | Set added (Added, yes) | Update item | `MCHF Submissions`, Id = `SubmissionID`, Processing status = `Added to NXT Batch` |
@@ -78,6 +80,10 @@ The two history rows:
 | Actor Email | `System` | `System` |
 | Comment | `@{body('Record_in_NXT')?['detail']}` | `@{coalesce(body('Record_in_NXT')?['detail'], 'The recording flow did not answer. Check the gift batch in NXT before any retry.')}` |
 | Action At | `@{utcNow()}` | `@{utcNow()}` |
+
+When the submission already has an Audit PDF ("record again", T12), the
+flow skips the PDF and goes straight to Record in NXT: the PDF keeps the
+date of the approval.
 
 Only `success` leads to Added to NXT Batch. A failure, an uncertain result
 (NXT timed out) or a recording flow that fails or times out all go to the
@@ -160,7 +166,9 @@ the real Power Apps yet: rebuild it from this section.
 | Label `Subtitle1` (in galSubs) | Text `ThisItem.'Constituent Name' & " · " & Text(ThisItem.'Gift Amount') & " $ · " & ThisItem.'Processing status'.Value` |
 | Label `lblDetail` | X 640, Y 40, Width 680, Height 300. Text below |
 | Text input `txtComment` | X 640, Y 360, Width 680, Height 100. Mode `TextMode.MultiLine`, Default `""`, HintText `"Comment for the fundraiser (required for Return and Reject)"` |
-| Buttons | Y 480, Width 120, Height 40. Claim and Return at X 640 (never visible together), Reject X 780, Approve X 920, Cancel X 1060 |
+| Buttons | Y 480, Width 120, Height 40. Claim and Return at X 640 (never visible together), Reject X 780, Approve X 920, Cancel X 1060. Transfer Failed: `btnInNxt` X 640 and `btnRecordAgain` X 880 (section below) |
+| Label `lblCheckNxt` | X 640, Y 540, Width 680, Height 120. Only in Transfer Failed (section below) |
+| Buttons `btnRefresh`, `btnToReturned` | Y 690, Width 180, Height 40, X 940 and X 1140 |
 
 In the lab, `ThisItem` isn't recognized in the OnSelect of the gallery
 itself, only in the controls of its template. The gallery uses
@@ -182,8 +190,10 @@ If(IsBlank(varSel), "Select a submission.",
 ### Buttons
 
 Each button is visible only in its From statuses (`review-audit.md`,
-section 4). Each one writes a history row, updates the submission, and
-shows a notification.
+section 4). Each one reads the submission again just before writing
+(`Refresh`, then `LookUp`), refuses if the status changed in the meantime,
+then writes one history row, updates the submission, and shows a
+notification (#27, Sprint 3 guide section 7).
 
 | Button | Visible | Transition |
 |---|---|---|
@@ -192,84 +202,164 @@ shows a notification.
 | `btnReject` | `varSel.'Processing status'.Value = "Under Review"` | T6 |
 | `btnApprove` | `varSel.'Processing status'.Value = "Under Review"` | T7 |
 | `btnCancel` | `varSel.'Processing status'.Value in ["Submitted", "Under Review", "Needs Information"]` | T13 |
+| `btnInNxt` | `varSel.'Processing status'.Value = "Transfer Failed"` | T11 |
+| `btnRecordAgain` | `varSel.'Processing status'.Value = "Transfer Failed"` | T12 |
 
-`btnClaim.OnSelect`. The first check keeps a second reviewer from taking a
-submission someone else already claimed:
+No button shows in Recording in Progress, Added to NXT Batch, Rejected or
+Cancelled. There is no Retry: a gift is never sent again before someone
+checked NXT.
 
-```
-If(LookUp('MCHF Submissions', ID = varSel.ID).'Processing status'.Value <> "Submitted",
-  Notify("This submission was already claimed. Reopen the app.", NotificationType.Error),
-  Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Claim",
-    'Submission Reference': varSel.Title, 'From Status': "Submitted", 'To Status': "Under Review",
-    'Actor Email': User().Email, 'Action At': Now()});
-  Set(varSel, Patch('MCHF Submissions', varSel, {'Processing status': {Value: "Under Review"},
-    'Reviewer Email': User().Email}));
-  Notify("Claimed.", NotificationType.Success))
-```
-
-`btnReturn.OnSelect`:
+`btnRefresh` (Text `"Actualiser"`, X 940, Y 690, Width 180, Height 40):
 
 ```
-If(IsBlank(txtComment.Text),
-  Notify("Write a comment for the fundraiser.", NotificationType.Error),
-  Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Return",
-    'Submission Reference': varSel.Title, 'From Status': "Under Review", 'To Status': "Needs Information",
-    Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});
-  Set(varSel, Patch('MCHF Submissions', varSel, {'Processing status': {Value: "Needs Information"},
-    'Review Comment': txtComment.Text}));
-  Reset(txtComment);
-  Notify("Returned to the fundraiser.", NotificationType.Success))
+Refresh('MCHF Submissions'); Refresh('MCHF - Submission History');
+If(!IsBlank(varSel), Set(varSel, LookUp('MCHF Submissions', ID = varSel.ID)))
 ```
 
-`btnReject.OnSelect`. The linked payment goes back to Unclaimed (#3):
+`btnClaim.OnSelect`:
 
 ```
-If(IsBlank(txtComment.Text),
-  Notify("Write the reason for the rejection.", NotificationType.Error),
-  Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Reject",
-    'Submission Reference': varSel.Title, 'From Status': "Under Review", 'To Status': "Rejected",
-    Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});
-  Set(varSel, Patch('MCHF Submissions', varSel, {'Processing status': {Value: "Rejected"},
-    'Review Comment': txtComment.Text}));
-  If(!IsBlank(varSel.'Payment Reference'),
-    Patch('MCHF - Payment Log', LookUp('MCHF - Payment Log', Reference = varSel.'Payment Reference'),
-      {Status: {Value: "Unclaimed"}, 'Claimed By Name': "", 'Submission Reference': ""}));
-  Reset(txtComment);
-  Notify("Rejected.", NotificationType.Success))
+Refresh('MCHF Submissions');
+With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
+    If(cur.'Processing status'.Value <> "Submitted",
+        Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error);
+        Set(varSel, cur),
+        Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: "Under Review"}, 'Reviewer Email': User().Email}));
+        Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Claim",
+            'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': "Under Review",
+            'Actor Email': User().Email, 'Action At': Now()});
+        Notify("Claimed. You are the reviewer of " & cur.Title & ".", NotificationType.Success)))
+```
+
+`btnReturn.OnSelect`. A comment made only of spaces is refused (`Trim`):
+
+```
+If(IsBlank(Trim(txtComment.Text)), Notify("Write a comment for the fundraiser.", NotificationType.Error),
+    Refresh('MCHF Submissions');
+    With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
+        If(cur.'Processing status'.Value <> "Under Review",
+            Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error);
+            Set(varSel, cur),
+            Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: "Needs Information"}, 'Review Comment': txtComment.Text}));
+            Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Return",
+                'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': "Needs Information",
+                Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});
+            Reset(txtComment);
+            Notify(cur.Title & " returned to the fundraiser.", NotificationType.Success))))
+```
+
+`btnReject.OnSelect`. The linked payment goes back to Unclaimed, only when
+it is found (#3):
+
+```
+If(IsBlank(Trim(txtComment.Text)), Notify("Write the reason for the fundraiser.", NotificationType.Error),
+    Refresh('MCHF Submissions'); Refresh('MCHF - Payment Log');
+    With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
+        If(cur.'Processing status'.Value <> "Under Review",
+            Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error);
+            Set(varSel, cur),
+            Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: "Rejected"}, 'Review Comment': txtComment.Text}));
+            Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Reject",
+                'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': "Rejected",
+                Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});
+            If(!IsBlank(cur.'Payment Reference'),
+                With({pay: LookUp('MCHF - Payment Log', Reference = cur.'Payment Reference')},
+                    If(!IsBlank(pay), Patch('MCHF - Payment Log', pay,
+                        {Status: {Value: "Unclaimed"}, 'Claimed By Name': Blank(), 'Submission Reference': Blank()}))));
+            Reset(txtComment); Notify(cur.Title & " rejected.", NotificationType.Success))))
 ```
 
 `btnApprove.OnSelect`. Approved by and Approved at are saved before the
 flow runs, so the PDF shows them. The linked payment becomes Coded:
 
 ```
-Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Approve",
-  'Submission Reference': varSel.Title, 'From Status': "Under Review", 'To Status': "Recording in Progress",
-  'Actor Email': User().Email, 'Action At': Now()});
-Set(varSel, Patch('MCHF Submissions', varSel, {'Processing status': {Value: "Recording in Progress"},
-  'Approved By Email': User().Email, 'Approved At': Now()}));
-If(!IsBlank(varSel.'Payment Reference'),
-  Patch('MCHF - Payment Log', LookUp('MCHF - Payment Log', Reference = varSel.'Payment Reference'),
-    {Status: {Value: "Coded"}}));
-IfError('MCHF-ApproveGift'.Run(varSel.ID),
-  Notify("The approval flow did not start. Check Historique.", NotificationType.Error),
-  Notify("Approved. Recording in NXT… Reopen the app in about 2 minutes to see the result.", NotificationType.Success))
+Refresh('MCHF Submissions'); Refresh('MCHF - Payment Log');
+With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
+    If(cur.'Processing status'.Value <> "Under Review",
+        Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error);
+        Set(varSel, cur),
+        Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: "Recording in Progress"},
+            'Approved By Email': User().Email, 'Approved At': Now()}));
+        Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Approve",
+            'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': "Recording in Progress",
+            'Actor Email': User().Email, 'Action At': Now()});
+        If(!IsBlank(cur.'Payment Reference'),
+            With({pay: LookUp('MCHF - Payment Log', Reference = cur.'Payment Reference')},
+                If(!IsBlank(pay), Patch('MCHF - Payment Log', pay, {Status: {Value: "Coded"}}))));
+        IfError('MCHF-ApproveGift'.Run(cur.ID),
+            Notify("The approval flow did not start. Check Historique.", NotificationType.Error),
+            Notify(cur.Title & " approved. Recording in NXT… Click Actualiser in about 2 minutes.", NotificationType.Success))))
 ```
 
 `btnCancel.OnSelect`:
 
 ```
-If(IsBlank(txtComment.Text),
-  Notify("Write why the submission is cancelled.", NotificationType.Error),
-  Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Cancel",
-    'Submission Reference': varSel.Title, 'From Status': varSel.'Processing status'.Value, 'To Status': "Cancelled",
-    Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});
-  Set(varSel, Patch('MCHF Submissions', varSel, {'Processing status': {Value: "Cancelled"},
-    'Review Comment': txtComment.Text}));
-  If(!IsBlank(varSel.'Payment Reference'),
-    Patch('MCHF - Payment Log', LookUp('MCHF - Payment Log', Reference = varSel.'Payment Reference'),
-      {Status: {Value: "Unclaimed"}, 'Claimed By Name': "", 'Submission Reference': ""}));
-  Reset(txtComment);
-  Notify("Cancelled.", NotificationType.Success))
+If(IsBlank(Trim(txtComment.Text)), Notify("Write why the submission is cancelled.", NotificationType.Error),
+    Refresh('MCHF Submissions'); Refresh('MCHF - Payment Log');
+    With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
+        If(!(cur.'Processing status'.Value in ["Submitted", "Under Review", "Needs Information"]),
+            Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error);
+            Set(varSel, cur),
+            Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: "Cancelled"}, 'Review Comment': txtComment.Text}));
+            Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Cancel",
+                'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': "Cancelled",
+                Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});
+            If(!IsBlank(cur.'Payment Reference'),
+                With({pay: LookUp('MCHF - Payment Log', Reference = cur.'Payment Reference')},
+                    If(!IsBlank(pay), Patch('MCHF - Payment Log', pay,
+                        {Status: {Value: "Unclaimed"}, 'Claimed By Name': Blank(), 'Submission Reference': Blank()}))));
+            Reset(txtComment); Notify(cur.Title & " cancelled.", NotificationType.Success))))
+```
+
+### After a Transfer Failed (T11, T12)
+
+Gift Processing first looks for the gift in NXT: the gift batch whose
+description is the submission reference (in the lab: RE NXT (développeur) ›
+Lots de dons › Voir les dons). Then it chooses one of the two buttons.
+
+`lblCheckNxt` (X 640, Y 540, Width 680, Height 120, red, Visible
+`varSel.'Processing status'.Value = "Transfer Failed"`):
+
+```
+"Check the NXT gift batches for " & varSel.Title & " before choosing. " &
+First(Sort(Filter('MCHF - Submission History', 'Submission Reference' = varSel.Title), 'Action At', SortOrder.Descending)).Comment
+```
+
+`btnInNxt` (Text `"Gift is in NXT"`, X 640, Y 480, Width 220). Nothing is
+sent to NXT. The comment is optional; the batch number is advised:
+
+```
+Refresh('MCHF Submissions');
+With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
+    If(cur.'Processing status'.Value <> "Transfer Failed",
+        Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error);
+        Set(varSel, cur),
+        Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: "Added to NXT Batch"}}));
+        Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Gift is in NXT",
+            'Submission Reference': cur.Title, 'From Status': "Transfer Failed", 'To Status': "Added to NXT Batch",
+            Comment: "Checked in NXT: " & txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});
+        Reset(txtComment);
+        Notify(cur.Title & " marked as added to the NXT batch. Nothing was sent again.", NotificationType.Success)))
+```
+
+`btnRecordAgain` (Text `"Gift is not in NXT, record again"`, X 880, Y 480,
+Width 300). It runs the approval flow again; the flow keeps the first PDF
+(section 2):
+
+```
+Refresh('MCHF Submissions');
+With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
+    If(cur.'Processing status'.Value <> "Transfer Failed",
+        Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error);
+        Set(varSel, cur),
+        Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: "Recording in Progress"}}));
+        Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Gift is not in NXT, record again",
+            'Submission Reference': cur.Title, 'From Status': "Transfer Failed", 'To Status': "Recording in Progress",
+            Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});
+        Reset(txtComment);
+        IfError('MCHF-ApproveGift'.Run(cur.ID),
+            Notify("The approval flow did not start. Check Historique.", NotificationType.Error),
+            Notify(cur.Title & ": recording again. Click Actualiser in about 2 minutes.", NotificationType.Success))))
 ```
 
 `btnToReturned` (on `scrReview`): Text `"My returned submissions"`, X 1140,
@@ -373,12 +463,22 @@ fund line of $100 with the same Submission Reference.
 | 11 | My returned submissions | Passed: only the returned submissions created by the user (`SUB-TEST15D`), not `SUB-TEST15N` once resubmitted |
 | 12 | Resubmit `SUB-TEST15D` (fees $5) with a gift amount of 3 | Passed: "The gift amount can't be less than the fees (5).", nothing saved |
 | 13 | Cancel `SUB-TEST15D` from Needs Information (`PAY-00017`) | Passed: Cancelled, `PAY-00017` is Unclaimed, Claimed By Name and Submission Reference empty |
+| 14 | #27: Approve `SUB-TEST27C` (`9999003`, system ID `11004`) | Passed: PDF made, Transfer Failed, only "Gift is in NXT" and "Gift is not in NXT, record again", no Retry, `lblCheckNxt` shows the uncertain detail of #13 |
+| 15 | #27: batch `SUB-TEST27C` in RE NXT (développeur) › Lots de dons, then Gift is in NXT with "Batch 1016, 1 gift of $100." | Passed: the batch holds 1 gift; Added to NXT Batch, no buttons, history "Checked in NXT: Batch 1016…", nothing sent again |
+| 16 | #27: Approve `SUB-TEST27B` (`9999002`, system ID `11003`), empty batch, then record again | Passed: Transfer Failed twice (expected for `9999002`). Audit PDF unchanged, the run of PDF Needed took the no branch, a second "Recording result" row |
+| 17 | #27: Return, Reject and Cancel with a comment of 3 spaces (`SUB-TEST15E`) | Passed: the three are refused, status unchanged |
+| 18 | #27: Cancel `SUB-TEST15E`, then filter the history on `SubmissionReference eq 'SUB-TEST15E'` | Passed: exactly one row; the refused clicks wrote nothing |
+| 19 | #27: Reject `SUB-TEST15N` linked to `PAY-00017` (Claimed) | Passed: Rejected, `PAY-00017` Unclaimed, Claimed By Name and Submission Reference empty |
+| 20 | #27: Claim from two tabs, and Claim after the status was changed in the list | The lab updates the open app right away: Claim disappears before it can be clicked, and only one Claim row is written. The refusal message could not be shown in the lab |
 
 ## 7. Limits
 
-- The review screen doesn't refresh by itself. Reopen the app about 2
-  minutes after Approve to see the result of the flow. `Refresh` now exists
-  in the lab (used by Resubmit); the review buttons get it in #27.
+- After Approve or record again, click Actualiser about 2 minutes later to
+  see the result of the flow.
+- Each button reads the submission again before writing. In the lab the
+  open app already follows changes made elsewhere, so the "is now …" refusal
+  could not be shown (test 20). The check stays for the real Power Apps,
+  where data is cached.
 - Resubmit can change only the amount, the campaign and the appeal. Its
   history comment lists the three fields even when one didn't change.
 - The fundraiser screen shows the submissions created by the person using
@@ -387,8 +487,6 @@ fund line of $100 with the same Submission Reference.
   After `Constituent ID` became optional (#8), `MCHF Submissions` had to be
   removed and added again in Données, otherwise a submission without
   Constituent ID could not be claimed. Do the same after any column change.
-- A comment made only of spaces is accepted by Return, Reject and Cancel.
-  #27 adds `Trim` and the status check to every review button.
 - If a card of the PDF chain fails, the flow stops and the submission stays
   in Recording in Progress. Fix the card, then **Resoumettre** the run in
   Historique.
@@ -402,7 +500,6 @@ fund line of $100 with the same Submission Reference.
   report to Jérémie.
 - Security by role (who is Gift Processing) is not handled. Planned for
   Sprint 4.
-- The buttons of Transfer Failed (T11, T12) are not built yet.
 
 ## Deliverables
 
@@ -413,8 +510,12 @@ fund line of $100 with the same Submission Reference.
   documents` (no list items): `lab/solutions/mchf-review-approval.solution.json`.
   Importing it reuses lists with the same name, and the flow comes in
   turned off. The library comes without its files.
+- #27: `lab/solutions/mchf-review-actions.solution.json` (the flow, the
+  app and `MCHF Submissions`) and the flow plan
+  `docs/rebuild/mchf-approve-gift-plan.pdf`.
 
 ## Remaining work
 
-- The Transfer Failed buttons T11 and T12, and the status check in every
-  review button (#27).
+- Correct mode, Sprint 3 fields in the detail, and Approve refused without
+  a Constituent ID (#28, waits for #21 and #25).
+- Send a screenshot of the review screen to Hadyle (#32).

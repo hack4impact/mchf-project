@@ -1,0 +1,1664 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "MCHF-Review-Actions",
+  "exportedAt": "2026-11-13T03:45:04Z",
+  "lists": [
+    {
+      "key": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+      "name": "MCHF Submissions",
+      "description": "Soumissions de codage de dons",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": false,
+          "maxLength": 7
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Constituent_x0020_System_x0020_I",
+          "displayName": "Constituent System ID",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Type",
+          "displayName": "Payment Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Date",
+          "displayName": "Gift Date",
+          "type": "date",
+          "required": true,
+          "dateOnly": true
+        },
+        {
+          "name": "Gift_x0020_Type",
+          "displayName": "Gift Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Amount",
+          "displayName": "Gift Amount",
+          "type": "currency",
+          "required": true,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Fees",
+          "displayName": "Fees",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Net_x0020_Amount",
+          "displayName": "Net Amount",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Campaign",
+          "displayName": "Campaign",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Appeal",
+          "displayName": "Appeal",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Fund",
+          "displayName": "Fund",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Package",
+          "displayName": "Package",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Assigned_x0020_Solicitor",
+          "displayName": "Assigned Solicitor",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Reference",
+          "displayName": "Payment Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Status",
+          "displayName": "Processing status",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "Submitted",
+            "Under Review",
+            "Needs Information",
+            "Rejected",
+            "Recording in Progress",
+            "Added to NXT Batch",
+            "Transfer Failed",
+            "Cancelled"
+          ],
+          "defaultValue": "Submitted"
+        },
+        {
+          "name": "ReviewerEmail",
+          "displayName": "Reviewer Email",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ReviewComment",
+          "displayName": "Review Comment",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "ApprovedByEmail",
+          "displayName": "Approved By Email",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ApprovedAt",
+          "displayName": "Approved At",
+          "type": "date",
+          "required": false,
+          "dateOnly": false
+        },
+        {
+          "name": "AuditPDF",
+          "displayName": "Audit PDF",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "AuditHTML",
+          "displayName": "Audit HTML",
+          "type": "note",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "key": "76880ab5-ccb1-4c74-a932-e6683c78c8b6",
+      "name": "MCHF - ApproveGift",
+      "description": "",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "manual": {
+            "type": "Request",
+            "kind": "PowerAppV2",
+            "inputs": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "number",
+                    "x-ms-content-hint": "NUMBER",
+                    "title": "SubmissionID",
+                    "description": "",
+                    "x-ms-dynamically-added": true
+                  }
+                },
+                "required": [
+                  "number"
+                ]
+              }
+            }
+          }
+        },
+        "actions": {
+          "Answer_the_app": {
+            "type": "Response",
+            "kind": "PowerApp",
+            "inputs": {
+              "statusCode": 200,
+              "body": {
+                "text": "started"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "title": "text",
+                    "x-ms-dynamically-added": true
+                  }
+                }
+              }
+            },
+            "runAfter": {}
+          },
+          "Get_submission": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItem"
+              },
+              "parameters": {
+                "table": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+                "id": "@{triggerBody()?['number']}"
+              }
+            },
+            "runAfter": {
+              "Answer_the_app": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Get_fund_lines": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "240294e9-4751-4259-8c04-cd2c60fd746f",
+                "$filter": "Submission_x0020_Reference eq '@{outputs('Get_submission')?['body/Title']}'"
+              }
+            },
+            "runAfter": {
+              "Get_submission": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_variable": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "rows",
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            },
+            "runAfter": {
+              "Get_fund_lines": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_variable_2": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "total",
+                  "type": "float",
+                  "value": 0
+                }
+              ]
+            },
+            "runAfter": {
+              "Initialize_variable": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Each_line": {
+            "type": "Foreach",
+            "foreach": "@outputs('Get_fund_lines')?['body/value']",
+            "actions": {
+              "Append_to_string_variable": {
+                "type": "AppendToStringVariable",
+                "inputs": {
+                  "name": "rows",
+                  "value": "<tr><td>@{items('Each_line')?['Title']}</td><td>@{items('Each_line')?['Amount']}</td></tr>"
+                },
+                "runAfter": {}
+              },
+              "Increment_variable": {
+                "type": "IncrementVariable",
+                "inputs": {
+                  "name": "total",
+                  "value": "@items('Each_line')?['Amount']"
+                },
+                "runAfter": {
+                  "Append_to_string_variable": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            },
+            "runAfter": {
+              "Initialize_variable_2": [
+                "Succeeded"
+              ]
+            }
+          },
+          "PDF_Needed": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "equals": [
+                    "@empty(body('Get_submission')?['AuditPDF'])",
+                    true
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "HTML": {
+                "type": "Compose",
+                "inputs": "<h1>Gift coding record</h1>\n<p><strong>Submission reference:</strong> @{body('Get_submission')?['Title']}</p>\n@{if(empty(body('Get_submission')?['Payment_x0020_Reference']), '', concat('<p><strong>Payment reference:</strong> ', body('Get_submission')?['Payment_x0020_Reference'], '</p>'))}\n\n<h2>Donor</h2>\n<table>\n<tr><td><strong>Constituent ID</strong></td><td>@{body('Get_submission')?['ConstituentID']}</td></tr>\n<tr><td><strong>Constituent name</strong></td><td>@{body('Get_submission')?['ConstituentName']}</td></tr>\n<tr><td><strong>Constituent system ID</strong></td><td>@{body('Get_submission')?['Constituent_x0020_System_x0020_I']}</td></tr>\n</table>\n\n<h2>Gift</h2>\n<table>\n<tr><td><strong>Gift type</strong></td><td>@{body('Get_submission')?['Gift_x0020_Type']}</td></tr>\n<tr><td><strong>Payment type</strong></td><td>@{body('Get_submission')?['Payment_x0020_Type']}</td></tr>\n<tr><td><strong>Gift date</strong></td><td>@{body('Get_submission')?['Gift_x0020_Date']}</td></tr>\n<tr><td><strong>Gift amount</strong></td><td>@{body('Get_submission')?['Gift_x0020_Amount']}</td></tr>\n<tr><td><strong>Fees</strong></td><td>@{body('Get_submission')?['Fees']}</td></tr>\n<tr><td><strong>Net amount</strong></td><td>@{body('Get_submission')?['Net_x0020_Amount']}</td></tr>\n</table>\n\n<h2>Coding</h2>\n<table>\n<tr><td><strong>Campaign</strong></td><td>@{body('Get_submission')?['Campaign']}</td></tr>\n<tr><td><strong>Appeal</strong></td><td>@{body('Get_submission')?['Appeal']}</td></tr>\n<tr><td><strong>Primary fund</strong></td><td>@{body('Get_submission')?['Fund']}</td></tr>\n<tr><td><strong>Package</strong></td><td>@{body('Get_submission')?['Package']}</td></tr>\n<tr><td><strong>Assigned solicitor</strong></td><td>@{body('Get_submission')?['Assigned_x0020_Solicitor']}</td></tr>\n</table>\n\n<h2>Fund lines</h2>\n<table>\n<tr><td><strong>Fund</strong></td><td><strong>Amount</strong></td></tr>\n@{variables('rows')}\n<tr><td><strong>Total</strong></td><td><strong>@{variables('total')}</strong></td></tr>\n</table>\n\n<h2>People</h2>\n<table>\n<tr><td><strong>Submitted by</strong></td><td>@{body('Get_submission')?['Author']?['Email']}</td></tr>\n<tr><td><strong>Submitted at</strong></td><td>@{body('Get_submission')?['Created']}</td></tr>\n<tr><td><strong>Approved by</strong></td><td>@{body('Get_submission')?['ApprovedByEmail']}</td></tr>\n<tr><td><strong>Approved at</strong></td><td>@{body('Get_submission')?['ApprovedAt']}</td></tr>\n</table>\n\n<p>Generated at approval. The NXT transfer result is not part of this record.</p>",
+                "runAfter": {}
+              },
+              "Create_HTML_file": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_onedriveforbusiness",
+                    "connectionName": "shared_onedriveforbusiness",
+                    "operationId": "CreateFile"
+                  },
+                  "parameters": {
+                    "folderPath": "/MCHF-Audit",
+                    "name": "@{body('Get_submission')?['Title']}-@{formatDateTime(utcNow(), 'yyyyMMdd-HHmmss')}.html",
+                    "body": "@outputs('HTML')"
+                  }
+                },
+                "runAfter": {
+                  "HTML": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Wait": {
+                "type": "Wait",
+                "inputs": {
+                  "interval": {
+                    "count": 1,
+                    "unit": "Minute"
+                  }
+                },
+                "runAfter": {
+                  "Create_HTML_file": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "To_PDF": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_onedriveforbusiness",
+                    "connectionName": "shared_onedriveforbusiness",
+                    "operationId": "ConvertFile"
+                  },
+                  "parameters": {
+                    "type": "PDF",
+                    "id": "@outputs('Create_HTML_file')?['body/Id']"
+                  }
+                },
+                "runAfter": {
+                  "Wait": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Create_PDF_file": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "CreateFile"
+                  },
+                  "parameters": {
+                    "folderPath": "/MCHF - Audit documents",
+                    "name": "@{outputs('Create_HTML_file')?['body/NameNoExt']}.pdf",
+                    "body": "@body('To_PDF')"
+                  }
+                },
+                "runAfter": {
+                  "To_PDF": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Get_link": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "GetFileItem"
+                  },
+                  "parameters": {
+                    "table": "d7061109-986c-49f6-85a2-57a383db0872",
+                    "id": "@outputs('Create_PDF_file')?['body/ItemId']"
+                  }
+                },
+                "runAfter": {
+                  "Create_PDF_file": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Save_link": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "PatchItem"
+                  },
+                  "parameters": {
+                    "table": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+                    "id": "@triggerBody()?['number']",
+                    "item/AuditPDF": "@{outputs('Get_link')?['body/{Link}']}"
+                  }
+                },
+                "runAfter": {
+                  "Get_link": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "actions": {}
+            },
+            "runAfter": {
+              "Each_line": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Record_in_NXT": {
+            "type": "Workflow",
+            "inputs": {
+              "host": {
+                "workflowReferenceName": "04e206f9-a4de-4447-8d9c-418366cbebcb"
+              },
+              "body": {
+                "number": "@triggerBody()?['number']"
+              }
+            },
+            "runAfter": {
+              "PDF_Needed": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Added": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "equals": [
+                    "@body('Record_in_NXT')?['outcome']",
+                    "success"
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "Set_added": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "PatchItem"
+                  },
+                  "parameters": {
+                    "table": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+                    "id": "@triggerBody()?['number']",
+                    "item/Status/Value": "Added to NXT Batch"
+                  }
+                },
+                "runAfter": {}
+              },
+              "History_added": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "PostItem"
+                  },
+                  "parameters": {
+                    "table": "9dbb055f-d506-4abc-8044-eed4f5659e36",
+                    "item/SubmissionReference": "@outputs('Get_submission')?['body/Title']",
+                    "item/FromStatus": "Recording in Progress",
+                    "item/ToStatus": "Added to NXT Batch",
+                    "item/ActorEmail": "System",
+                    "item/Comment": "@{body('Record_in_NXT')?['detail']}",
+                    "item/ActionAt": "@{utcNow()}",
+                    "item/Title": "Recording result"
+                  }
+                },
+                "runAfter": {
+                  "Set_added": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "actions": {
+                "Set_failed": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "apiId": "/providers/lab/apis/shared_lists",
+                      "connectionName": "shared_lists",
+                      "operationId": "PatchItem"
+                    },
+                    "parameters": {
+                      "table": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+                      "id": "@triggerBody()?['number']",
+                      "item/Status/Value": "Transfer Failed"
+                    }
+                  },
+                  "runAfter": {}
+                },
+                "History_failed": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "apiId": "/providers/lab/apis/shared_lists",
+                      "connectionName": "shared_lists",
+                      "operationId": "PostItem"
+                    },
+                    "parameters": {
+                      "table": "9dbb055f-d506-4abc-8044-eed4f5659e36",
+                      "item/Title": "Recording result",
+                      "item/SubmissionReference": "@outputs('Get_submission')?['body/Title']",
+                      "item/FromStatus": "Recording in Progress",
+                      "item/ToStatus": "Transfer Failed",
+                      "item/ActorEmail": "System",
+                      "item/Comment": "@{coalesce(body('Record_in_NXT')?['detail'], 'The recording flow did not answer. Check the gift batch in NXT before any retry.')}",
+                      "item/ActionAt": "@{utcNow()}"
+                    }
+                  },
+                  "runAfter": {
+                    "Set_failed": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              }
+            },
+            "runAfter": {
+              "Record_in_NXT": [
+                "Succeeded",
+                "Failed",
+                "TimedOut"
+              ]
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
+  "apps": [
+    {
+      "key": "bb047a67-ed7b-4663-8bdf-2720746c0e4e",
+      "name": "MCHF - Review",
+      "description": "",
+      "definition": {
+        "id": "bb047a67-ed7b-4663-8bdf-2720746c0e4e",
+        "name": "MCHF - Review",
+        "locale": "en",
+        "width": 1366,
+        "height": 768,
+        "properties": {
+          "OnStart": ""
+        },
+        "screens": [
+          {
+            "name": "scrReview",
+            "properties": {
+              "Fill": "RGBA(255, 255, 255, 1)",
+              "OnVisible": ""
+            },
+            "controls": [
+              {
+                "name": "galSubs",
+                "type": "Gallery",
+                "properties": {
+                  "X": "40",
+                  "Y": "40",
+                  "Width": "560",
+                  "Height": "690",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "Sort('MCHF Submissions', ID, SortOrder.Descending)",
+                  "TemplateSize": "80",
+                  "TemplateFill": "RGBA(0, 0, 0, 0)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "OnSelect": "Set(varSel, galSubs.Selected)"
+                },
+                "children": [
+                  {
+                    "name": "Title1",
+                    "type": "Label",
+                    "properties": {
+                      "X": "16",
+                      "Y": "8",
+                      "Width": "360",
+                      "Height": "32",
+                      "Text": "ThisItem.Title",
+                      "Size": "14",
+                      "FontWeight": "FontWeight.Semibold"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "Subtitle1",
+                    "type": "Label",
+                    "properties": {
+                      "X": "16",
+                      "Y": "40",
+                      "Width": "360",
+                      "Height": "28",
+                      "Text": "ThisItem.'Constituent Name' & \" · \" & Text(ThisItem.'Gift Amount') & \" $ · \" & ThisItem.'Processing status'.Value",
+                      "Size": "12"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "name": "lblDetail",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "40",
+                  "Width": "680",
+                  "Height": "300",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(IsBlank(varSel), \"Select a submission.\",   \"Reference: \" & varSel.Title & Char(10) &   \"Donor: \" & varSel.'Constituent Name' & \" (\" & varSel.'Constituent ID' & \")\" & Char(10) &   \"Gift: \" & Text(varSel.'Gift Amount') & \" $, \" & varSel.'Payment Type' & Char(10) &   \"Coding: \" & varSel.Campaign & \" / \" & varSel.Appeal & \" / \" & varSel.Fund & Char(10) &   \"Payment reference: \" & varSel.'Payment Reference' & Char(10) &   \"Status: \" & varSel.'Processing status'.Value & Char(10) &   \"Review comment: \" & varSel.'Review Comment')",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtComment",
+                "type": "TextInput",
+                "properties": {
+                  "X": "640",
+                  "Y": "360",
+                  "Width": "680",
+                  "Height": "100",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"Comment for the fundraiser (required for Return and Reject)\"",
+                  "Mode": "TextMode.MultiLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "btnClaim",
+                "type": "Button",
+                "properties": {
+                  "X": "640",
+                  "Y": "480",
+                  "Width": "120",
+                  "Height": "40",
+                  "Visible": "varSel.'Processing status'.Value = \"Submitted\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Claim\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Refresh('MCHF Submissions'); With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},     If(cur.'Processing status'.Value <> \"Submitted\",         Notify(cur.Title & \" is now \" & cur.'Processing status'.Value & \". Nothing was changed.\", NotificationType.Error);         Set(varSel, cur),         Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: \"Under Review\"}, 'Reviewer Email': User().Email}));         Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Claim\",             'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': \"Under Review\",             'Actor Email': User().Email, 'Action At': Now()});         Notify(\"Claimed. You are the reviewer of \" & cur.Title & \".\", NotificationType.Success)))"
+                },
+                "children": []
+              },
+              {
+                "name": "btnReturn",
+                "type": "Button",
+                "properties": {
+                  "X": "640",
+                  "Y": "480",
+                  "Width": "120",
+                  "Height": "40",
+                  "Visible": "varSel.'Processing status'.Value = \"Under Review\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Return\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "If(IsBlank(Trim(txtComment.Text)), Notify(\"Write a comment for the fundraiser.\", NotificationType.Error),     Refresh('MCHF Submissions');     With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},         If(cur.'Processing status'.Value <> \"Under Review\",             Notify(cur.Title & \" is now \" & cur.'Processing status'.Value & \". Nothing was changed.\", NotificationType.Error);             Set(varSel, cur),             Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: \"Needs Information\"}, 'Review Comment': txtComment.Text}));             Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Return\",                 'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': \"Needs Information\",                 Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});             Reset(txtComment);             Notify(cur.Title & \" returned to the fundraiser.\", NotificationType.Success))))"
+                },
+                "children": []
+              },
+              {
+                "name": "btnReject",
+                "type": "Button",
+                "properties": {
+                  "X": "780",
+                  "Y": "480",
+                  "Width": "120",
+                  "Height": "40",
+                  "Visible": "varSel.'Processing status'.Value = \"Under Review\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Reject\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "If(IsBlank(Trim(txtComment.Text)), Notify(\"Write the reason for the fundraiser.\", NotificationType.Error),     Refresh('MCHF Submissions'); Refresh('MCHF - Payment Log');     With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},         If(cur.'Processing status'.Value <> \"Under Review\",             Notify(cur.Title & \" is now \" & cur.'Processing status'.Value & \". Nothing was changed.\", NotificationType.Error);             Set(varSel, cur),             Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: \"Rejected\"}, 'Review Comment': txtComment.Text}));             Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Reject\",                 'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': \"Rejected\",                 Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});             If(!IsBlank(cur.'Payment Reference'),                 With({pay: LookUp('MCHF - Payment Log', Reference = cur.'Payment Reference')},                     If(!IsBlank(pay), Patch('MCHF - Payment Log', pay,                         {Status: {Value: \"Unclaimed\"}, 'Claimed By Name': Blank(), 'Submission Reference': Blank()}))));             Reset(txtComment); Notify(cur.Title & \" rejected.\", NotificationType.Success))))"
+                },
+                "children": []
+              },
+              {
+                "name": "btnApprove",
+                "type": "Button",
+                "properties": {
+                  "X": "920",
+                  "Y": "480",
+                  "Width": "120",
+                  "Height": "40",
+                  "Visible": "varSel.'Processing status'.Value = \"Under Review\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Approve\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Refresh('MCHF Submissions'); Refresh('MCHF - Payment Log'); With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},     If(cur.'Processing status'.Value <> \"Under Review\",         Notify(cur.Title & \" is now \" & cur.'Processing status'.Value & \". Nothing was changed.\", NotificationType.Error);         Set(varSel, cur),         Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: \"Recording in Progress\"},             'Approved By Email': User().Email, 'Approved At': Now()}));         Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Approve\",             'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': \"Recording in Progress\",             'Actor Email': User().Email, 'Action At': Now()});         If(!IsBlank(cur.'Payment Reference'),             With({pay: LookUp('MCHF - Payment Log', Reference = cur.'Payment Reference')},                 If(!IsBlank(pay), Patch('MCHF - Payment Log', pay, {Status: {Value: \"Coded\"}}))));         IfError('MCHF-ApproveGift'.Run(cur.ID),             Notify(\"The approval flow did not start. Check Historique.\", NotificationType.Error),             Notify(cur.Title & \" approved. Recording in NXT… Click Actualiser in about 2 minutes.\", NotificationType.Success))))"
+                },
+                "children": []
+              },
+              {
+                "name": "btnCancel",
+                "type": "Button",
+                "properties": {
+                  "X": "1060",
+                  "Y": "480",
+                  "Width": "120",
+                  "Height": "40",
+                  "Visible": "varSel.'Processing status'.Value in [\"Submitted\", \"Under Review\", \"Needs Information\"]",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Cancel\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "If(IsBlank(Trim(txtComment.Text)), Notify(\"Write why the submission is cancelled.\", NotificationType.Error),     Refresh('MCHF Submissions'); Refresh('MCHF - Payment Log');     With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},         If(!(cur.'Processing status'.Value in [\"Submitted\", \"Under Review\", \"Needs Information\"]),             Notify(cur.Title & \" is now \" & cur.'Processing status'.Value & \". Nothing was changed.\", NotificationType.Error);             Set(varSel, cur),             Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: \"Cancelled\"}, 'Review Comment': txtComment.Text}));             Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Cancel\",                 'Submission Reference': cur.Title, 'From Status': cur.'Processing status'.Value, 'To Status': \"Cancelled\",                 Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});             If(!IsBlank(cur.'Payment Reference'),                 With({pay: LookUp('MCHF - Payment Log', Reference = cur.'Payment Reference')},                     If(!IsBlank(pay), Patch('MCHF - Payment Log', pay,                         {Status: {Value: \"Unclaimed\"}, 'Claimed By Name': Blank(), 'Submission Reference': Blank()}))));             Reset(txtComment); Notify(cur.Title & \" cancelled.\", NotificationType.Success))))"
+                },
+                "children": []
+              },
+              {
+                "name": "btnToReturned",
+                "type": "Button",
+                "properties": {
+                  "X": "1140",
+                  "Y": "690",
+                  "Width": "180",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"My returned submissions\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Navigate(scrReturned)"
+                },
+                "children": []
+              },
+              {
+                "name": "btnRefresh",
+                "type": "Button",
+                "properties": {
+                  "X": "940",
+                  "Y": "690",
+                  "Width": "180",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Actualiser\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Refresh('MCHF Submissions'); Refresh('MCHF - Submission History'); If(!IsBlank(varSel), Set(varSel, LookUp('MCHF Submissions', ID = varSel.ID)))"
+                },
+                "children": []
+              },
+              {
+                "name": "lblCheckNxt",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "540",
+                  "Width": "680",
+                  "Height": "120",
+                  "Visible": "varSel.'Processing status'.Value = \"Transfer Failed\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Check the NXT gift batches for \" & varSel.Title & \" before choosing. \" & First(Sort(Filter('MCHF - Submission History', 'Submission Reference' = varSel.Title), 'Action At', SortOrder.Descending)).Comment",
+                  "Color": "RGBA(164, 38, 44, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "btnInNxt",
+                "type": "Button",
+                "properties": {
+                  "X": "640",
+                  "Y": "480",
+                  "Width": "220",
+                  "Height": "40",
+                  "Visible": "varSel.'Processing status'.Value = \"Transfer Failed\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Gift is in NXT\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Refresh('MCHF Submissions'); With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},     If(cur.'Processing status'.Value <> \"Transfer Failed\",         Notify(cur.Title & \" is now \" & cur.'Processing status'.Value & \". Nothing was changed.\", NotificationType.Error);         Set(varSel, cur),         Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: \"Added to NXT Batch\"}}));         Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Gift is in NXT\",             'Submission Reference': cur.Title, 'From Status': \"Transfer Failed\", 'To Status': \"Added to NXT Batch\",             Comment: \"Checked in NXT: \" & txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});         Reset(txtComment);         Notify(cur.Title & \" marked as added to the NXT batch. Nothing was sent again.\", NotificationType.Success)))"
+                },
+                "children": []
+              },
+              {
+                "name": "btnRecordAgain",
+                "type": "Button",
+                "properties": {
+                  "X": "880",
+                  "Y": "480",
+                  "Width": "300",
+                  "Height": "40",
+                  "Visible": "varSel.'Processing status'.Value = \"Transfer Failed\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Gift is not in NXT, record again\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Refresh('MCHF Submissions'); With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},     If(cur.'Processing status'.Value <> \"Transfer Failed\",         Notify(cur.Title & \" is now \" & cur.'Processing status'.Value & \". Nothing was changed.\", NotificationType.Error);         Set(varSel, cur),         Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: \"Recording in Progress\"}}));         Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Gift is not in NXT, record again\",             'Submission Reference': cur.Title, 'From Status': \"Transfer Failed\", 'To Status': \"Recording in Progress\",             Comment: txtComment.Text, 'Actor Email': User().Email, 'Action At': Now()});         Reset(txtComment);         IfError('MCHF-ApproveGift'.Run(cur.ID),             Notify(\"The approval flow did not start. Check Historique.\", NotificationType.Error),             Notify(cur.Title & \": recording again. Click Actualiser in about 2 minutes.\", NotificationType.Success))))"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "name": "scrReturned",
+            "properties": {
+              "Fill": "RGBA(255, 255, 255, 1)",
+              "OnVisible": ""
+            },
+            "controls": [
+              {
+                "name": "galReturned",
+                "type": "Gallery",
+                "properties": {
+                  "X": "40",
+                  "Y": "40",
+                  "Width": "560",
+                  "Height": "690",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "Filter('MCHF Submissions', 'Processing status'.Value = \"Needs Information\" && Author.Email = User().Email)",
+                  "TemplateSize": "80",
+                  "TemplateFill": "RGBA(0, 0, 0, 0)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "OnSelect": "false"
+                },
+                "children": [
+                  {
+                    "name": "Title2",
+                    "type": "Label",
+                    "properties": {
+                      "X": "16",
+                      "Y": "8",
+                      "Width": "360",
+                      "Height": "32",
+                      "Text": "ThisItem.Title",
+                      "Size": "14",
+                      "FontWeight": "FontWeight.Semibold"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "Subtitle2",
+                    "type": "Label",
+                    "properties": {
+                      "X": "16",
+                      "Y": "40",
+                      "Width": "360",
+                      "Height": "28",
+                      "Text": "ThisItem.'Constituent Name' & \" · \" & Text(ThisItem.'Gift Amount') & \" $\"",
+                      "Size": "12"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "name": "lblRetComment",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "40",
+                  "Width": "680",
+                  "Height": "120",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(IsBlank(galReturned.Selected), \"Select a returned submission.\",   galReturned.Selected.Title & \" was returned by Gift Processing:\" & Char(10) & galReturned.Selected.'Review Comment')",
+                  "Color": "RGBA(164, 38, 44, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle",
+                  "OnSelect": "false"
+                },
+                "children": []
+              },
+              {
+                "name": "lblRetAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "180",
+                  "Width": "200",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Gift amount\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtRetAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "860",
+                  "Y": "180",
+                  "Width": "300",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(IsBlank(galReturned.Selected), \"\", Text(galReturned.Selected.'Gift Amount', \"0.00\"))",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblRetCampaign",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "240",
+                  "Width": "200",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Campaign\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtRetCampaign",
+                "type": "TextInput",
+                "properties": {
+                  "X": "860",
+                  "Y": "240",
+                  "Width": "300",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "galReturned.Selected.Campaign",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblRetAppeal",
+                "type": "Label",
+                "properties": {
+                  "X": "640",
+                  "Y": "300",
+                  "Width": "200",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Appeal\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtRetAppeal",
+                "type": "TextInput",
+                "properties": {
+                  "X": "860",
+                  "Y": "300",
+                  "Width": "300",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "galReturned.Selected.Appeal",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "btnResubmit",
+                "type": "Button",
+                "properties": {
+                  "X": "640",
+                  "Y": "380",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Resubmit\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With({amt: Trim(txtRetAmount.Text)},   If(IsBlank(galReturned.Selected),       Notify(\"Select a returned submission.\", NotificationType.Error),     !IsMatch(amt, \"^\\d+(\\.\\d{1,2})?$\") || Value(amt) <= 0,       Notify(\"Gift amount: a number more than 0, for example 100.00.\", NotificationType.Error),     IsBlank(Trim(txtRetCampaign.Text)) || IsBlank(Trim(txtRetAppeal.Text)),       Notify(\"Campaign and appeal are required.\", NotificationType.Error),     Refresh('MCHF Submissions'); Refresh('MCHF Fund Lines');     With({cur: LookUp('MCHF Submissions', ID = galReturned.Selected.ID),           lines: Filter('MCHF Fund Lines', 'Submission Reference' = galReturned.Selected.Title)},       If(cur.'Processing status'.Value <> \"Needs Information\",           Notify(cur.Title & \" is now \" & cur.'Processing status'.Value & \". Nothing was changed.\", NotificationType.Error),         Value(amt) <> cur.'Gift Amount' && CountRows(lines) > 1,           Notify(\"This gift is split across several funds. Ask Gift Processing before changing the amount.\", NotificationType.Error),         Value(amt) < Coalesce(cur.Fees, 0),           Notify(\"The gift amount can't be less than the fees (\" & Text(cur.Fees) & \").\", NotificationType.Error),         Patch('MCHF Submissions', cur, {'Gift Amount': Value(amt),           'Net Amount': Value(amt) - Coalesce(cur.Fees, 0),           Campaign: Trim(txtRetCampaign.Text), Appeal: Trim(txtRetAppeal.Text),           'Processing status': {Value: \"Submitted\"}});         If(CountRows(lines) = 1, Patch('MCHF Fund Lines', First(lines), {Amount: Value(amt)}));         Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: \"Resubmit\",           'Submission Reference': cur.Title, 'From Status': \"Needs Information\", 'To Status': \"Submitted\",           Comment: \"Amount \" & Text(cur.'Gift Amount') & \" → \" & amt & \"; Campaign \" & cur.Campaign & \" → \" & Trim(txtRetCampaign.Text) & \"; Appeal \" & cur.Appeal & \" → \" & Trim(txtRetAppeal.Text),           'Actor Email': User().Email, 'Action At': Now()});         Refresh('MCHF Submissions');         Notify(cur.Title & \" was resubmitted.\", NotificationType.Success)))))"
+                },
+                "children": []
+              },
+              {
+                "name": "btnToReview",
+                "type": "Button",
+                "properties": {
+                  "X": "1140",
+                  "Y": "690",
+                  "Width": "180",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Back to review\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Navigate(scrReview)"
+                },
+                "children": []
+              }
+            ]
+          }
+        ],
+        "dataSources": [
+          {
+            "kind": "list",
+            "name": "MCHF - Payment Log",
+            "id": "ca35538f-cb37-45df-a763-dc87b3fa5395",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentID",
+                "displayName": "Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PaymentType",
+                "displayName": "Payment Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftDate",
+                "displayName": "Gift Date",
+                "type": "date",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftAmount",
+                "displayName": "Gift Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftType",
+                "displayName": "Gift Type",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AssignedSolicitor",
+                "displayName": "Assigned Solicitor",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Notes",
+                "displayName": "Notes",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Reference",
+                "displayName": "Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Status",
+                "displayName": "Status",
+                "type": "choice",
+                "multiple": false,
+                "required": true,
+                "choices": [
+                  "Claimed",
+                  "Unclaimed",
+                  "Coded"
+                ],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedByName",
+                "displayName": "Claimed By Name",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "SubmissionReference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF Fund Lines",
+            "id": "240294e9-4751-4259-8c04-cd2c60fd746f",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Submission",
+                "displayName": "Submission",
+                "type": "lookup",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": "8739ddec-2c50-4b13-b7e1-9a09019faa77"
+              },
+              {
+                "name": "Submission_x0020_Reference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Amount",
+                "displayName": "Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "flow",
+            "name": "MCHF-ApproveGift",
+            "id": "76880ab5-ccb1-4c74-a932-e6683c78c8b6",
+            "inputs": [
+              {
+                "name": "number",
+                "type": "number",
+                "required": true
+              }
+            ],
+            "outputs": [
+              {
+                "name": "text",
+                "type": "text",
+                "required": false
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF Submissions",
+            "id": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentID",
+                "displayName": "Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Constituent_x0020_System_x0020_I",
+                "displayName": "Constituent System ID",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Payment_x0020_Type",
+                "displayName": "Payment Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Gift_x0020_Date",
+                "displayName": "Gift Date",
+                "type": "date",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Gift_x0020_Type",
+                "displayName": "Gift Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Gift_x0020_Amount",
+                "displayName": "Gift Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Fees",
+                "displayName": "Fees",
+                "type": "currency",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Net_x0020_Amount",
+                "displayName": "Net Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Campaign",
+                "displayName": "Campaign",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Appeal",
+                "displayName": "Appeal",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Fund",
+                "displayName": "Fund",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Package",
+                "displayName": "Package",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Assigned_x0020_Solicitor",
+                "displayName": "Assigned Solicitor",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Payment_x0020_Reference",
+                "displayName": "Payment Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Status",
+                "displayName": "Processing status",
+                "type": "choice",
+                "multiple": false,
+                "required": true,
+                "choices": [
+                  "Submitted",
+                  "Under Review",
+                  "Needs Information",
+                  "Rejected",
+                  "Recording in Progress",
+                  "Added to NXT Batch",
+                  "Transfer Failed",
+                  "Cancelled"
+                ],
+                "lookupListId": null
+              },
+              {
+                "name": "ReviewerEmail",
+                "displayName": "Reviewer Email",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ReviewComment",
+                "displayName": "Review Comment",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ApprovedByEmail",
+                "displayName": "Approved By Email",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ApprovedAt",
+                "displayName": "Approved At",
+                "type": "datetime",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AuditPDF",
+                "displayName": "Audit PDF",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AuditHTML",
+                "displayName": "Audit HTML",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF - Submission History",
+            "id": "9dbb055f-d506-4abc-8044-eed4f5659e36",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "SubmissionReference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "FromStatus",
+                "displayName": "From Status",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ToStatus",
+                "displayName": "To Status",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ActorEmail",
+                "displayName": "Actor Email",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Comment",
+                "displayName": "Comment",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ActionAt",
+                "displayName": "Action At",
+                "type": "datetime",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
