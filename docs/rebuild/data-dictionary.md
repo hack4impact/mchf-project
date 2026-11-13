@@ -1,6 +1,6 @@
 # Data Dictionary & Storage Structure (MCHF Donation Coding)
 
-**Branch:** `feature/1-data-dictionary`
+**Branch:** `feature/21-sprint3-submission-columns`
 **Source of Truth:** PRD v0.4, Section 7 (Core information & Business rules)
 **Target Environment:** Établi / Power Platform (`Équipe`)
 **Solution Package:** `lab/solutions/solution.json` (Solution: `MCHF-Data-Dictionary`)
@@ -16,7 +16,7 @@ Stores one record per coded donation submitted by fundraisers.
 | Display Name | Internal Name (Backend / Flows) | Établi / SharePoint Type | Required | Source / Options | Validation & Business Rules |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Title** | `Title` | Single line of text | Yes | System generated | Format: `SUB-00001` (assigned post-creation as `SUB-` + 5-digit ID). Temporary value `"NEW"` on initial save. Max 255 chars. |
-| **Constituent ID** | `ConstituentID` | Single line of text | Yes*|User Input|Exactly 7 numeric digits (`\d{7}`).Max 7 chars.*Optional only if "New donor" = Yes. Not required at list level (a list column cannot be required on a condition): the coding form enforces it, and a new donor's submission is saved without it (PRD acceptance #19). |
+| **Constituent ID** | `ConstituentID` | Single line of text | No in the list; required by the form unless "New Donor" = Yes | User Input |Exactly 7 numeric digits (`\d{7}`). Max 7 chars. Optional at list level (a list column cannot be required on a condition): the coding form enforces it unless "New donor" = Yes. (PRD acceptance #19/ #25). |
 | **Constituent Name** | `ConstituentName` | Single line of text | Yes | RE NXT lookup | Populated automatically via constituent lookup. |
 | **Constituent System ID** | `Constituent_x0020_System_x0020_I` | Single line of text | No | RE NXT lookup | Numerical SKY API internal system ID (e.g. `11001`). Used by backend flows. |
 | **Payment Type** | `Payment_x0020_Type` | Single line of text | Yes | `MCHF Payment Types` | Selected from active options. For pledges, represents the intended future payment method. |
@@ -38,9 +38,13 @@ Stores one record per coded donation submitted by fundraisers.
 | **Approved At** | `ApprovedAt` | Date and Time | No | Review app (#15) | When it was approved. Shown in the audit PDF (#11). |
 | **Audit PDF** | `AuditPDF` | Single line of text | No | Flow `MCHF - ApproveGift` (#15) | Link to the audit PDF in `MCHF - Audit documents`. Text column: the lab has no hyperlink column. |
 | **Audit HTML** | `AuditHTML` | Multiple lines of text | No | Flow `MCHF - ApproveGift` (#15) | Fallback if the lab's file actions are not ready. Not used: the PDF chain works in the lab. |
+| **Notes** | `Notes` | Multiple lines of text | No | User Input / Payment Log | Free-text administrative or payment notes (pre-filled from `MCHF - Payment Log` when applicable). |
+| **Tax Receipt** | `TaxReceipt` | Yes/No | No | User Input | Default: `No` (`false`). Indicates whether an official tax receipt is to be issued. |
+| **Receipt Amount** | `ReceiptAmount` | Currency (CAD) | No | User Input / Calculated | Default: `Gift Amount - Benefit Amount`, between `0` and `Gift Amount`, empty when `Tax Receipt = No`. |
+| **Benefit Amount** | `BenefitAmount` | Currency (CAD) | No | User Input | Value of any advantage/benefit received by the donor (CAD, minimum `0`, at most `Gift Amount`). |
+| **New Donor** | `NewDonor` | Yes/No | No | User Input | Default: `No` (`false`). Indicates the submission is for a donor not yet registered in RE NXT. |
 
-> *Note on Platform Constraints:* In Établi, the minimum constraint UI for Currency columns accepts integer values only (set to `0`). Strict validation (`Value > 0.00`) is enforced at the Power Fx application layer.
-
+> *Note on Platform Constraints:* As of Établi release `2026-11-08.2`, Currency columns support decimal minimum/maximum constraints (e.g., `0.01` for `Gift Amount`, while `Receipt Amount` and `Benefit Amount` use `0` per Sprint 3 specifications). Strict validation is also enforced at the Power Fx application layer.
 ---
 
 ### 1.2 List: `MCHF Fund Lines`
