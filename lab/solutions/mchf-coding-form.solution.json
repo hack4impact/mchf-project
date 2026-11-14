@@ -2,10 +2,10 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "MCHF - Coding Form",
-  "exportedAt": "2026-11-10T04:07:19Z",
+  "exportedAt": "2026-11-14T17:38:10Z",
   "lists": [
     {
-      "key": "4202d403-b5da-4946-8c73-873389687b5c",
+      "key": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
       "name": "MCHF Submissions",
       "description": "Soumissions de codage de dons",
       "columns": [
@@ -165,11 +165,47 @@
           "displayName": "Audit HTML",
           "type": "note",
           "required": false
+        },
+        {
+          "name": "Notes",
+          "displayName": "Notes",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "TaxReceipt",
+          "displayName": "Tax Receipt",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
+        },
+        {
+          "name": "ReceiptAmount",
+          "displayName": "Receipt Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "BenefitAmount",
+          "displayName": "Benefit Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "NewDonor",
+          "displayName": "New Donor",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
         }
       ]
     },
     {
-      "key": "17a89384-fa49-48c9-b561-885c0b32dc54",
+      "key": "3003a026-5bf8-44d3-a426-b572609011a1",
       "name": "MCHF Fund Lines",
       "description": "",
       "columns": [
@@ -185,7 +221,7 @@
           "displayName": "Submission",
           "type": "lookup",
           "required": true,
-          "lookupListId": "4202d403-b5da-4946-8c73-873389687b5c",
+          "lookupListId": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
           "lookupColumn": "Title"
         },
         {
@@ -204,34 +240,7 @@
       ]
     },
     {
-      "key": "7da3b062-769d-4bd4-8031-77be755931a4",
-      "name": "MCHF Payment Types",
-      "description": "",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "Active",
-          "displayName": "Active",
-          "type": "boolean",
-          "required": true,
-          "defaultValue": true
-        },
-        {
-          "name": "Sort_x0020_Order",
-          "displayName": "Sort Order",
-          "type": "number",
-          "required": true
-        }
-      ]
-    },
-    {
-      "key": "0e675751-f88f-4e3b-bd0e-f753c1df67bd",
+      "key": "c842f564-f45a-4b06-85c3-d92e02810f69",
       "name": "MCHF Gift Types",
       "description": "",
       "columns": [
@@ -258,7 +267,34 @@
       ]
     },
     {
-      "key": "928c4248-8636-41af-ab9c-8d2397be7e44",
+      "key": "14db9871-d248-4373-9953-ad47534c3e95",
+      "name": "MCHF Payment Types",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Active",
+          "displayName": "Active",
+          "type": "boolean",
+          "required": true,
+          "defaultValue": true
+        },
+        {
+          "name": "Sort_x0020_Order",
+          "displayName": "Sort Order",
+          "type": "number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "66a17be3-c739-4e31-817a-eab06ba67b0b",
       "name": "MCHF - Payment Log",
       "description": "",
       "columns": [
@@ -356,7 +392,7 @@
   "flows": [],
   "apps": [
     {
-      "key": "9c58aa36-11a4-4772-859e-20f53d344cd7",
+      "key": "3c3d7166-e394-48e1-87b8-39b7fc4b1f59",
       "name": "MCHF - Coding Form",
       "description": "Coding form (#8) with the #38 follow-ups: empty required fields, list-driven types, SUB-00001 reference, payment reference, fund line, lookup errors.",
       "definition": {
@@ -392,7 +428,7 @@
                   "BorderColor": "RGBA(134, 142, 150, 1)",
                   "BorderThickness": "1",
                   "Size": "13",
-                  "OnChange": "UpdateContext({varDonorState: \"\", varDonorSystemId: \"\", varDonorLookupId: \"\", varDonorName: \"\", varDonorMessage: \"\"})"
+                  "OnChange": "Set(varDonor, Blank())"
                 },
                 "children": []
               },
@@ -413,7 +449,7 @@
                   "BorderThickness": "0",
                   "Size": "13",
                   "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "With({typedId: Trim(txtConstituentId.Text)},\n    If(!IsMatch(typedId, \"\\d{7}\"),\n        UpdateContext({varDonorState: \"invalid\", varDonorSystemId: \"\", varDonorLookupId: \"\", varDonorName: \"\", varDonorMessage: \"Enter the 7-digit Constituent ID.\"}),\n        With({res: IfError(\n            With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                Switch(CountRows(r),\n                    0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                    1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                    {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n            {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"})},\n            UpdateContext({varDonorState: res.state, varDonorSystemId: res.systemId, varDonorLookupId: res.lookupId, varDonorName: res.name, varDonorMessage: res.message}))))"
+                  "OnSelect": "With({typedId: Trim(txtConstituentId.Text)},\n    If(!IsMatch(typedId, \"\\d{7}\"),\n        Set(varDonor, {state: \"invalid\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Enter the 7-digit Constituent ID.\"}),\n        Set(varDonor, IfError(\n            With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                Switch(CountRows(r),\n                    0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                    1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                    {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n            {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"}))))"
                 },
                 "children": []
               },
@@ -463,10 +499,10 @@
                 "name": "lblNetAmount",
                 "type": "Label",
                 "properties": {
-                  "X": "20",
-                  "Y": "592",
-                  "Width": "200",
-                  "Height": "36",
+                  "X": "23",
+                  "Y": "623",
+                  "Width": "209",
+                  "Height": "42",
                   "Visible": "true",
                   "DisplayMode": "DisplayMode.Edit",
                   "Text": "If(!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || !(IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))), \"\",\n    Text(Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0), \"$#,##0.00\"))",
@@ -485,8 +521,8 @@
                 "name": "ddPaymentType",
                 "type": "Dropdown",
                 "properties": {
-                  "X": "440",
-                  "Y": "315",
+                  "X": "443",
+                  "Y": "303",
                   "Width": "320",
                   "Height": "40",
                   "Visible": "true",
@@ -504,8 +540,8 @@
                 "name": "ddCampaign",
                 "type": "Dropdown",
                 "properties": {
-                  "X": "440",
-                  "Y": "420",
+                  "X": "443",
+                  "Y": "402",
                   "Width": "320",
                   "Height": "40",
                   "Visible": "true",
@@ -523,8 +559,8 @@
                 "name": "ddAppeal",
                 "type": "Dropdown",
                 "properties": {
-                  "X": "440",
-                  "Y": "525",
+                  "X": "447",
+                  "Y": "493",
                   "Width": "320",
                   "Height": "40",
                   "Visible": "true",
@@ -542,8 +578,8 @@
                 "name": "ddFund",
                 "type": "Dropdown",
                 "properties": {
-                  "X": "440",
-                  "Y": "630",
+                  "X": "448",
+                  "Y": "586",
                   "Width": "320",
                   "Height": "40",
                   "Visible": "!tglSplitFunds.Value",
@@ -562,7 +598,7 @@
                 "type": "Button",
                 "properties": {
                   "X": "20",
-                  "Y": "650",
+                  "Y": "680",
                   "Width": "200",
                   "Height": "40",
                   "Visible": "true",
@@ -574,7 +610,7 @@
                   "BorderThickness": "0",
                   "Size": "13",
                   "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "UpdateContext({varTried: true});\nIf(\n    (tglNewDonor.Value || (varDonorState = \"found\" && varDonorLookupId = Trim(txtConstituentId.Text))) &&\n    (!tglNewDonor.Value || !IsBlank(Trim(txtNewDonorName.Text))) &&\n    !IsBlank(dpGiftDate.SelectedDate) &&\n    !IsBlank(ddGiftType.Selected.code) &&\n    !IsBlank(ddPaymentType.Selected.code) &&\n    !IsBlank(ddCampaign.Selected.code) &&\n    !IsBlank(ddAppeal.Selected.code) &&\n    (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&\n    (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) &&\n    (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&\n    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)),\n    // 1. Save with a temporary Title, 2. set the reference SUB-00001 from the new ID (#1 data dictionary),\n    // 3. the fund lines (the split, or the fund chosen with the whole amount), 4. link the payment.\n    // Stops at the first failure. The submission's Fund is the primary fund: the largest line.\n    With({lines: If(tglSplitFunds.Value, colFundLines,\n            Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},\n    With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {\n            Title: \"NEW\",\n            'Constituent ID': If(tglNewDonor.Value, Blank(), varDonorLookupId),\n            'Constituent Name': If(tglNewDonor.Value, Trim(txtNewDonorName.Text), varDonorName),\n            'Constituent System ID': If(tglNewDonor.Value, \"\", varDonorSystemId),\n            'Payment Type': ddPaymentType.Selected.code,\n            'Gift Date': dpGiftDate.SelectedDate,\n            'Gift Type': ddGiftType.Selected.code,\n            'Gift Amount': Value(txtGiftAmount.Text),\n            Fees: Coalesce(Value(txtFees.Text), 0),\n            'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),\n            Campaign: ddCampaign.Selected.code,\n            Appeal: ddAppeal.Selected.code,\n            Fund: First(SortByColumns(lines, \"amount\", SortOrder.Descending)).fund,\n            'Assigned Solicitor': If(IsBlank(Trim(txtAssignedSolicitor.Text)), Blank(), Trim(txtAssignedSolicitor.Text)),\n            'Payment Reference': varPaymentRecord.Reference,\n            'Processing status': {Value: \"Submitted\"}\n        })},\n        With({ref: \"SUB-\" & Text(created.ID, \"00000\")},\n            IfError(\n                created,\n                    Notify(\"The submission was not saved: \" & FirstError.Message, NotificationType.Error),\n                Patch('MCHF Submissions', created, {Title: ref}),\n                    Notify(\"Item \" & created.ID & \" was saved, but its reference could not be set: \" & FirstError.Message, NotificationType.Error),\n                ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),\n                    Notify(ref & \" was saved, but its fund lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),\n                    Notify(ref & \" was saved, but the payment could not be linked to it: \" & FirstError.Message, NotificationType.Error),\n                UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});\n                Notify(\"Soumission réussie. Référence : \" & ref, NotificationType.Success))))),\n    Notify(\"Some fields need your attention.\", NotificationType.Error)\n)"
+                  "OnSelect": "UpdateContext({varTried: true});\nIf(\n    (tglNewDonor.Value || (varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text))) &&\n    (!tglNewDonor.Value || !IsBlank(Trim(txtNewDonorName.Text))) &&\n    !IsBlank(dpGiftDate.SelectedDate) &&\n    !IsBlank(ddGiftType.Selected.code) &&\n    !IsBlank(ddPaymentType.Selected.code) &&\n    !IsBlank(ddCampaign.Selected.code) &&\n    !IsBlank(ddAppeal.Selected.code) &&\n    (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&\n    (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) &&\n    (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&\n    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&\n    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = \"found\"),\n    // 1. Save with a temporary Title, 2. set the reference SUB-00001 from the new ID (#1 data dictionary),\n    // 3. the fund lines (the split, or the fund chosen with the whole amount), 4. link the payment.\n    // Stops at the first failure. The submission's Fund is the primary fund: the largest line.\n    With({lines: If(tglSplitFunds.Value, colFundLines,\n            Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},\n    With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {\n            Title: \"NEW\",\n            'Constituent ID': If(tglNewDonor.Value, Blank(), varDonor.lookupId),\n            'Constituent Name': If(tglNewDonor.Value, Trim(txtNewDonorName.Text), varDonor.name),\n            'Constituent System ID': If(tglNewDonor.Value, \"\", varDonor.systemId),\n            'Payment Type': ddPaymentType.Selected.code,\n            'Gift Date': dpGiftDate.SelectedDate,\n            'Gift Type': ddGiftType.Selected.code,\n            'Gift Amount': Value(txtGiftAmount.Text),\n            Fees: Coalesce(Value(txtFees.Text), 0),\n            'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),\n            Campaign: ddCampaign.Selected.code,\n            Appeal: ddAppeal.Selected.code,\n            Fund: First(SortByColumns(lines, \"amount\", SortOrder.Descending)).fund,\n            Package: Trim(txtPackage.Text),\n            'Assigned Solicitor': Trim(txtSolicitor.Text),\n            Notes: txtNotes.Text,\n            'Payment Reference': varPaymentRecord.Reference,\n            'Processing status': {Value: \"Submitted\"}\n        })},\n        With({ref: \"SUB-\" & Text(created.ID, \"00000\")},\n            IfError(\n                created,\n                    Notify(\"The submission was not saved: \" & FirstError.Message, NotificationType.Error),\n                Patch('MCHF Submissions', created, {Title: ref}),\n                    Notify(\"Item \" & created.ID & \" was saved, but its reference could not be set: \" & FirstError.Message, NotificationType.Error),\n                ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),\n                    Notify(ref & \" was saved, but its fund lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),\n                    Notify(ref & \" was saved, but the payment could not be linked to it: \" & FirstError.Message, NotificationType.Error),\n                UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});\n                Notify(\"Soumission réussie. Référence : \" & ref, NotificationType.Success))))),\n    Notify(\"Some fields need your attention.\", NotificationType.Error)\n)"
                 },
                 "children": []
               },
@@ -600,8 +636,8 @@
                 "name": "ddGiftType",
                 "type": "Dropdown",
                 "properties": {
-                  "X": "440",
-                  "Y": "210",
+                  "X": "444",
+                  "Y": "213",
                   "Width": "320",
                   "Height": "40",
                   "Visible": "true",
@@ -679,7 +715,7 @@
                 "name": "lblAssignedSolicitor",
                 "type": "Label",
                 "properties": {
-                  "X": "880",
+                  "X": "855",
                   "Y": "75",
                   "Width": "320",
                   "Height": "30",
@@ -698,23 +734,24 @@
                 "children": []
               },
               {
-                "name": "txtAssignedSolicitor",
+                "name": "txtSolicitor",
                 "type": "TextInput",
                 "properties": {
-                  "X": "880",
+                  "X": "856",
                   "Y": "105",
                   "Width": "320",
                   "Height": "40",
                   "Visible": "true",
                   "DisplayMode": "DisplayMode.Edit",
-                  "Default": "If(IsBlank(varPaymentRecord), \"\", Coalesce(varPaymentRecord.'Assigned Solicitor', \"\"))",
+                  "Default": "If(IsBlank(varPaymentRecord), \"\", varPaymentRecord.'Assigned Solicitor')",
                   "HintText": "\"\"",
                   "Mode": "TextMode.SingleLine",
                   "Color": "RGBA(33, 37, 41, 1)",
                   "Fill": "RGBA(255, 255, 255, 1)",
                   "BorderColor": "RGBA(134, 142, 150, 1)",
                   "BorderThickness": "1",
-                  "Size": "13"
+                  "Size": "13",
+                  "OnChange": "Set(varSolicitor, Blank())"
                 },
                 "children": []
               },
@@ -722,8 +759,8 @@
                 "name": "lblPaymentNotes",
                 "type": "Label",
                 "properties": {
-                  "X": "880",
-                  "Y": "152",
+                  "X": "882",
+                  "Y": "554",
                   "Width": "440",
                   "Height": "60",
                   "Visible": "!IsBlank(varPaymentRecord.Notes)",
@@ -886,10 +923,10 @@
                 "name": "galFundLines",
                 "type": "Gallery",
                 "properties": {
-                  "X": "880",
-                  "Y": "388",
+                  "X": "872",
+                  "Y": "407",
                   "Width": "440",
-                  "Height": "210",
+                  "Height": "115",
                   "Visible": "tglSplitFunds.Value",
                   "DisplayMode": "DisplayMode.Edit",
                   "Items": "colFundLines",
@@ -984,8 +1021,8 @@
                 "name": "lblFundTotal",
                 "type": "Label",
                 "properties": {
-                  "X": "880",
-                  "Y": "605",
+                  "X": "879",
+                  "Y": "540",
                   "Width": "440",
                   "Height": "30",
                   "Visible": "tglSplitFunds.Value",
@@ -1029,7 +1066,7 @@
                 "type": "Label",
                 "properties": {
                   "X": "440",
-                  "Y": "147",
+                  "Y": "146",
                   "Width": "380",
                   "Height": "26",
                   "Visible": "varTried && IsBlank(dpGiftDate.SelectedDate)",
@@ -1050,8 +1087,8 @@
                 "name": "lblErrGiftType",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "252",
+                  "X": "438",
+                  "Y": "249",
                   "Width": "380",
                   "Height": "26",
                   "Visible": "varTried && IsBlank(ddGiftType.Selected.code)",
@@ -1072,8 +1109,8 @@
                 "name": "lblErrPaymentType",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "357",
+                  "X": "439",
+                  "Y": "340",
                   "Width": "380",
                   "Height": "26",
                   "Visible": "varTried && IsBlank(ddPaymentType.Selected.code)",
@@ -1094,8 +1131,8 @@
                 "name": "lblErrCampaign",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "462",
+                  "X": "442",
+                  "Y": "436",
                   "Width": "380",
                   "Height": "26",
                   "Visible": "varTried && IsBlank(ddCampaign.Selected.code)",
@@ -1116,8 +1153,8 @@
                 "name": "lblErrAppeal",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "567",
+                  "X": "444",
+                  "Y": "529",
                   "Width": "380",
                   "Height": "26",
                   "Visible": "varTried && IsBlank(ddAppeal.Selected.code)",
@@ -1138,8 +1175,8 @@
                 "name": "lblErrFund",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "672",
+                  "X": "445",
+                  "Y": "622",
                   "Width": "380",
                   "Height": "26",
                   "Visible": "varTried && !(tglSplitFunds.Value || !IsBlank(ddFund.Selected.code))",
@@ -1204,8 +1241,8 @@
                 "name": "lblErrFundLines",
                 "type": "Label",
                 "properties": {
-                  "X": "880",
-                  "Y": "647",
+                  "X": "885",
+                  "Y": "608",
                   "Width": "440",
                   "Height": "26",
                   "Visible": "varTried && !(!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005))",
@@ -1292,8 +1329,8 @@
                 "name": "lblNetAmountText",
                 "type": "Label",
                 "properties": {
-                  "X": "20",
-                  "Y": "565",
+                  "X": "18",
+                  "Y": "592",
                   "Width": "200",
                   "Height": "30",
                   "Visible": "true",
@@ -1336,8 +1373,8 @@
                 "name": "lblGiftType",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "180",
+                  "X": "438",
+                  "Y": "187",
                   "Width": "200",
                   "Height": "30",
                   "Visible": "true",
@@ -1358,8 +1395,8 @@
                 "name": "lblPaymentType",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "285",
+                  "X": "439",
+                  "Y": "277",
                   "Width": "200",
                   "Height": "30",
                   "Visible": "true",
@@ -1380,8 +1417,8 @@
                 "name": "lblCampaign",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "390",
+                  "X": "438",
+                  "Y": "375",
                   "Width": "200",
                   "Height": "30",
                   "Visible": "true",
@@ -1402,8 +1439,8 @@
                 "name": "lblAppeal",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "495",
+                  "X": "443",
+                  "Y": "465",
                   "Width": "200",
                   "Height": "30",
                   "Visible": "true",
@@ -1424,8 +1461,8 @@
                 "name": "lblFunds",
                 "type": "Label",
                 "properties": {
-                  "X": "440",
-                  "Y": "600",
+                  "X": "443",
+                  "Y": "561",
                   "Width": "200",
                   "Height": "30",
                   "Visible": "!tglSplitFunds.Value",
@@ -1510,7 +1547,7 @@
                   "Y": "150",
                   "Width": "415",
                   "Height": "30",
-                  "Visible": "varTried && !tglNewDonor.Value && !(varDonorState = \"found\" && varDonorLookupId = Trim(txtConstituentId.Text)) && IsBlank(varDonorMessage)",
+                  "Visible": "varTried && !tglNewDonor.Value && !(varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text)) && IsBlank(varDonor.message)",
                   "DisplayMode": "DisplayMode.Edit",
                   "Text": "If(IsBlank(Trim(txtConstituentId.Text)), \"Saisissez l'ID (7 chiffres), puis cliquez sur Lookup.\", \"Cliquez sur Lookup pour vérifier le donateur.\")",
                   "Color": "Color.Red",
@@ -1532,9 +1569,9 @@
                   "Y": "150",
                   "Width": "415",
                   "Height": "30",
-                  "Visible": "!tglNewDonor.Value && varDonorState = \"found\"",
+                  "Visible": "!tglNewDonor.Value && varDonor.state = \"found\"",
                   "DisplayMode": "DisplayMode.Edit",
-                  "Text": "varDonorName",
+                  "Text": "varDonor.name",
                   "Color": "RGBA(33, 37, 41, 1)",
                   "Fill": "RGBA(0, 0, 0, 0)",
                   "BorderColor": "RGBA(0, 0, 0, 0)",
@@ -1554,9 +1591,9 @@
                   "Y": "150",
                   "Width": "415",
                   "Height": "30",
-                  "Visible": "!tglNewDonor.Value && !IsBlank(varDonorMessage)",
+                  "Visible": "!tglNewDonor.Value && !IsBlank(varDonor.message)",
                   "DisplayMode": "DisplayMode.Edit",
-                  "Text": "varDonorMessage",
+                  "Text": "varDonor.message",
                   "Color": "Color.Red",
                   "Fill": "RGBA(0, 0, 0, 0)",
                   "BorderColor": "RGBA(0, 0, 0, 0)",
@@ -1661,7 +1698,158 @@
                   "BorderThickness": "0",
                   "Size": "13",
                   "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varDonorState: \"\", varDonorSystemId: \"\", varDonorLookupId: \"\", varDonorName: \"\", varDonorMessage: \"\", varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment that was just coded\nSet(varPaymentRecord, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(tglNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtAssignedSolicitor); Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)"
+                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(tglNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)"
+                },
+                "children": []
+              },
+              {
+                "name": "btnCheckSolicitor",
+                "type": "Button",
+                "properties": {
+                  "X": "1190",
+                  "Y": "106",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Check\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With({typedId: Trim(txtSolicitor.Text)},\r\n  If(IsBlank(typedId),\r\n    Set(varSolicitor, Blank()),\r\n    !IsMatch(typedId, \"\\d{7}\"),\r\n    Set(varSolicitor, {state: \"invalid\", name: \"\", message: \"Enter the solicitor's 7-digit Constituent ID.\"}),\r\n    Set(varSolicitor, IfError(\r\n      With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\", include_inactive: true}).value, lookup_id = typedId)},\r\n        If(CountRows(r) <> 1,\r\n          {state: \"notfound\", name: \"\", message: \"No solicitor with this ID.\"},\r\n          First(r).fundraiser_status = \"Active\" && !First(r).inactive,\r\n          {state: \"found\", name: First(r).name, message: \"\"},\r\n          {state: \"refused\", name: First(r).name, message: First(r).name & \" is not an active solicitor.\"}\r\n        )\r\n      ),\r\n      {state: \"error\", name: \"\", message: \"Solicitor check unavailable. Try again in a moment.\"}\r\n    ))\r\n  )\r\n)"
+                },
+                "children": []
+              },
+              {
+                "name": "txtPackage",
+                "type": "TextInput",
+                "properties": {
+                  "X": "449",
+                  "Y": "683",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "txtNotes",
+                "type": "TextInput",
+                "properties": {
+                  "X": "892",
+                  "Y": "663",
+                  "Width": "320",
+                  "Height": "80",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(IsBlank(varPaymentRecord), \"\", varPaymentRecord.Notes)",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.MultiLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblSolicitor",
+                "type": "Label",
+                "properties": {
+                  "X": "858",
+                  "Y": "150",
+                  "Width": "350",
+                  "Height": "22",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(varSolicitor.state = \"found\", varSolicitor.name, varSolicitor.message)",
+                  "Color": "If(varSolicitor.state = \"found\", Color.Black, Color.Red)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrSolicitor",
+                "type": "Label",
+                "properties": {
+                  "X": "854",
+                  "Y": "191",
+                  "Width": "350",
+                  "Height": "40",
+                  "Visible": "varTried && !IsBlank(Trim(txtSolicitor.Text)) && varSolicitor.state <> \"found\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Check the solicitor's ID, or leave it empty.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblPackage",
+                "type": "Label",
+                "properties": {
+                  "X": "446",
+                  "Y": "654",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Package (facultatif)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblNotes",
+                "type": "Label",
+                "properties": {
+                  "X": "895",
+                  "Y": "629",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Notes (facultatif)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
                 },
                 "children": []
               }
@@ -1671,8 +1859,252 @@
         "dataSources": [
           {
             "kind": "list",
+            "name": "MCHF Fund Lines",
+            "id": "3003a026-5bf8-44d3-a426-b572609011a1",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Submission",
+                "displayName": "Submission",
+                "type": "lookup",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": "d92675c6-cec4-453c-8b5a-9dbb7196ba87"
+              },
+              {
+                "name": "Submission_x0020_Reference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Amount",
+                "displayName": "Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF Payment Types",
+            "id": "14db9871-d248-4373-9953-ad47534c3e95",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Active",
+                "displayName": "Active",
+                "type": "boolean",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Sort_x0020_Order",
+                "displayName": "Sort Order",
+                "type": "number",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF Gift Types",
+            "id": "c842f564-f45a-4b06-85c3-d92e02810f69",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Active",
+                "displayName": "Active",
+                "type": "boolean",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Sort_x0020_Order",
+                "displayName": "Sort Order",
+                "type": "number",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "connector",
+            "name": "RENXT",
+            "id": "renxt"
+          },
+          {
+            "kind": "list",
+            "name": "MCHF - Payment Log",
+            "id": "66a17be3-c739-4e31-817a-eab06ba67b0b",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentID",
+                "displayName": "Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PaymentType",
+                "displayName": "Payment Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftDate",
+                "displayName": "Gift Date",
+                "type": "date",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftAmount",
+                "displayName": "Gift Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftType",
+                "displayName": "Gift Type",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AssignedSolicitor",
+                "displayName": "Assigned Solicitor",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Notes",
+                "displayName": "Notes",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Reference",
+                "displayName": "Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Status",
+                "displayName": "Status",
+                "type": "choice",
+                "multiple": false,
+                "required": true,
+                "choices": [
+                  "Claimed",
+                  "Unclaimed",
+                  "Coded"
+                ],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedByName",
+                "displayName": "Claimed By Name",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "SubmissionReference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
             "name": "MCHF Submissions",
-            "id": "4202d403-b5da-4946-8c73-873389687b5c",
+            "id": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
             "columns": [
               {
                 "name": "Title",
@@ -1889,192 +2321,6 @@
                 "required": false,
                 "choices": [],
                 "lookupListId": null
-              }
-            ]
-          },
-          {
-            "kind": "list",
-            "name": "MCHF Fund Lines",
-            "id": "17a89384-fa49-48c9-b561-885c0b32dc54",
-            "columns": [
-              {
-                "name": "Title",
-                "displayName": "Titre",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Submission",
-                "displayName": "Submission",
-                "type": "lookup",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": "4202d403-b5da-4946-8c73-873389687b5c"
-              },
-              {
-                "name": "Submission_x0020_Reference",
-                "displayName": "Submission Reference",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Amount",
-                "displayName": "Amount",
-                "type": "currency",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              }
-            ]
-          },
-          {
-            "kind": "list",
-            "name": "MCHF Payment Types",
-            "id": "7da3b062-769d-4bd4-8031-77be755931a4",
-            "columns": [
-              {
-                "name": "Title",
-                "displayName": "Titre",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Active",
-                "displayName": "Active",
-                "type": "boolean",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Sort_x0020_Order",
-                "displayName": "Sort Order",
-                "type": "number",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              }
-            ]
-          },
-          {
-            "kind": "list",
-            "name": "MCHF Gift Types",
-            "id": "0e675751-f88f-4e3b-bd0e-f753c1df67bd",
-            "columns": [
-              {
-                "name": "Title",
-                "displayName": "Titre",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Active",
-                "displayName": "Active",
-                "type": "boolean",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Sort_x0020_Order",
-                "displayName": "Sort Order",
-                "type": "number",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              }
-            ]
-          },
-          {
-            "kind": "connector",
-            "name": "RENXT",
-            "id": "renxt"
-          },
-          {
-            "kind": "list",
-            "name": "MCHF - Payment Log",
-            "id": "928c4248-8636-41af-ab9c-8d2397be7e44",
-            "columns": [
-              {
-                "name": "Title",
-                "displayName": "Titre",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "ConstituentID",
-                "displayName": "Constituent ID",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "PaymentType",
-                "displayName": "Payment Type",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "GiftDate",
-                "displayName": "Gift Date",
-                "type": "date",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "GiftAmount",
-                "displayName": "Gift Amount",
-                "type": "currency",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "GiftType",
-                "displayName": "Gift Type",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "AssignedSolicitor",
-                "displayName": "Assigned Solicitor",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
               },
               {
                 "name": "Notes",
@@ -2086,58 +2332,45 @@
                 "lookupListId": null
               },
               {
-                "name": "Reference",
-                "displayName": "Reference",
-                "type": "text",
+                "name": "TaxReceipt",
+                "displayName": "Tax Receipt",
+                "type": "boolean",
                 "multiple": false,
                 "required": false,
                 "choices": [],
                 "lookupListId": null
               },
               {
-                "name": "Status",
-                "displayName": "Status",
-                "type": "choice",
-                "multiple": false,
-                "required": true,
-                "choices": [
-                  "Claimed",
-                  "Unclaimed",
-                  "Coded"
-                ],
-                "lookupListId": null
-              },
-              {
-                "name": "ClaimedByName",
-                "displayName": "Claimed By Name",
-                "type": "text",
+                "name": "ReceiptAmount",
+                "displayName": "Receipt Amount",
+                "type": "currency",
                 "multiple": false,
                 "required": false,
                 "choices": [],
                 "lookupListId": null
               },
               {
-                "name": "SubmissionReference",
-                "displayName": "Submission Reference",
-                "type": "text",
+                "name": "BenefitAmount",
+                "displayName": "Benefit Amount",
+                "type": "currency",
                 "multiple": false,
                 "required": false,
                 "choices": [],
                 "lookupListId": null
               },
               {
-                "name": "ConstituentName",
-                "displayName": "Constituent Name",
-                "type": "text",
+                "name": "NewDonor",
+                "displayName": "New Donor",
+                "type": "boolean",
                 "multiple": false,
-                "required": true,
+                "required": false,
                 "choices": [],
                 "lookupListId": null
               }
             ]
           }
         ],
-        "id": "9c58aa36-11a4-4772-859e-20f53d344cd7",
+        "id": "3c3d7166-e394-48e1-87b8-39b7fc4b1f59",
         "name": "MCHF - Coding Form"
       }
     }
