@@ -1,14 +1,14 @@
 # Coding Form: Simple Gift
 
-Related issue: [#8](https://github.com/hack4impact/mchf-project/issues/8), with the follow-ups from the review of PR #38
+Related issues: [#8](https://github.com/hack4impact/mchf-project/issues/8) (with follow-ups from PR #38), [#22](https://github.com/hack4impact/mchf-project/issues/22) (Package, Assigned Solicitor and Notes)
 App: **MCHF - Coding Form** (Équipe)
 Lab export: `lab/solutions/mchf-coding-form.solution.json` (the app and the five lists it uses, no items)
 
 A fundraiser enters one simple gift: the donor (or a new donor), the gift, its
-coding (campaign, appeal, one fund or a split across several funds). The form saves
-it as a submission with the status `Submitted`, gives it a reference `SUB-00001`,
-writes its fund lines, and links it to the payment it codes when it was opened from
-the Payment Log.
+coding (campaign, appeal, one fund or a split across several funds, optional package,
+assigned solicitor and notes). The form saves it as a submission with the status
+`Submitted`, gives it a reference `SUB-00001`, writes its fund lines, and links it
+to the payment it codes when it was opened from the Payment Log.
 
 Lab only. Saving uses `Patch` on lab lists; the real Power Apps and SharePoint
 version is rebuilt and tested in Sprint 4 (see section 7).
@@ -45,13 +45,15 @@ Then a popup shows the SUB number.
 | `Net Amount` | `Gift Amount - Fees` |
 | `Campaign`, `Appeal` | NXT `lookup_id` of the chosen item (e.g. `AC-2025-2026`, `EV-GOLF-2026`) |
 | `Fund` | Primary fund: the chosen fund, or with a split the line with the largest amount (e.g. `HA-GENE0001`) |
-| `Assigned Solicitor` | The optional field, prefilled from the payment |
+| `Package` | Optional free-text package code (`Trim(txtPackage.Text)`), empty when omitted |
+| `Assigned Solicitor` | Optional 7-digit solicitor Constituent ID (`Trim(txtSolicitor.Text)`), validated as an active fundraiser in RE NXT; prefilled from the payment when present, never from the signed-in user |
+| `Notes` | Optional multiline gift notes (`txtNotes.Text`), prefilled from `varPaymentRecord.Notes` when present |
 | `Payment Reference` | The payment's `Reference` (e.g. `PAY-00012`), when there is one |
 
 ## 2. Screen
 
-`Screen1`, tablet 1366 × 768. Labels are in French, as built; the donor messages
-are the English ones of the #2 contract.
+`Screen1`, tablet 1366 × 768. Labels are in French, as built; the donor and
+solicitor lookup messages are the English ones of the #2 and #22 contracts.
 
 - **Left column:** `txtConstituentId` + `btnSearchDonor` ("Lookup"); under them one
   line that shows the donor's name (`lblConstituentName`), a lookup message
@@ -59,12 +61,15 @@ are the English ones of the #2 contract.
   `tglNewDonor`, then for a new donor `btnNewDonorLink` and `txtNewDonorName`;
   `txtGiftAmount`, `txtFees`, `lblNetAmount`; `btnSubmit`.
 - **Middle column:** `dpGiftDate`, `ddGiftType`, `ddPaymentType`, `ddCampaign`,
-  `ddAppeal`, `ddFund` (hidden when the gift is split).
-- **Right column:** `txtAssignedSolicitor`, `lblPaymentNotes` (the payment's notes,
-  when it has some), the toggle `tglSplitFunds`, then for a split: `ddLineFund` +
-  `txtLineAmount`, `btnAddLine` ("Ajouter la ligne" / "Mettre à jour la ligne"),
-  `btnCancelLine`, the gallery `galFundLines` (fund, amount, edit and delete icons)
-  and `lblFundTotal`.
+  `ddAppeal`, `ddFund` (hidden when the gift is split), and `txtPackage`
+  ("Package (facultatif)").
+- **Right column:** `txtSolicitor` ("Sollicitateur assigné (facultatif)") +
+  `btnCheckSolicitor` ("Check"), `lblSolicitor` (active solicitor name in black or
+  check error in red), `lblErrSolicitor` (Submit validation message), the toggle
+  `tglSplitFunds`, then for a split: `ddLineFund` + `txtLineAmount`, `btnAddLine`
+  ("Ajouter la ligne" / "Mettre à jour la ligne"), `btnCancelLine`, the gallery
+  `galFundLines` (fund, amount, edit and delete icons), `lblFundTotal` and
+  `lblErrFundLines`; at the bottom, `txtNotes` ("Notes (facultatif)", multiline).
 - **Under every required field:** a red label `lblErr…`, visible only after a
   Submit attempt (`varTried`) while that field is invalid.
 - **Success popup:** `rectOverlay`, `rectModalCard`, `lblSuccessTitle`,
@@ -86,13 +91,29 @@ are the English ones of the #2 contract.
   appeals and funds come from `RENXT.ListCampaigns()`, `ListAppeals()` and
   `ListFunds()`; the form keeps the `lookup_id`.
 - **Donor lookup (#2 contract).** Seven digits, then `SearchConstituents` with
-  `search_field: "lookup_id"`, filtered on `lookup_id = typedId`. Exactly one match:
-  found. None: "No donor with this Constituent ID. Check the number." More than one:
-  "Several donors match. Contact Gift Processing." An error or a timeout from NXT:
-  "Donor lookup unavailable. Try again in a moment.", never "not found" (otherwise
-  the fundraiser would switch to New donor and create a duplicate).
-- **The saved ID is the one that was looked up.** Typing in the ID field clears the
-  donor (`OnChange`), and Submit also checks `varDonorLookupId = Trim(txtConstituentId.Text)`.
+  `search_field: "lookup_id"`, filtered on `lookup_id = typedId`. Stored in the
+  global record `varDonor` (`{state, systemId, lookupId, name, message}`). Exactly
+  one match: found. None: "No donor with this Constituent ID. Check the number."
+  More than one: "Several donors match. Contact Gift Processing." An error or a
+  timeout from NXT: "Donor lookup unavailable. Try again in a moment.", never "not
+  found" (otherwise the fundraiser would switch to New donor and create a duplicate).
+- **The saved ID is the one that was looked up.** Typing in the ID field clears
+  `varDonor` (`OnChange`), and Submit also checks `varDonor.lookupId = Trim(txtConstituentId.Text)`.
+- **Assigned Solicitor (#22 contract).** Optional 7-digit Constituent ID, never
+  prefilled from the signed-in user. Clicking `btnCheckSolicitor` ("Check") searches
+  RE NXT with `SearchConstituents(typedId, {search_field: "lookup_id", include_inactive: true})`:
+  - Not 7 digits: `"Enter the solicitor's 7-digit Constituent ID."`
+  - Not found (count <> 1): `"No solicitor with this ID."`
+  - Found, but `fundraiser_status <> "Active"` or `inactive`: `"<Name> is not an active solicitor."`
+  - Found and active (`fundraiser_status = "Active" && !inactive`): displays the
+    solicitor's name in black and sets `varSolicitor.state = "found"`.
+  - NXT error or timeout: `"Solicitor check unavailable. Try again in a moment."`
+  - Typing in `txtSolicitor` clears `varSolicitor` (`OnChange`). If `txtSolicitor` is
+    non-empty on Submit without `varSolicitor.state = "found"`, Submit is blocked and
+    `lblErrSolicitor` displays `"Check the solicitor's ID, or leave it empty."`.
+- **Package & Notes (#22 contract).** Both are optional. `txtPackage` is single-line
+  free text; `txtNotes` is multiline free text, prefilled from `varPaymentRecord.Notes`
+  when opened from the Payment Log, and saved to `MCHF Submissions.Notes`.
 - **New donor** (PRD acceptance #19 and the decision on new donors). "Nouveau donateur ?"
   turns off the ID field and Lookup, shows the link to the new-donor form and a
   required name field. The submission is saved without a Constituent ID; Gift
@@ -113,19 +134,20 @@ are the English ones of the #2 contract.
   date is caught instead of saved silently.
 - **Prefill from a payment.** Constituent ID (then looked up right away, as if the
   fundraiser had clicked Lookup, which fills the name), gift amount, gift date,
-  payment type, gift type and assigned solicitor when the payment has them, and the
-  payment's notes shown under the solicitor (read only). A `paymentId`
-  that matches no payment, or a payment that already has a `Submission Reference`,
-  shows a warning; the second case is not blocked.
-- **After a save.** "Fermer et réinitialiser" clears every field, the donor, the
-  fund lines and the payment, so the next gift cannot be linked to the payment that
-  was just coded.
+  payment type, gift type, assigned solicitor (prefilled as an ID in `txtSolicitor`
+  for the fundraiser to verify with Check) and the payment's notes in `txtNotes`. A
+  `paymentId` that matches no payment, or a payment that already has a
+  `Submission Reference`, shows a warning; the second case is not blocked.
+- **After a save.** "Fermer et réinitialiser" clears every field (including
+  `txtPackage`, `txtSolicitor` and `txtNotes`), `varDonor`, `varSolicitor`, the
+  fund lines and `varPaymentRecord`, so the next gift cannot be linked to the
+  payment that was just coded.
 
 ## 4. Formulas
 
 ### `Screen1.OnVisible`
 
-```
+```powerfx
 // 1. The payment being coded, when the form is opened from the Payment Log with ?paymentId=<item ID> (#14)
 Set(varPaymentIdParam, Trim(Param("paymentId")));
 Set(varPaymentRecord, If(IsBlank(varPaymentIdParam), Blank(), LookUp('MCHF - Payment Log', ID = IfError(Value(varPaymentIdParam), -1))));
@@ -152,7 +174,9 @@ IfError(
 );
 
 // 4. Screen state; colFundLines holds the lines of a gift split across several funds
-UpdateContext({varDonorState: "", varDonorSystemId: "", varDonorLookupId: "", varDonorName: "", varDonorMessage: "", varTried: false, varSubmissionRef: "", varShowSuccessPopup: false, varEditLineId: 0, varLineError: ""});
+UpdateContext({varTried: false, varSubmissionRef: "", varShowSuccessPopup: false, varEditLineId: 0, varLineError: ""});
+Set(varDonor, Blank());
+Set(varSolicitor, Blank());
 ClearCollect(colFundLines, {lineId: 0, fund: "", fundLabel: "", amount: 0});
 Clear(colFundLines);
 
@@ -160,44 +184,71 @@ Clear(colFundLines);
 If(!IsBlank(varPaymentRecord),
     With({typedId: Trim(varPaymentRecord.'Constituent ID')},
         If(IsMatch(typedId, "\d{7}"),
-            With({res: IfError(
+            Set(varDonor, IfError(
                 With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: "lookup_id"}).value, lookup_id = typedId)},
                     Switch(CountRows(r),
                         0, {state: "notfound", systemId: "", lookupId: "", name: "", message: "No donor with this Constituent ID. Check the number."},
                         1, {state: "found", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: ""},
                         {state: "error", systemId: "", lookupId: "", name: "", message: "Several donors match. Contact Gift Processing."})),
-                {state: "error", systemId: "", lookupId: "", name: "", message: "Donor lookup unavailable. Try again in a moment."})},
-                UpdateContext({varDonorState: res.state, varDonorSystemId: res.systemId, varDonorLookupId: res.lookupId, varDonorName: res.name, varDonorMessage: res.message})))))
+                {state: "error", systemId: "", lookupId: "", name: "", message: "Donor lookup unavailable. Try again in a moment."})))))
 ```
 
 ### `btnSearchDonor.OnSelect`
 
-```
+```powerfx
 With({typedId: Trim(txtConstituentId.Text)},
     If(!IsMatch(typedId, "\d{7}"),
-        UpdateContext({varDonorState: "invalid", varDonorSystemId: "", varDonorLookupId: "", varDonorName: "", varDonorMessage: "Enter the 7-digit Constituent ID."}),
-        With({res: IfError(
+        Set(varDonor, {state: "invalid", systemId: "", lookupId: "", name: "", message: "Enter the 7-digit Constituent ID."}),
+        Set(varDonor, IfError(
             With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: "lookup_id"}).value, lookup_id = typedId)},
                 Switch(CountRows(r),
                     0, {state: "notfound", systemId: "", lookupId: "", name: "", message: "No donor with this Constituent ID. Check the number."},
                     1, {state: "found", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: ""},
                     {state: "error", systemId: "", lookupId: "", name: "", message: "Several donors match. Contact Gift Processing."})),
-            {state: "error", systemId: "", lookupId: "", name: "", message: "Donor lookup unavailable. Try again in a moment."})},
-            UpdateContext({varDonorState: res.state, varDonorSystemId: res.systemId, varDonorLookupId: res.lookupId, varDonorName: res.name, varDonorMessage: res.message}))))
+            {state: "error", systemId: "", lookupId: "", name: "", message: "Donor lookup unavailable. Try again in a moment."}))))
 ```
 
 `txtConstituentId.OnChange`:
 
+```powerfx
+Set(varDonor, Blank())
 ```
-UpdateContext({varDonorState: "", varDonorSystemId: "", varDonorLookupId: "", varDonorName: "", varDonorMessage: ""})
+
+### `btnCheckSolicitor.OnSelect`
+
+```powerfx
+With({typedId: Trim(txtSolicitor.Text)},
+  If(IsBlank(typedId),
+    Set(varSolicitor, Blank()),
+    !IsMatch(typedId, "\d{7}"),
+    Set(varSolicitor, {state: "invalid", name: "", message: "Enter the solicitor's 7-digit Constituent ID."}),
+    Set(varSolicitor, IfError(
+      With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: "lookup_id", include_inactive: true}).value, lookup_id = typedId)},
+        If(CountRows(r) <> 1,
+          {state: "notfound", name: "", message: "No solicitor with this ID."},
+          First(r).fundraiser_status = "Active" && !First(r).inactive,
+          {state: "found", name: First(r).name, message: ""},
+          {state: "refused", name: First(r).name, message: First(r).name & " is not an active solicitor."}
+        )
+      ),
+      {state: "error", name: "", message: "Solicitor check unavailable. Try again in a moment."}
+    ))
+  )
+)
+```
+
+`txtSolicitor.OnChange`:
+
+```powerfx
+Set(varSolicitor, Blank())
 ```
 
 ### `btnSubmit.OnSelect`
 
-```
+```powerfx
 UpdateContext({varTried: true});
 If(
-    (tglNewDonor.Value || (varDonorState = "found" && varDonorLookupId = Trim(txtConstituentId.Text))) &&
+    (tglNewDonor.Value || (varDonor.state = "found" && varDonor.lookupId = Trim(txtConstituentId.Text))) &&
     (!tglNewDonor.Value || !IsBlank(Trim(txtNewDonorName.Text))) &&
     !IsBlank(dpGiftDate.SelectedDate) &&
     !IsBlank(ddGiftType.Selected.code) &&
@@ -207,7 +258,8 @@ If(
     (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&
     (IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) &&
     (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), "^\d+(\.\d{1,2})?$") && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&
-    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)),
+    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&
+    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = "found"),
     // 1. Save with a temporary Title, 2. set the reference SUB-00001 from the new ID (#1 data dictionary),
     // 3. the fund lines (the split, or the fund chosen with the whole amount), 4. link the payment.
     // Stops at the first failure. The submission's Fund is the primary fund: the largest line.
@@ -215,9 +267,9 @@ If(
             Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},
     With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {
             Title: "NEW",
-            'Constituent ID': If(tglNewDonor.Value, Blank(), varDonorLookupId),
-            'Constituent Name': If(tglNewDonor.Value, Trim(txtNewDonorName.Text), varDonorName),
-            'Constituent System ID': If(tglNewDonor.Value, "", varDonorSystemId),
+            'Constituent ID': If(tglNewDonor.Value, Blank(), varDonor.lookupId),
+            'Constituent Name': If(tglNewDonor.Value, Trim(txtNewDonorName.Text), varDonor.name),
+            'Constituent System ID': If(tglNewDonor.Value, "", varDonor.systemId),
             'Payment Type': ddPaymentType.Selected.code,
             'Gift Date': dpGiftDate.SelectedDate,
             'Gift Type': ddGiftType.Selected.code,
@@ -227,7 +279,9 @@ If(
             Campaign: ddCampaign.Selected.code,
             Appeal: ddAppeal.Selected.code,
             Fund: First(SortByColumns(lines, "amount", SortOrder.Descending)).fund,
-            'Assigned Solicitor': If(IsBlank(Trim(txtAssignedSolicitor.Text)), Blank(), Trim(txtAssignedSolicitor.Text)),
+            Package: Trim(txtPackage.Text),
+            'Assigned Solicitor': Trim(txtSolicitor.Text),
+            Notes: txtNotes.Text,
             'Payment Reference': varPaymentRecord.Reference,
             'Processing status': {Value: "Submitted"}
         })},
@@ -255,7 +309,7 @@ result runs only when every step succeeded. `created` is computed once by `With`
 
 `btnAddLine.OnSelect`:
 
-```
+```powerfx
 With({amt: Trim(txtLineAmount.Text), code: ddLineFund.Selected.code},
     If(
         IsBlank(code),
@@ -276,7 +330,7 @@ With({amt: Trim(txtLineAmount.Text), code: ddLineFund.Selected.code},
 Gallery `galFundLines` (`Items` = `colFundLines`): `icoEditLine.OnSelect` =
 `UpdateContext({varEditLineId: ThisItem.lineId, varLineError: ""})`, `icoDeleteLine.OnSelect`:
 
-```
+```powerfx
 If(varEditLineId = ThisItem.lineId, UpdateContext({varEditLineId: 0}); Reset(ddLineFund); Reset(txtLineAmount));
 Remove(colFundLines, ThisItem)
 ```
@@ -285,14 +339,17 @@ Remove(colFundLines, ThisItem)
 
 ### `btnClosePopup.OnSelect`
 
-```
-UpdateContext({varShowSuccessPopup: false, varSubmissionRef: "", varTried: false, varDonorState: "", varDonorSystemId: "", varDonorLookupId: "", varDonorName: "", varDonorMessage: "", varEditLineId: 0, varLineError: ""});
-// The next gift is entered by hand: forget the payment that was just coded
+```powerfx
+UpdateContext({varShowSuccessPopup: false, varSubmissionRef: "", varTried: false, varEditLineId: 0, varLineError: ""});
+// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded
 Set(varPaymentRecord, Blank());
+Set(varDonor, Blank());
+Set(varSolicitor, Blank());
 Clear(colFundLines);
 Reset(txtConstituentId); Reset(tglNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);
 Reset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);
-Reset(txtAssignedSolicitor); Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)
+Reset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);
+Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)
 ```
 
 ### Defaults
@@ -311,7 +368,9 @@ Reset(txtAssignedSolicitor); Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtL
 | `ddAppeal` | `Default` | `""` |
 | `ddFund` | `Default` | `""` |
 | `ddFund` | `Visible` | `!tglSplitFunds.Value` |
-| `txtAssignedSolicitor` | `Default` | `If(IsBlank(varPaymentRecord), "", Coalesce(varPaymentRecord.'Assigned Solicitor', ""))` |
+| `txtPackage` | `Default` | `""` |
+| `txtSolicitor` | `Default` | `If(IsBlank(varPaymentRecord), "", varPaymentRecord.'Assigned Solicitor')` |
+| `txtNotes` | `Default` | `If(IsBlank(varPaymentRecord), "", varPaymentRecord.Notes)` |
 | `ddLineFund` | `Default` | `If(varEditLineId = 0, "", LookUp(colFundLines, lineId = varEditLineId).fundLabel)` |
 | `txtLineAmount` | `Default` | `If(varEditLineId = 0, "", Text(LookUp(colFundLines, lineId = varEditLineId).amount, "0.00"))` |
 | `ddGiftType` | `Items` | `colGiftTypes` |
@@ -322,39 +381,40 @@ Reset(txtAssignedSolicitor); Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtL
 | `ddLineFund` | `Items` | `colFunds` |
 | `btnSubmit` | `DisplayMode` | `DisplayMode.Edit` |
 | `lblFundTotal` | `Text` | `"Total des lignes : " & Text(Sum(colFundLines, amount), "$#,##0.00") & If((IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0), " sur " & Text(Value(txtGiftAmount.Text), "$#,##0.00"), "")` |
-| `lblPaymentNotes` | `Text` | `"Notes du paiement : " & varPaymentRecord.Notes` |
 
 ### Validation messages
 
-| Label | Text | Visible |
-|---|---|---|
-| `lblErrLine` | `varLineError` | `tglSplitFunds.Value && !IsBlank(varLineError)` |
-| `lblErrNewDonorName` | `"Saisissez le nom du nouveau donateur."` | `varTried && !(!tglNewDonor.Value \|\| !IsBlank(Trim(txtNewDonorName.Text)))` |
-| `lblErrGiftDate` | `"Choisissez la date du don."` | `varTried && IsBlank(dpGiftDate.SelectedDate)` |
-| `lblErrGiftType` | `"Choisissez le type de don."` | `varTried && IsBlank(ddGiftType.Selected.code)` |
-| `lblErrPaymentType` | `"Choisissez le mode de paiement."` | `varTried && IsBlank(ddPaymentType.Selected.code)` |
-| `lblErrCampaign` | `"Choisissez une campagne."` | `varTried && IsBlank(ddCampaign.Selected.code)` |
-| `lblErrAppeal` | `"Choisissez un appel."` | `varTried && IsBlank(ddAppeal.Selected.code)` |
-| `lblErrFund` | `"Choisissez un fonds."` | `varTried && !(tglSplitFunds.Value \|\| !IsBlank(ddFund.Selected.code))` |
-| `lblErrGiftAmount` | `"Montant supérieur à 0, par exemple 100.00."` | `varTried && !(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0)` |
-| `lblErrFees` | `"Frais : un nombre comme 2.50, sans dépasser le montant."` | `varTried && !(IsBlank(Trim(txtFees.Text)) \|\| (IsMatch(Trim(txtFees.Text), "^\d+(\.\d{1,2})?$") && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) \|\| Value(txtFees.Text) <= Value(txtGiftAmount.Text))))` |
-| `lblErrFundLines` | `If(CountRows(colFundLines) = 0, "Ajoutez au moins une ligne de fonds.", "La somme des lignes doit égaler le montant du don.")` | `varTried && !(!tglSplitFunds.Value \|\| (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005))` |
-| `lblErrorConstituentId` | `If(IsBlank(Trim(txtConstituentId.Text)), "Saisissez l'ID (7 chiffres), puis cliquez sur Lookup.", "Cliquez sur Lookup pour vérifier le donateur.")` | `varTried && !tglNewDonor.Value && !(varDonorState = "found" && varDonorLookupId = Trim(txtConstituentId.Text)) && IsBlank(varDonorMessage)` |
-| `lblDonorMsg` | `varDonorMessage` | `!tglNewDonor.Value && !IsBlank(varDonorMessage)` |
-| `lblConstituentName` | `varDonorName` | `!tglNewDonor.Value && varDonorState = "found"` |
+| Label | Text | Visible | Color |
+|---|---|---|---|
+| `lblErrLine` | `varLineError` | `tglSplitFunds.Value && !IsBlank(varLineError)` | `Color.Red` |
+| `lblErrNewDonorName` | `"Saisissez le nom du nouveau donateur."` | `varTried && !(!tglNewDonor.Value \|\| !IsBlank(Trim(txtNewDonorName.Text)))` | `Color.Red` |
+| `lblErrGiftDate` | `"Choisissez la date du don."` | `varTried && IsBlank(dpGiftDate.SelectedDate)` | `Color.Red` |
+| `lblErrGiftType` | `"Choisissez le type de don."` | `varTried && IsBlank(ddGiftType.Selected.code)` | `Color.Red` |
+| `lblErrPaymentType` | `"Choisissez le mode de paiement."` | `varTried && IsBlank(ddPaymentType.Selected.code)` | `Color.Red` |
+| `lblErrCampaign` | `"Choisissez une campagne."` | `varTried && IsBlank(ddCampaign.Selected.code)` | `Color.Red` |
+| `lblErrAppeal` | `"Choisissez un appel."` | `varTried && IsBlank(ddAppeal.Selected.code)` | `Color.Red` |
+| `lblErrFund` | `"Choisissez un fonds."` | `varTried && !(tglSplitFunds.Value \|\| !IsBlank(ddFund.Selected.code))` | `Color.Red` |
+| `lblErrGiftAmount` | `"Montant supérieur à 0, par exemple 100.00."` | `varTried && !(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0)` | `Color.Red` |
+| `lblErrFees` | `"Frais : un nombre comme 2.50, sans dépasser le montant."` | `varTried && !(IsBlank(Trim(txtFees.Text)) \|\| (IsMatch(Trim(txtFees.Text), "^\d+(\.\d{1,2})?$") && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) \|\| Value(txtFees.Text) <= Value(txtGiftAmount.Text))))` | `Color.Red` |
+| `lblErrFundLines` | `If(CountRows(colFundLines) = 0, "Ajoutez au moins une ligne de fonds.", "La somme des lignes doit égaler le montant du don.")` | `varTried && !(!tglSplitFunds.Value \|\| (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005))` | `Color.Red` |
+| `lblErrorConstituentId` | `If(IsBlank(Trim(txtConstituentId.Text)), "Saisissez l'ID (7 chiffres), puis cliquez sur Lookup.", "Cliquez sur Lookup pour vérifier le donateur.")` | `varTried && !tglNewDonor.Value && !(varDonor.state = "found" && varDonor.lookupId = Trim(txtConstituentId.Text)) && IsBlank(varDonor.message)` | `Color.Red` |
+| `lblDonorMsg` | `varDonor.message` | `!tglNewDonor.Value && !IsBlank(varDonor.message)` | `Color.Red` |
+| `lblConstituentName` | `varDonor.name` | `!tglNewDonor.Value && varDonor.state = "found"` | `RGBA(33, 37, 41, 1)` |
+| `lblSolicitor` | `If(varSolicitor.state = "found", varSolicitor.name, varSolicitor.message)` | `true` | `If(varSolicitor.state = "found", Color.Black, Color.Red)` |
+| `lblErrSolicitor` | `"Check the solicitor's ID, or leave it empty."` | `varTried && !IsBlank(Trim(txtSolicitor.Text)) && varSolicitor.state <> "found"` | `Color.Red` |
 
 `lblNetAmount.Text`:
 
-```
+```powerfx
 If(!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || !(IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), "^\d+(\.\d{1,2})?$") && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))), "",
     Text(Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0), "$#,##0.00"))
 ```
 
 ## 5. Tests
 
-Run on 2026-11-10 in Jérémie's personal environment (play mode, so that
-`paymentId` is read; the studio's Aperçu leaves `Param` empty). Test donor
-`1234567` (Camille Exemple); `9999500` is the simulated NXT's error-500 ID.
+Run on 2026-11-10 in Jérémie's personal environment (#8 / PR #38) and on
+2026-11-14 in Yasmine's personal environment (#22). Test donor `1234567`
+(Camille Exemple); `9999500` is the simulated NXT's error-500 ID.
 
 | # | Steps | Expected | Result |
 |---|---|---|---|
@@ -375,16 +435,19 @@ Run on 2026-11-10 in Jérémie's personal environment (play mode, so that
 | 15 | Edit icon on the $30 line, amount 40, "Mettre à jour la ligne" | Line loaded into the inputs, then $40.00; total $100.00 sur $100.00 | Pass |
 | 16 | Add HA-CARD0110 again | "Ce fonds est déjà dans la répartition : modifiez sa ligne." | Pass |
 | 17 | Add HA-PEDI0330 $10, then its delete icon | Total $110.00 with the message, then back to two lines and $100.00 | Pass |
-| 18 | Solicitor "Marie Tremblay", Submit (60 + 40) | `SUB-00025`; fund lines HA-CARD0110 $60 and HA-ONCO0220 $40; `Fund` = HA-CARD0110; solicitor saved | Pass |
-| 19 | Fermer et réinitialiser | Lines, split toggle and solicitor cleared too | Pass |
-| 20 | New donor, Submit without a name | ID and Lookup off; "Saisissez le nom du nouveau donateur."; no Constituent ID message | Pass |
-| 21 | New donor "Julie Gagnon", 2026-11-02, Cash, $45, EV-2026 / EV-COURSE-2026 / HA-GENE0001 | `SUB-00026` with no Constituent ID, name "Julie Gagnon"; fund line $45 | Pass |
-| 22 | Open with `?paymentId=16` (a payment with a solicitor and notes) | Donor looked up; 2026-10-28, 250.00, Business Cheque, One-time gift; solicitor "Luc Bergeron"; the payment's notes shown | Pass |
+| 18 | New donor, Submit without a name | ID and Lookup off; "Saisissez le nom du nouveau donateur."; no Constituent ID message | Pass |
+| 19 | New donor "Julie Gagnon", 2026-11-02, Cash, $45, EV-2026 / EV-COURSE-2026 / HA-GENE0001 | `SUB-00026` with no Constituent ID, name "Julie Gagnon"; fund line $45 | Pass |
+| 20 | Solicitor `12345` (not 7 digits), Check | `"Enter the solicitor's 7-digit Constituent ID."` in red; Submit blocked with `"Check the solicitor's ID, or leave it empty."` | Pass |
+| 21 | Solicitor `7654321` (not found), Check | `"No solicitor with this ID."` in red; Submit blocked | Pass |
+| 22 | Solicitor `1234567` (Camille Exemple, `fundraiser_status = "None"`), Check | `"Camille Exemple is not an active solicitor."` in red; Submit blocked | Pass |
+| 23 | Edit `txtSolicitor` after Check without re-checking | `varSolicitor` cleared on `OnChange`; Submit blocked until re-checked or cleared | Pass |
+| 24 | Complete gift with `Package` = `PKG-GALA-2026`, `Notes` (2 lines), `Solicitor` empty, Submit (`SUB-00035`, `SUB-00036`, `SUB-00037`) | Saved to `MCHF Submissions` with `Package`, multiline `Notes` and empty `Assigned Solicitor` | Pass |
+| 25 | Fermer et réinitialiser after #24 | `txtPackage`, `txtSolicitor`, `txtNotes`, fund lines and split toggle all cleared | Pass |
+| 26 | Open with a Payment Log item having `Assigned Solicitor` and `Notes` (`?paymentId=<ID>`) | `txtSolicitor` prefilled with the payment's solicitor ID (never the signed-in user) and `txtNotes` prefilled with the payment's notes; Submit blocked until Check validates the solicitor | Pass |
 
-Tests 1 to 13 ran on version 2 of the app; a new donor was then still saved as
-`NEW`. Not run: `9999504` (timeout; same `IfError` branch as test 3, after a 10 s
-wait), and a save refused by the list (the lab gives no way to make a valid `Patch`
-fail without changing the list). App checker: no errors.
+Not run: `9999504` (timeout; same `IfError` branch as test 3, after a 10 s
+wait), and active solicitor positive lookup with ID `2012008` (currently returns
+not found on the simulated NXT instance; reported to Jérémie). App checker: no errors.
 
 ## 6. Where it lives
 
@@ -405,7 +468,6 @@ fail without changing the list). App checker: no errors.
   in, otherwise a new donor's submission is refused ("The submission was not
   saved"). A change request only adds missing columns; it does not change an
   existing one.
-- **Payment notes are shown, not saved:** `MCHF Submissions` has no notes column.
 - **Coding a payment twice** is warned about, not blocked.
 - **No transaction.** If step 2, 3 or 4 fails, the submission already exists; the
   message names it and the rest is fixed by hand. SharePoint has no transactions
