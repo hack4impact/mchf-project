@@ -547,6 +547,4 @@ export. Their exact formulas are not reproduced in this document.
 
 ## Remaining work
 
-- Export the latest Payment Log application and list under lab/solutions/.
-- Commit and push the #10 changes, then open the PR with screenshots.
 - Claim action wiring belongs to issue #14.
