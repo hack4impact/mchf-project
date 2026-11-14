@@ -2,10 +2,10 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "mchf-payment-log",
-  "exportedAt": "2026-11-05T23:31:00Z",
+  "exportedAt": "2026-11-14T15:21:58Z",
   "lists": [
     {
-      "key": "ca35538f-cb37-45df-a763-dc87b3fa5395",
+      "key": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
       "name": "MCHF - Payment Log",
       "description": "",
       "columns": [
@@ -96,6 +96,12 @@
           "displayName": "Constituent Name",
           "type": "text",
           "required": true
+        },
+        {
+          "name": "ConstituentSystemID",
+          "displayName": "Constituent System ID",
+          "type": "text",
+          "required": false
         }
       ],
       "items": [
@@ -116,7 +122,8 @@
           "GiftDate": "2026-11-05",
           "GiftAmount": 100,
           "Reference": "PAY-00013",
-          "Status": "Unclaimed",
+          "Status": "Claimed",
+          "ClaimedByName": "Alex",
           "ConstituentName": "Camille Exemple"
         },
         {
@@ -138,18 +145,1524 @@
           "Reference": "PAY-00015",
           "Status": "Unclaimed",
           "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Test 15",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-02",
+          "GiftAmount": 100,
+          "Reference": "PAY-00016",
+          "Status": "Coded",
+          "ClaimedByName": "Yanis",
+          "SubmissionReference": "SUB-TEST15A",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "Test 15 reject",
+          "ConstituentID": "1234567",
+          "PaymentType": "Personal Cheque",
+          "GiftDate": "2026-11-02",
+          "GiftAmount": 100,
+          "Reference": "PAY-00017",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple"
+        },
+        {
+          "Title": "NEW",
+          "ConstituentID": "1234567",
+          "PaymentType": "Cash",
+          "GiftDate": "2026-11-25",
+          "GiftAmount": 12.34,
+          "Reference": "PAY-00018",
+          "Status": "Unclaimed",
+          "ConstituentName": "Camille Exemple",
+          "ConstituentSystemID": "11001"
+        }
+      ]
+    },
+    {
+      "key": "db323dda-98a1-43d4-9ccb-25dbf2c952b0",
+      "name": "MCHF Gift Types",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Active",
+          "displayName": "Active",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": true
+        },
+        {
+          "name": "Sort_x0020_Order",
+          "displayName": "Sort Order",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "items": [
+        {
+          "Title": "One-time gift",
+          "Active": true,
+          "Sort_x0020_Order": 1
+        },
+        {
+          "Title": "Pledge",
+          "Active": true,
+          "Sort_x0020_Order": 2
+        },
+        {
+          "Title": "Pledge Payment",
+          "Active": true,
+          "Sort_x0020_Order": 3
+        }
+      ]
+    },
+    {
+      "key": "808d2018-9415-4fd7-bb54-e00a6bc73297",
+      "name": "MCHF Payment Types",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Active",
+          "displayName": "Active",
+          "type": "boolean",
+          "required": true,
+          "defaultValue": true
+        },
+        {
+          "name": "Sort_x0020_Order",
+          "displayName": "Sort Order",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "items": [
+        {
+          "Title": "Cash",
+          "Active": true,
+          "Sort_x0020_Order": 1
+        },
+        {
+          "Title": "Personal Cheque",
+          "Active": true,
+          "Sort_x0020_Order": 2
+        },
+        {
+          "Title": "Business Cheque",
+          "Active": true,
+          "Sort_x0020_Order": 3
+        },
+        {
+          "Title": "Credit Card",
+          "Active": true,
+          "Sort_x0020_Order": 4
+        },
+        {
+          "Title": "Direct Debit",
+          "Active": true,
+          "Sort_x0020_Order": 5
+        },
+        {
+          "Title": "EFT",
+          "Active": true,
+          "Sort_x0020_Order": 6
+        },
+        {
+          "Title": "Stock Donation",
+          "Active": true,
+          "Sort_x0020_Order": 7
+        },
+        {
+          "Title": "Other",
+          "Active": true,
+          "Sort_x0020_Order": 8
         }
       ]
     }
   ],
-  "flows": [],
+  "flows": [
+    {
+      "key": "e7c97cf4-37cc-40f9-beab-6d668e66e99e",
+      "name": "MCHF - Lookup demo flow",
+      "description": "",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "manual": {
+            "type": "Request",
+            "kind": "Button",
+            "inputs": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "x-ms-content-hint": "TEXT",
+                    "title": "ConstituentID",
+                    "description": "7-digit Constituent ID",
+                    "x-ms-dynamically-added": true
+                  }
+                },
+                "required": [
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "actions": {
+          "Search_for_constituents": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "SearchConstituents"
+              },
+              "parameters": {
+                "search_text": "@triggerBody()?['text']",
+                "search_field": "lookup_id",
+                "strict_search": true
+              }
+            },
+            "runAfter": {}
+          },
+          "Condition": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "equals": [
+                    "@length(outputs('Search_for_constituents')?['body/value'])",
+                    1
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "System_ID": {
+                "type": "Compose",
+                "inputs": "@{first(outputs('Search_for_constituents')?['body/value'])?['id']}",
+                "runAfter": {}
+              }
+            },
+            "else": {
+              "actions": {
+                "Not_found": {
+                  "type": "Compose",
+                  "inputs": "No donor with this Constituent ID",
+                  "runAfter": {}
+                }
+              }
+            },
+            "runAfter": {
+              "Search_for_constituents": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Lookup_failed": {
+            "type": "Compose",
+            "inputs": "@concat('Error ', string(outputs('Search_for_constituents')?['statusCode']))",
+            "runAfter": {
+              "Search_for_constituents": [
+                "Failed",
+                "TimedOut"
+              ],
+              "Condition": [
+                "Skipped"
+              ]
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
   "apps": [
     {
-      "key": "ccd61875-9b4c-49b8-9be4-ea4a67bf2c3c",
+      "key": "44f86844-2965-43c2-a0c4-2c11930ef947",
+      "name": "MCHF - Payment Log",
+      "description": "",
+      "definition": {
+        "id": "44f86844-2965-43c2-a0c4-2c11930ef947",
+        "name": "MCHF - Payment Log",
+        "locale": "en",
+        "width": 1366,
+        "height": 768,
+        "properties": {
+          "OnStart": ""
+        },
+        "screens": [
+          {
+            "name": "scrPaymentEntry",
+            "properties": {
+              "Fill": "RGBA(255, 255, 255, 1)",
+              "OnVisible": "Set(varSaveMessage, \"\") ;"
+            },
+            "controls": [
+              {
+                "name": "btnOpenRegistry",
+                "type": "Button",
+                "properties": {
+                  "X": "731",
+                  "Y": "13",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"View Registry\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "(Navigate(scrRegistry))"
+                },
+                "children": []
+              },
+              {
+                "name": "Label1",
+                "type": "Label",
+                "properties": {
+                  "X": "110",
+                  "Y": "111",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Constituent ID *\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtConstituentId",
+                "type": "TextInput",
+                "properties": {
+                  "X": "108",
+                  "Y": "148",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"Enter 7-digit ID\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13",
+                  "OnChange": "Set(varDonor, Blank())"
+                },
+                "children": []
+              },
+              {
+                "name": "btnLookup",
+                "type": "Button",
+                "properties": {
+                  "X": "385",
+                  "Y": "150",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Look up\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With(     {typedId: Trim(txtConstituentId.Text)},     If(         !IsMatch(typedId, \"\\d{7}\"),         Set(             varDonor,             {                 state: \"invalid\",                 systemId: \"\",                 lookupId: \"\",                 name: \"\",                 message: \"Enter the 7-digit Constituent ID.\"             }         ),         Set(             varDonor,             IfError(                 With(                     {                         r: Filter(                             RENXT.SearchConstituents(                                 typedId,                                 {search_field: \"lookup_id\"}                             ).value,                             lookup_id = typedId                         )                     },                     Switch(                         CountRows(r),                         0,                         {                             state: \"notfound\",                             systemId: \"\",                             lookupId: \"\",                             name: \"\",                             message: \"No donor with this Constituent ID. Check the number.\"                         },                         1,                         {                             state: \"found\",                             systemId: Text(First(r).id),                             lookupId: First(r).lookup_id,                             name: First(r).name,                             message: \"\"                         },                         {                             state: \"error\",                             systemId: \"\",                             lookupId: \"\",                             name: \"\",                             message: \"Several donors match. Contact Gift Processing.\"                         }                     )                 ),                 {                     state: \"error\",                     systemId: \"\",                     lookupId: \"\",                     name: \"\",                     message: \"Donor lookup unavailable. Try again in a moment.\"                 }             )         )     ) )"
+                },
+                "children": []
+              },
+              {
+                "name": "Label2",
+                "type": "Label",
+                "properties": {
+                  "X": "618",
+                  "Y": "125",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Constituent name *\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblDonorMsg",
+                "type": "Label",
+                "properties": {
+                  "X": "108",
+                  "Y": "195",
+                  "Width": "238",
+                  "Height": "73",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "varDonor.message",
+                  "Color": "ColorValue(\"#C00000\")",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblConstituentName",
+                "type": "Label",
+                "properties": {
+                  "X": "622",
+                  "Y": "157",
+                  "Width": "300",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "varDonor.name",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "ColorValue(\"#374151\")",
+                  "BorderThickness": "1",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label3",
+                "type": "Label",
+                "properties": {
+                  "X": "112",
+                  "Y": "274",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Payment  type *\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "cbxPaymentType",
+                "type": "ComboBox",
+                "properties": {
+                  "X": "113",
+                  "Y": "308",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "ForAll(     Sort(         Filter('MCHF Payment Types', Active = true),         'Sort Order'     ),     {Value: ThisRecord.Title} )",
+                  "SelectMultiple": "false",
+                  "HintText": "\"Select\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "Label4",
+                "type": "Label",
+                "properties": {
+                  "X": "622",
+                  "Y": "270",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Gift date *\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "dpGiftDate",
+                "type": "DatePicker",
+                "properties": {
+                  "X": "628",
+                  "Y": "308",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "DefaultDate": "Blank()",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "Label5",
+                "type": "Label",
+                "properties": {
+                  "X": "114",
+                  "Y": "384",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Gift amount *\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtGiftAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "112",
+                  "Y": "416",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"$0.00\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "Label6",
+                "type": "Label",
+                "properties": {
+                  "X": "631",
+                  "Y": "364",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Gift type (optional)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "cbxGiftType",
+                "type": "ComboBox",
+                "properties": {
+                  "X": "635",
+                  "Y": "402",
+                  "Width": "286",
+                  "Height": "45",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "ForAll(     Sort(         Filter('MCHF Gift Types', Active = true),         'Sort Order'     ),     {Value: ThisRecord.Title} )",
+                  "SelectMultiple": "false",
+                  "HintText": "\"Select\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "Label7",
+                "type": "Label",
+                "properties": {
+                  "X": "112",
+                  "Y": "499",
+                  "Width": "245",
+                  "Height": "25",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Assigned solicitor (optional)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtSolicitor",
+                "type": "TextInput",
+                "properties": {
+                  "X": "111",
+                  "Y": "533",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "Label",
+                "type": "Label",
+                "properties": {
+                  "X": "666",
+                  "Y": "500",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Notes (optional)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtNotes",
+                "type": "TextInput",
+                "properties": {
+                  "X": "650",
+                  "Y": "541",
+                  "Width": "240",
+                  "Height": "70",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.MultiLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblSaveMessage",
+                "type": "Label",
+                "properties": {
+                  "X": "108",
+                  "Y": "68",
+                  "Width": "991",
+                  "Height": "51",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "varSaveMessage",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "ColorValue(\"#E5E7EB\")",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "btnSave",
+                "type": "Button",
+                "properties": {
+                  "X": "116",
+                  "Y": "623",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Submit\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "If(     !IsBlank(varPay.ID) && IsBlank(varPay.Reference),     Set(         varSaveMessage,         \"Payment row \" & Text(varPay.ID) &         \" was saved, but its reference failed. Do not submit it again. Contact Gift Processing.\"     ),      varDonor.state <> \"found\" ||     varDonor.lookupId <> Trim(txtConstituentId.Text) ||     IsBlank(varDonor.name) ||     IsBlank(varDonor.systemId),     Set(varSaveMessage, \"Look up a valid donor before submitting.\"),      IsBlank(cbxPaymentType.Selected.Value),     Set(varSaveMessage, \"Select a payment type.\"),      IsBlank(dpGiftDate.SelectedDate),     Set(varSaveMessage, \"Select a gift date.\"),      !IsMatch(Trim(txtGiftAmount.Text), \"\\d+(\\.\\d{1,2})?\"),     Set(         varSaveMessage,         \"Enter a valid gift amount with at most two decimal places. Use a dot, for example 25.50.\"     ),      Value(Trim(txtGiftAmount.Text)) <= 0,     Set(varSaveMessage, \"Gift amount must be greater than zero.\"),      Set(varSaveMessage, \"\");     IfError(         Set(             varPay,             Patch(                 'MCHF - Payment Log',                 Defaults('MCHF - Payment Log'),                 {                     Title: \"NEW\",                     'Constituent ID': varDonor.lookupId,                     'Constituent Name': varDonor.name,                     'Constituent System ID': varDonor.systemId,                     'Payment Type': cbxPaymentType.Selected.Value,                     'Gift Date': dpGiftDate.SelectedDate,                     'Gift Amount': Value(Trim(txtGiftAmount.Text)),                     'Gift Type': cbxGiftType.Selected.Value,                     'Assigned Solicitor': txtSolicitor.Text,                     Notes: txtNotes.Text,                     Status: {Value: \"Unclaimed\"}                 }             )         );         true,          Set(varSaveMessage, \"Payment could not be saved. Your entries have been kept.\");         false,          IfError(             Set(                 varPay,                 Patch(                     'MCHF - Payment Log',                     varPay,                     {Reference: \"PAY-\" & Text(varPay.ID, \"00000\")}                 )             );             true,              Set(                 varSaveMessage,                 \"Payment row \" & Text(varPay.ID) &                 \" was saved, but its reference failed. Do not submit it again. Contact Gift Processing.\"             );             false,              Set(varSaveMessage, \"Payment \" & varPay.Reference & \" logged.\");             Reset(txtConstituentId);             Reset(cbxPaymentType);             Reset(dpGiftDate);             Reset(txtGiftAmount);             Reset(cbxGiftType);             Reset(txtSolicitor);             Reset(txtNotes);             Set(varDonor, Blank());             true         )     ) )"
+                },
+                "children": []
+              },
+              {
+                "name": "btnCancel",
+                "type": "Button",
+                "properties": {
+                  "X": "297",
+                  "Y": "620",
+                  "Width": "185",
+                  "Height": "42",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Cancel\"",
+                  "Color": "ColorValue(\"#374151\")",
+                  "Fill": "ColorValue(\"#E5E7EB\")",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Reset(txtConstituentId); Reset(cbxPaymentType); Reset(dpGiftDate); Reset(txtGiftAmount); Reset(cbxGiftType); Reset(txtSolicitor); Reset(txtNotes); Set(varDonor, Blank()); Set(varSaveMessage, \"\"); Navigate(scrRegistry)"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "name": "scrRegistry",
+            "properties": {
+              "Fill": "RGBA(255, 255, 255, 1)",
+              "OnVisible": ""
+            },
+            "controls": [
+              {
+                "name": "btnOpenEntry",
+                "type": "Button",
+                "properties": {
+                  "X": "982",
+                  "Y": "36",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"+ Log a payment\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "(Navigate(scrPaymentEntry))"
+                },
+                "children": []
+              },
+              {
+                "name": "galRegistry",
+                "type": "Gallery",
+                "properties": {
+                  "X": "102",
+                  "Y": "224",
+                  "Width": "1165",
+                  "Height": "427",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "Sort(     Filter(         'MCHF - Payment Log',         (             IsBlank(Trim(txtRegistrySearch.Text)) ||             StartsWith('Constituent ID', Trim(txtRegistrySearch.Text)) ||             StartsWith('Constituent Name', Trim(txtRegistrySearch.Text))         ) &&         (             ddRegistryStatus.Selected.Value = \"All\" ||             Status.Value = ddRegistryStatus.Selected.Value         )     ),     'Gift Date',     If(\r\n    ddRegistrySort.Selected.Value = \"Gift Date: oldest first\",\r\n    SortOrder.Ascending,\r\n    SortOrder.Descending\r\n)\r\n )",
+                  "TemplateSize": "50",
+                  "TemplateFill": "RGBA(0, 0, 0, 0)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1"
+                },
+                "children": [
+                  {
+                    "name": "lblRegistryDonorName",
+                    "type": "Label",
+                    "properties": {
+                      "X": "480",
+                      "Y": "5",
+                      "Width": "170",
+                      "Height": "35",
+                      "Text": "ThisItem.'Constituent Name'",
+                      "Size": "14",
+                      "FontWeight": "FontWeight.Semibold"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblRegistryAmount",
+                    "type": "Label",
+                    "properties": {
+                      "X": "645",
+                      "Y": "5",
+                      "Width": "80",
+                      "Height": "35",
+                      "Text": "Text(ThisItem.'Gift Amount', \"0.00\")",
+                      "Size": "12"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblPaymentRef",
+                    "type": "Label",
+                    "properties": {
+                      "X": "10",
+                      "Y": "5",
+                      "Width": "100",
+                      "Height": "35",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "ThisItem.Reference",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblRegistryDonorId",
+                    "type": "Label",
+                    "properties": {
+                      "X": "345",
+                      "Y": "5",
+                      "Width": "110",
+                      "Height": "35",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "ThisItem.'Constituent ID'",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblRegistryGiftDate",
+                    "type": "Label",
+                    "properties": {
+                      "X": "230",
+                      "Y": "5",
+                      "Width": "110",
+                      "Height": "35",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "Text(ThisItem.'Gift Date', \"yyyy-mm-dd\")",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblRegistryPaymentType",
+                    "type": "Label",
+                    "properties": {
+                      "X": "730",
+                      "Y": "5",
+                      "Width": "150",
+                      "Height": "35",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "ThisItem.'Payment Type'",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblRegistryStatus",
+                    "type": "Label",
+                    "properties": {
+                      "X": "885",
+                      "Y": "5",
+                      "Width": "110",
+                      "Height": "35",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "ThisItem.Status.Value",
+                      "Color": "ColorValue(\"#333333\")",
+                      "Fill": "Switch(     ThisItem.Status.Value,     \"Unclaimed\", ColorValue(\"#FFF4CE\"),     \"Claimed\", ColorValue(\"#DEECF9\"),     \"Coded\", ColorValue(\"#DFF6DD\"),     ColorValue(\"#E5E7EB\") )",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "btnClaim",
+                    "type": "Button",
+                    "properties": {
+                      "X": "1010",
+                      "Y": "5",
+                      "Width": "150",
+                      "Height": "35",
+                      "Visible": "ThisItem.Status.Value = \"Unclaimed\"",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "\"Claim\"",
+                      "Color": "RGBA(255, 255, 255, 1)",
+                      "Fill": "RGBA(15, 108, 101, 1)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Semibold",
+                      "OnSelect": "Blank()"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblClaimedBy",
+                    "type": "Label",
+                    "properties": {
+                      "X": "1010",
+                      "Y": "5",
+                      "Width": "150",
+                      "Height": "35",
+                      "Visible": "ThisItem.Status.Value <> \"Unclaimed\"",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "ThisItem.'Claimed By Name'",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblRegistryLogged",
+                    "type": "Label",
+                    "properties": {
+                      "X": "120",
+                      "Y": "5",
+                      "Width": "110",
+                      "Height": "35",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "Text(ThisItem.Created, \"yyyy-mm-dd\")",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "name": "txtRegistrySearch",
+                "type": "TextInput",
+                "properties": {
+                  "X": "94",
+                  "Y": "126",
+                  "Width": "593",
+                  "Height": "44",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"Search by ID or name\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "ddRegistryStatus",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "699",
+                  "Y": "130",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "[\"All\", \"Unclaimed\", \"Claimed\", \"Coded\"]",
+                  "Default": "\"All\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblRegistryEmpty",
+                "type": "Label",
+                "properties": {
+                  "X": "429",
+                  "Y": "228",
+                  "Width": "629",
+                  "Height": "44",
+                  "Visible": "IsEmpty('MCHF - Payment Log')",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"No payments yet. Use '+ Log a payment' to create the first entry.\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblRegistryNoResults",
+                "type": "Label",
+                "properties": {
+                  "X": "453",
+                  "Y": "226",
+                  "Width": "707",
+                  "Height": "56",
+                  "Visible": "!IsEmpty('MCHF - Payment Log') && IsEmpty(     Filter(         'MCHF - Payment Log',         (             IsBlank(Trim(txtRegistrySearch.Text)) ||             StartsWith('Constituent ID', Trim(txtRegistrySearch.Text)) ||             StartsWith('Constituent Name', Trim(txtRegistrySearch.Text))         ) &&         (             ddRegistryStatus.Selected.Value = \"All\" ||             Status.Value = ddRegistryStatus.Selected.Value         )     ) )",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"No payments match your search or status filter.\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label8",
+                "type": "Label",
+                "properties": {
+                  "X": "galRegistry.X",
+                  "Y": "galRegistry.Y - 40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Payment Ref .\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label9",
+                "type": "Label",
+                "properties": {
+                  "X": "galRegistry.X + 120",
+                  "Y": "galRegistry.Y - 40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Logged\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label10",
+                "type": "Label",
+                "properties": {
+                  "X": "galRegistry.X + 230",
+                  "Y": "galRegistry.Y - 40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Gift Date\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label11",
+                "type": "Label",
+                "properties": {
+                  "X": "galRegistry.X + 345",
+                  "Y": "galRegistry.Y - 40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Constituent ID\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label12",
+                "type": "Label",
+                "properties": {
+                  "X": "galRegistry.X + 480",
+                  "Y": "galRegistry.Y - 40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Name\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label13",
+                "type": "Label",
+                "properties": {
+                  "X": "galRegistry.X + 645",
+                  "Y": "galRegistry.Y - 40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Amount\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label14",
+                "type": "Label",
+                "properties": {
+                  "X": "galRegistry.X + 730",
+                  "Y": "galRegistry.Y - 40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Payment Type\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label15",
+                "type": "Label",
+                "properties": {
+                  "X": "galRegistry.X + 885",
+                  "Y": "galRegistry.Y - 40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Status\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "Label16",
+                "type": "Label",
+                "properties": {
+                  "X": "galRegistry.X + 1005",
+                  "Y": "galRegistry.Y - 40",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Claimed by / action\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "ddRegistrySort",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "955",
+                  "Y": "130",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "[\"Gift Date: newest first\", \"Gift Date: oldest first\"]",
+                  "Default": "\"Gift Date: newest first\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              }
+            ]
+          }
+        ],
+        "dataSources": [
+          {
+            "kind": "list",
+            "name": "MCHF Payment Types",
+            "id": "808d2018-9415-4fd7-bb54-e00a6bc73297",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Active",
+                "displayName": "Active",
+                "type": "boolean",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Sort_x0020_Order",
+                "displayName": "Sort Order",
+                "type": "number",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF Gift Types",
+            "id": "db323dda-98a1-43d4-9ccb-25dbf2c952b0",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Active",
+                "displayName": "Active",
+                "type": "boolean",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Sort_x0020_Order",
+                "displayName": "Sort Order",
+                "type": "number",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "connector",
+            "name": "RENXT",
+            "id": "renxt"
+          },
+          {
+            "kind": "list",
+            "name": "MCHF - Payment Log",
+            "id": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentID",
+                "displayName": "Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PaymentType",
+                "displayName": "Payment Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftDate",
+                "displayName": "Gift Date",
+                "type": "date",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftAmount",
+                "displayName": "Gift Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftType",
+                "displayName": "Gift Type",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AssignedSolicitor",
+                "displayName": "Assigned Solicitor",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Notes",
+                "displayName": "Notes",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Reference",
+                "displayName": "Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Status",
+                "displayName": "Status",
+                "type": "choice",
+                "multiple": false,
+                "required": true,
+                "choices": [
+                  "Claimed",
+                  "Unclaimed",
+                  "Coded"
+                ],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedByName",
+                "displayName": "Claimed By Name",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "SubmissionReference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentSystemID",
+                "displayName": "Constituent System ID",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "eb77fecb-6a1c-450f-9e0f-b13187822ee8",
       "name": "MCHF - Payment Log Reference Test",
       "description": "",
       "definition": {
-        "id": "ccd61875-9b4c-49b8-9be4-ea4a67bf2c3c",
+        "id": "eb77fecb-6a1c-450f-9e0f-b13187822ee8",
         "name": "MCHF - Payment Log Reference Test",
         "locale": "en",
         "width": 1366,
@@ -193,7 +1706,7 @@
           {
             "kind": "list",
             "name": "MCHF - Payment Log",
-            "id": "ca35538f-cb37-45df-a763-dc87b3fa5395",
+            "id": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
             "columns": [
               {
                 "name": "Title",
