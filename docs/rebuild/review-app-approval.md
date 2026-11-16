@@ -1,12 +1,13 @@
 # Review App, Approval Flow and Simulated Transfer
 
-Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27)
-Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`
+Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27), [#28](https://github.com/hack4impact/mchf-project/issues/28)
+Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`, `feature/28-review-correct`
 Environment: Équipe
 
 Gift Processing reviews a submission in the app **MCHF - Review**: claim,
-return with a comment, reject, approve or cancel, and after a Transfer
-Failed checks NXT before recording again. Approve calls the flow
+return with a comment, reject, approve or cancel, correct a submission
+under review without sending it back, and after a Transfer Failed checks
+NXT before recording again. Approve calls the flow
 **MCHF - ApproveGift**, which saves the audit PDF (#11), then calls the
 recording flow of #13 and writes Added to NXT Batch or Transfer Failed.
 A second screen of the same app lets the fundraiser fix a returned
@@ -24,10 +25,12 @@ or the Foundation's permissions.
 | Display name in the app | Use |
 |---|---|
 | `'MCHF Submissions'` | The submissions. Status column: `'Processing status'` |
-| `'MCHF Fund Lines'` | Read by the flow for the PDF |
+| `'MCHF Fund Lines'` | Read by the flow for the PDF, and shown in the detail (#28) |
 | `'MCHF - Submission History'` | One row per action (#4, section 7) |
 | `'MCHF - Payment Log'` | The linked payment. Its `PAY-…` reference is in the column `Reference`, not `Title` |
 | `'MCHF-ApproveGift'` | The approval flow, called with `.Run` |
+| `'MCHF Payment Types'` | Choices of the Correct mode (#28) |
+| `RENXT` | Campaigns, appeals and the donor lookup of the Correct mode (#28) |
 
 The app uses display names. The flow uses internal names
 (`Submission_x0020_Reference`, `Payment_x0020_Reference`, see
@@ -151,7 +154,8 @@ flow, so they are in the PDF.
 ## 4. Review app: MCHF - Review
 
 Applications › Nouvelle application in Équipe: `MCHF - Review`, tablet,
-formulas in English. Données: the four lists of section 1 and the flow.
+formulas in English. Données: the lists of section 1, the flow and the
+RENXT connector.
 
 The app is in the lab export (Deliverables), but it can't be exported to
 the real Power Apps yet: rebuild it from this section.
@@ -161,30 +165,41 @@ the real Power Apps yet: rebuild it from this section.
 | Control | Settings |
 |---|---|
 | Screen `scrReview` | |
-| Gallery `galSubs` | X 40, Y 40, Width 560, Height 690. Items `Sort('MCHF Submissions', ID, SortOrder.Descending)`. OnSelect `Set(varSel, galSubs.Selected)` |
+| Gallery `galSubs` | X 40, Y 40, Width 560, Height 690. Items `Sort('MCHF Submissions', ID, SortOrder.Descending)`. OnSelect `Set(varSel, galSubs.Selected); Set(varEditing, false)` (choosing another submission closes the Correct mode, #28) |
 | Label `Title1` (in galSubs) | Text `ThisItem.Title` |
 | Label `Subtitle1` (in galSubs) | Text `ThisItem.'Constituent Name' & " · " & Text(ThisItem.'Gift Amount') & " $ · " & ThisItem.'Processing status'.Value` |
-| Label `lblDetail` | X 640, Y 40, Width 680, Height 300. Text below |
-| Text input `txtComment` | X 640, Y 360, Width 680, Height 100. Mode `TextMode.MultiLine`, Default `""`, HintText `"Comment for the fundraiser (required for Return and Reject)"` |
-| Buttons | Y 480, Width 120, Height 40. Claim and Return at X 640 (never visible together), Reject X 780, Approve X 920, Cancel X 1060. Transfer Failed: `btnInNxt` X 640 and `btnRecordAgain` X 880 (section below) |
+| Label `lblDetail` | X 640, Y 40, Width 680, Height 270, VerticalAlign `VerticalAlign.Top`. Text below |
+| Gallery `galFundLines`, label `lblFundCheck` | Y 315 and Y 390 (#28, section below) |
+| Text input `txtComment` | X 640, Y 420, Width 680, Height 60. Mode `TextMode.MultiLine`, Default `""`, HintText `"Comment for the fundraiser (required for Return and Reject)"` |
+| Buttons | Y 495, Width 120, Height 40. Claim and Return at X 640 (never visible together), Reject X 780, Approve X 920, Cancel X 1060, Correct X 1200. Transfer Failed: `btnInNxt` X 640 and `btnRecordAgain` X 880 (section below) |
 | Label `lblCheckNxt` | X 640, Y 540, Width 680, Height 120. Only in Transfer Failed (section below) |
 | Buttons `btnRefresh`, `btnToReturned` | Y 690, Width 180, Height 40, X 940 and X 1140 |
+| Correct mode controls, `lblNeedsId` | Y 550 to 738 (#28, section below) |
 
 In the lab, `ThisItem` isn't recognized in the OnSelect of the gallery
 itself, only in the controls of its template. The gallery uses
 `galSubs.Selected`.
 
-`lblDetail.Text`:
+`lblDetail.Text` reads the submission again with `LookUp` instead of using
+`varSel` (#28, section 7):
 
 ```
 If(IsBlank(varSel), "Select a submission.",
-  "Reference: " & varSel.Title & Char(10) &
-  "Donor: " & varSel.'Constituent Name' & " (" & varSel.'Constituent ID' & ")" & Char(10) &
-  "Gift: " & Text(varSel.'Gift Amount') & " $, " & varSel.'Payment Type' & Char(10) &
-  "Coding: " & varSel.Campaign & " / " & varSel.Appeal & " / " & varSel.Fund & Char(10) &
-  "Payment reference: " & varSel.'Payment Reference' & Char(10) &
-  "Status: " & varSel.'Processing status'.Value & Char(10) &
-  "Review comment: " & varSel.'Review Comment')
+ With({s: LookUp('MCHF Submissions', ID = varSel.ID)},
+  "Reference: " & s.Title & Char(10) &
+  "Donor: " & s.'Constituent Name' & " (" & s.'Constituent ID' & ")" & Char(10) &
+  "New donor: " & If(s.'New Donor', "Yes", "No") & Char(10) &
+  "Gift: " & Text(s.'Gift Amount') & " $, " & s.'Payment Type' & Char(10) &
+  "Coding: " & s.Campaign & " / " & s.Appeal & " / " & s.Fund & Char(10) &
+  "Package: " & s.Package & Char(10) &
+  "Assigned solicitor: " & s.'Assigned Solicitor' & Char(10) &
+  "Tax receipt: " & If(s.'Tax Receipt', "Yes", "No") &
+    "   Receipt: " & If(IsBlank(s.'Receipt Amount'), "", Text(s.'Receipt Amount', "0.00")) &
+    "   Benefit: " & If(IsBlank(s.'Benefit Amount'), "", Text(s.'Benefit Amount', "0.00")) & Char(10) &
+  "Notes: " & s.Notes & Char(10) &
+  "Payment reference: " & s.'Payment Reference' & Char(10) &
+  "Status: " & s.'Processing status'.Value & Char(10) &
+  "Review comment: " & s.'Review Comment'))
 ```
 
 ### Buttons
@@ -200,6 +215,7 @@ notification (#27, Sprint 3 guide section 7).
 | `btnClaim` | `varSel.'Processing status'.Value = "Submitted"` | T2 |
 | `btnReturn` | `varSel.'Processing status'.Value = "Under Review"` | T4 |
 | `btnReject` | `varSel.'Processing status'.Value = "Under Review"` | T6 |
+| `btnCorrect` | `varSel.'Processing status'.Value = "Under Review" && !varEditing` | T3 (#28) |
 | `btnApprove` | `varSel.'Processing status'.Value = "Under Review"` | T7 |
 | `btnCancel` | `varSel.'Processing status'.Value in ["Submitted", "Under Review", "Needs Information"]` | T13 |
 | `btnInNxt` | `varSel.'Processing status'.Value = "Transfer Failed"` | T11 |
@@ -270,7 +286,9 @@ If(IsBlank(Trim(txtComment.Text)), Notify("Write the reason for the fundraiser."
 ```
 
 `btnApprove.OnSelect`. Approved by and Approved at are saved before the
-flow runs, so the PDF shows them. The linked payment becomes Coded:
+flow runs, so the PDF shows them. The linked payment becomes Coded. A
+submission without Constituent ID or Constituent System ID is refused
+(#28), because the flow of #13 sends the System ID to NXT:
 
 ```
 Refresh('MCHF Submissions'); Refresh('MCHF - Payment Log');
@@ -278,6 +296,9 @@ With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
     If(cur.'Processing status'.Value <> "Under Review",
         Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error);
         Set(varSel, cur),
+       IsBlank(cur.'Constituent ID') || IsBlank(cur.'Constituent System ID'),
+        Set(varSel, cur);
+        Notify("Add the Constituent ID with Correct before approving.", NotificationType.Error),
         Set(varSel, Patch('MCHF Submissions', cur, {'Processing status': {Value: "Recording in Progress"},
             'Approved By Email': User().Email, 'Approved At': Now()}));
         Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Approve",
@@ -325,7 +346,7 @@ Lots de dons › Voir les dons). Then it chooses one of the two buttons.
 First(Sort(Filter('MCHF - Submission History', 'Submission Reference' = varSel.Title), 'Action At', SortOrder.Descending)).Comment
 ```
 
-`btnInNxt` (Text `"Gift is in NXT"`, X 640, Y 480, Width 220). Nothing is
+`btnInNxt` (Text `"Gift is in NXT"`, X 640, Y 495, Width 220). Nothing is
 sent to NXT. The comment is optional; the batch number is advised:
 
 ```
@@ -342,7 +363,7 @@ With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
         Notify(cur.Title & " marked as added to the NXT batch. Nothing was sent again.", NotificationType.Success)))
 ```
 
-`btnRecordAgain` (Text `"Gift is not in NXT, record again"`, X 880, Y 480,
+`btnRecordAgain` (Text `"Gift is not in NXT, record again"`, X 880, Y 495,
 Width 300). It runs the approval flow again; the flow keeps the first PDF
 (section 2):
 
@@ -364,6 +385,155 @@ With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
 
 `btnToReturned` (on `scrReview`): Text `"My returned submissions"`, X 1140,
 Y 690, Width 180, Height 40, OnSelect `Navigate(scrReturned)`.
+
+### Sprint 3 fields and Correct mode (#28)
+
+**Fund lines in the detail.** Gallery `galFundLines` (X 640, Y 315, Width
+680, Height 70, TemplateSize 22), Items
+`Filter('MCHF Fund Lines', 'Submission Reference' = varSel.Title)`. Its
+label `Title3` (Y 0, Height 22, Size 12): `ThisItem.Title & " : " & Text(ThisItem.Amount, "0.00") & " $"`.
+
+`lblFundCheck` (X 640, Y 390, Width 680, red, Text `"Fund lines don't add
+up to the gift amount"`). `Sum` of no lines gives blank in the lab, so it is
+turned into 0:
+
+```
+!IsBlank(varSel) && Coalesce(Sum(Filter('MCHF Fund Lines', 'Submission Reference' = varSel.Title), Amount), 0) <> varSel.'Gift Amount'
+```
+
+**Choices.** `scrReview.OnVisible` loads the same choices as the coding
+form (#8), without the empty first choice:
+
+```
+Set(varEditing, false);
+ClearCollect(colPaymentTypes, ForAll(Sort(Filter('MCHF Payment Types', Active), 'Sort Order'), {Value: Title, code: Title}));
+IfError(
+    ClearCollect(colCampaigns, ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & " - " & ThisRecord.description, code: ThisRecord.lookup_id}));
+    ClearCollect(colAppeals, ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & " - " & ThisRecord.description, code: ThisRecord.lookup_id})),
+    Notify("NXT lists are unavailable. Reopen the app to retry.", NotificationType.Error))
+```
+
+**btnCorrect** (Text `"Correct"`, X 1200, Y 495, Width 120, Height 40).
+It reads the submission again, resets the fields so nothing typed before
+a Discard comes back, then opens the Correct mode:
+
+```
+Refresh('MCHF Submissions');
+With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
+    Set(varSel, cur);
+    If(cur.'Processing status'.Value <> "Under Review",
+        Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error),
+        Set(varEditState, ""); Set(varEditLookupId, ""); Set(varEditSystemId, ""); Set(varEditName, ""); Set(varEditMessage, "");
+        Reset(txtEditConstituentId); Reset(cbxEditPaymentType); Reset(dpEditGiftDate); Reset(cbxEditCampaign);
+        Reset(cbxEditAppeal); Reset(txtEditPackage); Reset(txtEditNotes);
+        Set(varEditing, true)))
+```
+
+**Fields of the Correct mode.** All have Visible `varEditing`. Their
+default reads `LookUp('MCHF Submissions', ID = varSel.ID)`, written `cur`
+below.
+
+| Control | Position (X, Y, Width) | Default |
+|---|---|---|
+| Text input `txtEditConstituentId` | 640, 550, 160 | `cur.'Constituent ID'`, HintText `"Constituent ID"` |
+| Button `btnEditLookup` (`"Look up"`) | 810, 550, 100 | OnSelect below |
+| Label `lblEditDonor` | 920, 550, 400 | `If(varEditState = "found", "Found: " & varEditName & " (" & varEditLookupId & ")", varEditMessage)`, green when found, red otherwise |
+| Combo box `cbxEditPaymentType` | 640, 595, 160 | Items `colPaymentTypes`, DefaultSelectedItems `Filter(colPaymentTypes, code = cur.'Payment Type')` |
+| Date picker `dpEditGiftDate` | 810, 595, 160 | DefaultDate `cur.'Gift Date'` |
+| Combo box `cbxEditCampaign` | 980, 595, 165 | Items `colCampaigns`, DefaultSelectedItems `Filter(colCampaigns, code = cur.Campaign)` |
+| Combo box `cbxEditAppeal` | 1155, 595, 165 | Items `colAppeals`, DefaultSelectedItems `Filter(colAppeals, code = cur.Appeal)` |
+| Text input `txtEditPackage` | 640, 640, 160 | `cur.Package` |
+| Text input `txtEditNotes` | 810, 640, 510 | `cur.Notes` |
+| Button `btnSaveCorrection` (`"Save correction"`) | 640, 690, 160 | OnSelect below |
+| Button `btnCancelCorrection` (`"Discard"`) | 810, 690, 120 | `Set(varEditing, false); Set(varEditState, ""); Set(varEditMessage, "")` |
+
+The combo boxes have SelectMultiple `false`. Read-only in Correct: Gift
+Amount and the fund lines (a new amount means Return to the fundraiser),
+and this sprint the solicitor and the receipt amounts, which need the checks
+of the coding form. New Donor stays Yes: it says where the submission came
+from. The button is called Discard because Cancel already cancels the
+submission.
+
+`btnEditLookup.OnSelect` is the donor lookup of the coding form (#2, #8),
+written to text variables:
+
+```
+With({typedId: Trim(txtEditConstituentId.Text)},
+    If(!IsMatch(typedId, "\d{7}"),
+        Set(varEditState, "invalid"); Set(varEditLookupId, ""); Set(varEditSystemId, ""); Set(varEditName, "");
+        Set(varEditMessage, "Enter the 7-digit Constituent ID."),
+        With({res: IfError(
+            With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: "lookup_id"}).value, lookup_id = typedId)},
+                Switch(CountRows(r),
+                    0, {state: "notfound", systemId: "", lookupId: "", name: "", message: "No donor with this Constituent ID. Check the number."},
+                    1, {state: "found", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: ""},
+                    {state: "error", systemId: "", lookupId: "", name: "", message: "Several donors match. Contact Gift Processing."})),
+            {state: "error", systemId: "", lookupId: "", name: "", message: "Donor lookup unavailable. Try again in a moment."})},
+            Set(varEditState, res.state); Set(varEditLookupId, res.lookupId); Set(varEditSystemId, res.systemId);
+            Set(varEditName, res.name); Set(varEditMessage, res.message))))
+```
+
+`btnSaveCorrection.OnSelect`. It refuses if the status changed, or if the
+Constituent ID was changed without a successful lookup. It writes only the
+fields that changed, keeps the status, and adds one history row listing
+each change as `Field: old → new`. A combo box left empty keeps the old
+value:
+
+```
+Refresh('MCHF Submissions');
+With({cur: LookUp('MCHF Submissions', ID = varSel.ID)},
+ With({donorChanged: varEditState = "found" && varEditLookupId = Trim(txtEditConstituentId.Text) && varEditLookupId <> Coalesce(cur.'Constituent ID', ""),
+       newPay: Coalesce(cbxEditPaymentType.Selected.code, cur.'Payment Type'),
+       newDate: Coalesce(dpEditGiftDate.SelectedDate, cur.'Gift Date'),
+       newCamp: Coalesce(cbxEditCampaign.Selected.code, cur.Campaign),
+       newApp: Coalesce(cbxEditAppeal.Selected.code, cur.Appeal),
+       newPkg: Trim(txtEditPackage.Text),
+       newNotes: txtEditNotes.Text},
+  If(cur.'Processing status'.Value <> "Under Review",
+       Set(varSel, cur); Set(varEditing, false);
+       Notify(cur.Title & " is now " & cur.'Processing status'.Value & ". Nothing was changed.", NotificationType.Error),
+     Trim(txtEditConstituentId.Text) <> Coalesce(cur.'Constituent ID', "") && !donorChanged,
+       Notify("Look up the new Constituent ID before saving.", NotificationType.Error),
+     With({changes: Concat(Filter(Table(
+            {f: "Constituent ID", o: cur.'Constituent ID', n: If(donorChanged, varEditLookupId, cur.'Constituent ID')},
+            {f: "Payment Type", o: cur.'Payment Type', n: newPay},
+            {f: "Gift Date", o: Text(cur.'Gift Date', "yyyy-mm-dd"), n: Text(newDate, "yyyy-mm-dd")},
+            {f: "Campaign", o: cur.Campaign, n: newCamp},
+            {f: "Appeal", o: cur.Appeal, n: newApp},
+            {f: "Package", o: cur.Package, n: newPkg},
+            {f: "Notes", o: cur.Notes, n: newNotes}),
+          Coalesce(o, "") <> Coalesce(n, "")),
+          f & ": " & Coalesce(o, "(empty)") & " → " & Coalesce(n, "(empty)"), "; ")},
+       If(IsBlank(changes),
+          Notify("Nothing changed.", NotificationType.Warning),
+          Set(varSel, Patch('MCHF Submissions', cur, {
+              'Constituent ID': If(donorChanged, varEditLookupId, cur.'Constituent ID'),
+              'Constituent Name': If(donorChanged, varEditName, cur.'Constituent Name'),
+              'Constituent System ID': If(donorChanged, varEditSystemId, cur.'Constituent System ID'),
+              'Payment Type': newPay, 'Gift Date': newDate, Campaign: newCamp, Appeal: newApp,
+              Package: newPkg, Notes: newNotes}));
+          Patch('MCHF - Submission History', Defaults('MCHF - Submission History'), {Title: "Correct",
+              'Submission Reference': cur.Title, 'From Status': "Under Review", 'To Status': "Under Review",
+              Comment: changes, 'Actor Email': User().Email, 'Action At': Now()});
+          Set(varEditing, false);
+          Notify("Correction saved.", NotificationType.Success))))))
+```
+
+**Approve without Constituent ID.** `btnApprove.DisplayMode`:
+
+```
+If(IsBlank(varSel.'Constituent ID') || IsBlank(varSel.'Constituent System ID'), DisplayMode.Disabled, DisplayMode.Edit)
+```
+
+`lblNeedsId` (X 640, Y 738, Width 680, Height 24, red, Text `"New donor:
+create the constituent in NXT, then add its Constituent ID with Correct."`):
+
+```
+!IsBlank(varSel) && varSel.'Processing status'.Value = "Under Review" && (IsBlank(varSel.'Constituent ID') || IsBlank(varSel.'Constituent System ID'))
+```
+
+The disabled button isn't enough, because `varSel` can be old: the OnSelect
+of Approve checks again (see `btnApprove.OnSelect` above).
 
 ### Fundraiser screen: scrReturned (T5)
 
@@ -441,6 +611,12 @@ With({amt: Trim(txtRetAmount.Text)},
 | Run a Child Flow "added later" | Available | Used here and in test 14 of #13 |
 | Issue: a "fix a returned submission" mode in the coding form of #8 | The screen `scrReturned` in `MCHF - Review` | The coding form stays as #8 left it. The guide also allows a simple fundraiser screen |
 | Issue: "the flow sets the status to Recording in Progress" | The app sets it, before calling the flow | As in the guide and `review-audit.md` (T7): the status is right even before the flow starts |
+| #28: `Status.Value` in the Correct formulas | `'Processing status'.Value` | The display name of the column in the app |
+| #28: `varEditDonor` (a record) | Five text variables `varEditState`, `varEditLookupId`, `varEditSystemId`, `varEditName`, `varEditMessage` | The lab refused a record in `Set` ("Expecting a Blank value"). The coding form also uses text variables |
+| #28: fields read `varSel` | `LookUp('MCHF Submissions', ID = varSel.ID)` | `varSel` kept the columns from before #21 (section 7) |
+| #28: a cleared combo box writes blank | It keeps the old value (`Coalesce`) | A correction never erases a required code by mistake |
+| #28: button "Cancel" for the Correct mode | "Discard" | Cancel already cancels the submission |
+| #28: `lblNeedsId` visible whenever the ID is empty | Only in Under Review | The message talks about Approve, which only exists there |
 
 ## 6. Tests
 
@@ -470,6 +646,14 @@ fund line of $100 with the same Submission Reference.
 | 18 | #27: Cancel `SUB-TEST15E`, then filter the history on `SubmissionReference eq 'SUB-TEST15E'` | Passed: exactly one row; the refused clicks wrote nothing |
 | 19 | #27: Reject `SUB-TEST15N` linked to `PAY-00017` (Claimed) | Passed: Rejected, `PAY-00017` Unclaimed, Claimed By Name and Submission Reference empty |
 | 20 | #27: Claim from two tabs, and Claim after the status was changed in the list | The lab updates the open app right away: Claim disappears before it can be clicked, and only one Claim row is written. The refusal message could not be shown in the lab |
+| 21 | #28: detail of `SUB-TEST15A` and `SUB-20261110-001004` (no fund line) | Passed: the Sprint 3 fields show. `HA-CARD0110 : 100.00 $` and no warning for `SUB-TEST15A`; "Fund lines don't add up to the gift amount" for `SUB-20261110-001004` |
+| 22 | #28: `SUB-TEST28A` (Under Review), Correct, Package empty → `GALA-2026`, Save correction | Passed: status still Under Review, only Package changed, one history row "Correct" with "Package: (empty) → GALA-2026", fund lines still total $100 |
+| 23 | #28: Correct, nothing changed, Save correction, then Discard | Passed: "Nothing changed.", no history row; Discard closes the fields |
+| 24 | #28: `SUB-TEST28N` (New Donor Yes, no Constituent ID, Under Review) | Passed: "New donor: Yes", Approve disabled, `lblNeedsId` shown |
+| 25 | #28: Correct, `1234567` typed, Save correction without Look up | Passed: "Look up the new Constituent ID before saving.", nothing saved |
+| 26 | #28: Look up (`Found: Camille Exemple (1234567)`), Save correction | Passed: Constituent ID `1234567`, name and System ID `11001` saved, status Under Review, one history row "Constituent ID: (empty) → 1234567", Approve enabled, `lblNeedsId` hidden, fund lines still total $100. Approve not clicked |
+| 27 | #28: `SUB-TEST28A`, Correct, Package `XXX`, Discard, Correct again | Passed: Package shows `GALA-2026` again, nothing saved |
+| 28 | #28: Correct with an expired RE NXT connection | Campaign and Appeal empty and Look up fails (401). Connexions › Reconnecter fixes it (section 7) |
 
 ## 7. Limits
 
@@ -500,6 +684,21 @@ fund line of $100 with the same Submission Reference.
   report to Jérémie.
 - Security by role (who is Gift Processing) is not handled. Planned for
   Sprint 4.
+- #28: after `MCHF Submissions` was added again for the columns of #21, the
+  list knew `'New Donor'` but `varSel.'New Donor'` stayed "isn't recognized":
+  the editor keeps the old type of a variable. The new code reads the
+  submission with `LookUp('MCHF Submissions', ID = varSel.ID)`. To report to
+  Jérémie.
+- #28: a multi-line formula pasted in the lab becomes one line, so a
+  `// comment` at its start turns the whole formula into a comment, with no
+  error. Don't start a pasted formula with a comment.
+- #28: the Correct mode can't change the gift amount, the fund lines, the
+  solicitor or the receipt amounts. A wrong amount is returned to the
+  fundraiser.
+- #28: the Correct mode calls RE NXT with the connection of the person using
+  the app. With an expired connection, Campaign and Appeal are empty and the
+  lookup fails (401): Connexions › Reconnecter. An empty combo box keeps the
+  old value, so nothing is erased.
 
 ## Deliverables
 
@@ -513,9 +712,9 @@ fund line of $100 with the same Submission Reference.
 - #27: `lab/solutions/mchf-review-actions.solution.json` (the flow, the
   app and `MCHF Submissions`) and the flow plan
   `docs/rebuild/mchf-approve-gift-plan.pdf`.
+- #28: `lab/solutions/mchf-review-correct.solution.json` (the app, the flow
+  and the lists it uses). The flow did not change.
 
 ## Remaining work
 
-- Correct mode, Sprint 3 fields in the detail, and Approve refused without
-  a Constituent ID (#28, waits for #21 and #25).
 - Send a screenshot of the review screen to Hadyle (#32).
