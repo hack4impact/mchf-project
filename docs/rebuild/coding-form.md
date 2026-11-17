@@ -443,11 +443,14 @@ Run on 2026-11-10 in Jérémie's personal environment (#8 / PR #38) and on
 | 23 | Edit `txtSolicitor` after Check without re-checking | `varSolicitor` cleared on `OnChange`; Submit blocked until re-checked or cleared | Pass |
 | 24 | Complete gift with `Package` = `PKG-GALA-2026`, `Notes` (2 lines), `Solicitor` empty, Submit (`SUB-00035`, `SUB-00036`, `SUB-00037`) | Saved to `MCHF Submissions` with `Package`, multiline `Notes` and empty `Assigned Solicitor` | Pass |
 | 25 | Fermer et réinitialiser after #24 | `txtPackage`, `txtSolicitor`, `txtNotes`, fund lines and split toggle all cleared | Pass |
-| 26 | Open with a Payment Log item having `Assigned Solicitor` and `Notes` (`?paymentId=<ID>`) | `txtSolicitor` prefilled with the payment's solicitor ID (never the signed-in user) and `txtNotes` prefilled with the payment's notes; Submit blocked until Check validates the solicitor | Pass |
+| 26 | Open with a Payment Log item (`Assigned Solicitor = 2012008`, `Notes = "Cheque received at the gala"`) via `?paymentId=<ID>`, Check, Submit | Donor (`varDonor`), `2012008` in `txtSolicitor` and `"Cheque received at the gala"` in `txtNotes` shown once on load; Check validates active solicitor, Submit persists both | Blocked on 7-digit NXT rollout (prefill verified; `2012008` currently returns not found) |
+| 27 | Solicitor `9999500`, Check | `"Solicitor check unavailable. Try again in a moment."` in red; Submit blocked | Pass |
+| 28 | Solicitor `2012066` (Andrée Savard, inactive record), Check | Refused as inactive (`"Andrée Savard is not an active solicitor."`); Submit blocked | Blocked on 7-digit NXT rollout (currently returns `"No solicitor with this ID."`) |
+| 29 | Solicitor `2012008` (Raphaël Michaud, active), Check + `Package` + `Notes` all filled, Submit | `"Raphaël Michaud"` in black; Submit accepted and `2012008`, `Package` and `Notes` saved to `MCHF Submissions` | Blocked on 7-digit NXT rollout (currently returns `"No solicitor with this ID."`) |
 
-Not run: `9999504` (timeout; same `IfError` branch as test 3, after a 10 s
-wait), and active solicitor positive lookup with ID `2012008` (currently returns
-not found on the simulated NXT instance; reported to Jérémie). App checker: no errors.
+Not run: `9999504` (timeout; same `IfError` branch as tests 3 and 27, after a 10 s
+wait). Tests 26 (Check + Submit), 28 (`2012066`) and 29 (`2012008`) are ready and
+waiting for Jérémie's 7-digit NXT constituent migration. App checker: no errors.
 
 ## 6. Where it lives
 
@@ -477,3 +480,9 @@ not found on the simulated NXT instance; reported to Jérémie). App checker: no
   as classic Power Apps), `Patch` returning the saved record (same with SharePoint),
   and the real connector's operation name (`SearchConstituent`, not
   `SearchConstituents`, see `DIFFERENCES.md` of the lab).
+- **Package is free text in the lab.** `txtPackage` is a single-line text input in
+  the lab; the real RE NXT connector provides *List packages* filtered by appeal,
+  to be wired in Sprint 4.
+- **Only the solicitor's Constituent ID is saved.** `MCHF Submissions.Assigned Solicitor`
+  stores the 7-digit `lookup_id` (`Trim(txtSolicitor.Text)`), not the solicitor's
+  display name.

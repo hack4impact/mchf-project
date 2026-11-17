@@ -2,393 +2,8 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "MCHF - Coding Form",
-  "exportedAt": "2026-11-14T17:38:10Z",
-  "lists": [
-    {
-      "key": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
-      "name": "MCHF Submissions",
-      "description": "Soumissions de codage de dons",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "ConstituentID",
-          "displayName": "Constituent ID",
-          "type": "text",
-          "required": false,
-          "maxLength": 7
-        },
-        {
-          "name": "ConstituentName",
-          "displayName": "Constituent Name",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Constituent_x0020_System_x0020_I",
-          "displayName": "Constituent System ID",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Payment_x0020_Type",
-          "displayName": "Payment Type",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Gift_x0020_Date",
-          "displayName": "Gift Date",
-          "type": "date",
-          "required": true,
-          "dateOnly": true
-        },
-        {
-          "name": "Gift_x0020_Type",
-          "displayName": "Gift Type",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Gift_x0020_Amount",
-          "displayName": "Gift Amount",
-          "type": "currency",
-          "required": true,
-          "min": 0,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "Fees",
-          "displayName": "Fees",
-          "type": "currency",
-          "required": false,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "Net_x0020_Amount",
-          "displayName": "Net Amount",
-          "type": "currency",
-          "required": false,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "Campaign",
-          "displayName": "Campaign",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Appeal",
-          "displayName": "Appeal",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Fund",
-          "displayName": "Fund",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Package",
-          "displayName": "Package",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Assigned_x0020_Solicitor",
-          "displayName": "Assigned Solicitor",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Payment_x0020_Reference",
-          "displayName": "Payment Reference",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Status",
-          "displayName": "Processing status",
-          "type": "choice",
-          "required": true,
-          "choices": [
-            "Submitted",
-            "Under Review",
-            "Needs Information",
-            "Rejected",
-            "Recording in Progress",
-            "Added to NXT Batch",
-            "Transfer Failed",
-            "Cancelled"
-          ],
-          "defaultValue": "Submitted"
-        },
-        {
-          "name": "ReviewerEmail",
-          "displayName": "Reviewer Email",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "ReviewComment",
-          "displayName": "Review Comment",
-          "type": "note",
-          "required": false
-        },
-        {
-          "name": "ApprovedByEmail",
-          "displayName": "Approved By Email",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "ApprovedAt",
-          "displayName": "Approved At",
-          "type": "date",
-          "required": false,
-          "dateOnly": false
-        },
-        {
-          "name": "AuditPDF",
-          "displayName": "Audit PDF",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "AuditHTML",
-          "displayName": "Audit HTML",
-          "type": "note",
-          "required": false
-        },
-        {
-          "name": "Notes",
-          "displayName": "Notes",
-          "type": "note",
-          "required": false
-        },
-        {
-          "name": "TaxReceipt",
-          "displayName": "Tax Receipt",
-          "type": "boolean",
-          "required": false,
-          "defaultValue": false
-        },
-        {
-          "name": "ReceiptAmount",
-          "displayName": "Receipt Amount",
-          "type": "currency",
-          "required": false,
-          "min": 0,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "BenefitAmount",
-          "displayName": "Benefit Amount",
-          "type": "currency",
-          "required": false,
-          "min": 0,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "NewDonor",
-          "displayName": "New Donor",
-          "type": "boolean",
-          "required": false,
-          "defaultValue": false
-        }
-      ]
-    },
-    {
-      "key": "3003a026-5bf8-44d3-a426-b572609011a1",
-      "name": "MCHF Fund Lines",
-      "description": "",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "Submission",
-          "displayName": "Submission",
-          "type": "lookup",
-          "required": true,
-          "lookupListId": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
-          "lookupColumn": "Title"
-        },
-        {
-          "name": "Submission_x0020_Reference",
-          "displayName": "Submission Reference",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Amount",
-          "displayName": "Amount",
-          "type": "currency",
-          "required": true,
-          "currencyCode": "CAD"
-        }
-      ]
-    },
-    {
-      "key": "c842f564-f45a-4b06-85c3-d92e02810f69",
-      "name": "MCHF Gift Types",
-      "description": "",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "Active",
-          "displayName": "Active",
-          "type": "boolean",
-          "required": false,
-          "defaultValue": true
-        },
-        {
-          "name": "Sort_x0020_Order",
-          "displayName": "Sort Order",
-          "type": "number",
-          "required": true
-        }
-      ]
-    },
-    {
-      "key": "14db9871-d248-4373-9953-ad47534c3e95",
-      "name": "MCHF Payment Types",
-      "description": "",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "Active",
-          "displayName": "Active",
-          "type": "boolean",
-          "required": true,
-          "defaultValue": true
-        },
-        {
-          "name": "Sort_x0020_Order",
-          "displayName": "Sort Order",
-          "type": "number",
-          "required": true
-        }
-      ]
-    },
-    {
-      "key": "66a17be3-c739-4e31-817a-eab06ba67b0b",
-      "name": "MCHF - Payment Log",
-      "description": "",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "ConstituentID",
-          "displayName": "Constituent ID",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "PaymentType",
-          "displayName": "Payment Type",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "GiftDate",
-          "displayName": "Gift Date",
-          "type": "date",
-          "required": true,
-          "dateOnly": true
-        },
-        {
-          "name": "GiftAmount",
-          "displayName": "Gift Amount",
-          "type": "currency",
-          "required": true,
-          "min": 0.01,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "GiftType",
-          "displayName": "Gift Type",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "AssignedSolicitor",
-          "displayName": "Assigned Solicitor",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Notes",
-          "displayName": "Notes",
-          "type": "note",
-          "required": false
-        },
-        {
-          "name": "Reference",
-          "displayName": "Reference",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Status",
-          "displayName": "Status",
-          "type": "choice",
-          "required": true,
-          "choices": [
-            "Claimed",
-            "Unclaimed",
-            "Coded"
-          ],
-          "defaultValue": "Unclaimed"
-        },
-        {
-          "name": "ClaimedByName",
-          "displayName": "Claimed By Name",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "SubmissionReference",
-          "displayName": "Submission Reference",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "ConstituentName",
-          "displayName": "Constituent Name",
-          "type": "text",
-          "required": true
-        }
-      ]
-    }
-  ],
+  "exportedAt": "2026-11-17T04:12:11Z",
+  "lists": [],
   "flows": [],
   "apps": [
     {
@@ -407,7 +22,7 @@
             "name": "Screen1",
             "properties": {
               "Fill": "RGBA(255, 255, 255, 1)",
-              "OnVisible": "// 1. The payment being coded, when the form is opened from the Payment Log with ?paymentId=<item ID> (#14)\nSet(varPaymentIdParam, Trim(Param(\"paymentId\")));\nSet(varPaymentRecord, If(IsBlank(varPaymentIdParam), Blank(), LookUp('MCHF - Payment Log', ID = IfError(Value(varPaymentIdParam), -1))));\nIf(!IsBlank(varPaymentIdParam) && IsBlank(varPaymentRecord),\n    Notify(\"Payment \" & varPaymentIdParam & \" is not in the Payment Log. Fill in the form by hand.\", NotificationType.Warning));\nIf(!IsBlank(varPaymentRecord.'Submission Reference'),\n    Notify(\"This payment is already coded as \" & varPaymentRecord.'Submission Reference' & \". Submitting again creates a second submission.\", NotificationType.Warning));\n\n// 2. Payment types and gift types from the #1 lists, with an empty first choice (code \"\")\nClearCollect(colPaymentTypes, {Value: \"Sélectionner un mode de paiement...\", code: \"\"});\nCollect(colPaymentTypes, ForAll(Sort(Filter('MCHF Payment Types', Active), 'Sort Order'), {Value: Title, code: Title}));\nClearCollect(colGiftTypes, {Value: \"Sélectionner un type de don...\", code: \"\"});\nCollect(colGiftTypes, ForAll(Sort(Filter('MCHF Gift Types', Active), 'Sort Order'), {Value: Title, code: Title}));\n\n// 3. Campaigns, appeals and funds from RE NXT, with an empty first choice (code \"\")\nIfError(\n    ClearCollect(colCampaigns, {Value: \"Sélectionner une campagne...\", code: \"\"});\n    Collect(colCampaigns, ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colAppeals, {Value: \"Sélectionner un appel...\", code: \"\"});\n    Collect(colAppeals, ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colFunds, {Value: \"Sélectionner un fonds...\", code: \"\"});\n    Collect(colFunds, ForAll(RENXT.ListFunds().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id})),\n    Notify(\"NXT lists are unavailable. Reopen the form to retry.\", NotificationType.Error)\n);\n\n// 4. Screen state; colFundLines holds the lines of a gift split across several funds\nUpdateContext({varDonorState: \"\", varDonorSystemId: \"\", varDonorLookupId: \"\", varDonorName: \"\", varDonorMessage: \"\", varTried: false, varSubmissionRef: \"\", varShowSuccessPopup: false, varEditLineId: 0, varLineError: \"\"});\nClearCollect(colFundLines, {lineId: 0, fund: \"\", fundLabel: \"\", amount: 0});\nClear(colFundLines);\n\n// 5. A prefilled donor is looked up right away (same lookup as the Lookup button, #2 contract)\nIf(!IsBlank(varPaymentRecord),\n    With({typedId: Trim(varPaymentRecord.'Constituent ID')},\n        If(IsMatch(typedId, \"\\d{7}\"),\n            With({res: IfError(\n                With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                    Switch(CountRows(r),\n                        0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                        1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                        {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n                {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"})},\n                UpdateContext({varDonorState: res.state, varDonorSystemId: res.systemId, varDonorLookupId: res.lookupId, varDonorName: res.name, varDonorMessage: res.message})))))"
+              "OnVisible": "// 1. The payment being coded, when the form is opened from the Payment Log with ?paymentId=<item ID> (#14)\nSet(varPaymentIdParam, Trim(Param(\"paymentId\")));\nSet(varPaymentRecord, If(IsBlank(varPaymentIdParam), Blank(), LookUp('MCHF - Payment Log', ID = IfError(Value(varPaymentIdParam), -1))));\nIf(!IsBlank(varPaymentIdParam) && IsBlank(varPaymentRecord),\n    Notify(\"Payment \" & varPaymentIdParam & \" is not in the Payment Log. Fill in the form by hand.\", NotificationType.Warning));\nIf(!IsBlank(varPaymentRecord.'Submission Reference'),\n    Notify(\"This payment is already coded as \" & varPaymentRecord.'Submission Reference' & \". Submitting again creates a second submission.\", NotificationType.Warning));\n\n// 2. Payment types and gift types from the #1 lists, with an empty first choice (code \"\")\nClearCollect(colPaymentTypes, {Value: \"Sélectionner un mode de paiement...\", code: \"\"});\nCollect(colPaymentTypes, ForAll(Sort(Filter('MCHF Payment Types', Active), 'Sort Order'), {Value: Title, code: Title}));\nClearCollect(colGiftTypes, {Value: \"Sélectionner un type de don...\", code: \"\"});\nCollect(colGiftTypes, ForAll(Sort(Filter('MCHF Gift Types', Active), 'Sort Order'), {Value: Title, code: Title}));\n\n// 3. Campaigns, appeals and funds from RE NXT, with an empty first choice (code \"\")\nIfError(\n    ClearCollect(colCampaigns, {Value: \"Sélectionner une campagne...\", code: \"\"});\n    Collect(colCampaigns, ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colAppeals, {Value: \"Sélectionner un appel...\", code: \"\"});\n    Collect(colAppeals, ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colFunds, {Value: \"Sélectionner un fonds...\", code: \"\"});\n    Collect(colFunds, ForAll(RENXT.ListFunds().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id})),\n    Notify(\"NXT lists are unavailable. Reopen the form to retry.\", NotificationType.Error)\n);\n\n// 4. Screen state; colFundLines holds the lines of a gift split across several funds\nSet(varDonor, {state: \"\", systemId: \"\", lookupId: \"\", name: \"\", message: \"\"});\nSet(varSolicitor, Blank());\nUpdateContext({varTried: false, varSubmissionRef: \"\", varShowSuccessPopup: false, varEditLineId: 0, varLineError: \"\"});\nClearCollect(colFundLines, {lineId: 0, fund: \"\", fundLabel: \"\", amount: 0});\nClear(colFundLines);\n\n// 5. A prefilled donor is looked up right away (same lookup as the Lookup button, #2 contract)\nIf(!IsBlank(varPaymentRecord),\n    With({typedId: Trim(varPaymentRecord.'Constituent ID')},\n        If(IsMatch(typedId, \"\\d{7}\"),\n            Set(varDonor, IfError(\n                With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                    Switch(CountRows(r),\n                        0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                        1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                        {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n                {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"})))));"
             },
             "controls": [
               {
@@ -752,28 +367,6 @@
                   "BorderThickness": "1",
                   "Size": "13",
                   "OnChange": "Set(varSolicitor, Blank())"
-                },
-                "children": []
-              },
-              {
-                "name": "lblPaymentNotes",
-                "type": "Label",
-                "properties": {
-                  "X": "882",
-                  "Y": "554",
-                  "Width": "440",
-                  "Height": "60",
-                  "Visible": "!IsBlank(varPaymentRecord.Notes)",
-                  "DisplayMode": "DisplayMode.Edit",
-                  "Text": "\"Notes du paiement : \" & varPaymentRecord.Notes",
-                  "Color": "RGBA(33, 37, 41, 1)",
-                  "Fill": "RGBA(0, 0, 0, 0)",
-                  "BorderColor": "RGBA(0, 0, 0, 0)",
-                  "BorderThickness": "0",
-                  "Size": "11",
-                  "FontWeight": "FontWeight.Normal",
-                  "Align": "Align.Left",
-                  "VerticalAlign": "VerticalAlign.Top"
                 },
                 "children": []
               },
@@ -1606,103 +1199,6 @@
                 "children": []
               },
               {
-                "name": "rectOverlay",
-                "type": "Rectangle",
-                "properties": {
-                  "X": "0",
-                  "Y": "0",
-                  "Width": "Parent.Width",
-                  "Height": "Parent.Height",
-                  "Visible": "varShowSuccessPopup",
-                  "DisplayMode": "DisplayMode.Edit",
-                  "Fill": "RGBA(0, 0, 0, 0.4)",
-                  "BorderColor": "RGBA(0, 0, 0, 0)",
-                  "BorderThickness": "0"
-                },
-                "children": []
-              },
-              {
-                "name": "rectModalCard",
-                "type": "Rectangle",
-                "properties": {
-                  "X": "(Parent.Width - Self.Width) / 2",
-                  "Y": "(Parent.Height - Self.Height) / 2",
-                  "Width": "450",
-                  "Height": "260",
-                  "Visible": "varShowSuccessPopup",
-                  "DisplayMode": "DisplayMode.Edit",
-                  "Fill": "RGBA(255, 255, 255, 1)",
-                  "BorderColor": "RGBA(0, 0, 0, 0)",
-                  "BorderThickness": "0"
-                },
-                "children": []
-              },
-              {
-                "name": "lblSuccessTitle",
-                "type": "Label",
-                "properties": {
-                  "X": "rectModalCard.X + 20",
-                  "Y": "rectModalCard.Y + 25",
-                  "Width": "rectModalCard.Width - 40",
-                  "Height": "40",
-                  "Visible": "varShowSuccessPopup",
-                  "DisplayMode": "DisplayMode.Edit",
-                  "Text": "\"Don soumis avec succès !\"",
-                  "Color": "RGBA(33, 37, 41, 1)",
-                  "Fill": "RGBA(0, 0, 0, 0)",
-                  "BorderColor": "RGBA(0, 0, 0, 0)",
-                  "BorderThickness": "0",
-                  "Size": "18",
-                  "FontWeight": "FontWeight.Bold",
-                  "Align": "Align.Left",
-                  "VerticalAlign": "VerticalAlign.Middle"
-                },
-                "children": []
-              },
-              {
-                "name": "lblSuccessRef",
-                "type": "Label",
-                "properties": {
-                  "X": "rectModalCard.X + 20",
-                  "Y": "rectModalCard.Y + 85",
-                  "Width": "rectModalCard.Width - 40",
-                  "Height": "40",
-                  "Visible": "varShowSuccessPopup",
-                  "DisplayMode": "DisplayMode.Edit",
-                  "Text": "\"Numéro de référence : \" & varSubmissionRef",
-                  "Color": "RGBA(33, 37, 41, 1)",
-                  "Fill": "RGBA(0, 0, 0, 0)",
-                  "BorderColor": "RGBA(0, 0, 0, 0)",
-                  "BorderThickness": "0",
-                  "Size": "13",
-                  "FontWeight": "FontWeight.Normal",
-                  "Align": "Align.Left",
-                  "VerticalAlign": "VerticalAlign.Middle"
-                },
-                "children": []
-              },
-              {
-                "name": "btnClosePopup",
-                "type": "Button",
-                "properties": {
-                  "X": "rectModalCard.X + (rectModalCard.Width - Self.Width) / 2",
-                  "Y": "rectModalCard.Y + 175",
-                  "Width": "160",
-                  "Height": "40",
-                  "Visible": "varShowSuccessPopup",
-                  "DisplayMode": "DisplayMode.Edit",
-                  "Text": "\"Fermer et réinitialiser\"",
-                  "Color": "RGBA(255, 255, 255, 1)",
-                  "Fill": "RGBA(15, 108, 101, 1)",
-                  "BorderColor": "RGBA(0, 0, 0, 0)",
-                  "BorderThickness": "0",
-                  "Size": "13",
-                  "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(tglNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)"
-                },
-                "children": []
-              },
-              {
                 "name": "btnCheckSolicitor",
                 "type": "Button",
                 "properties": {
@@ -1770,9 +1266,9 @@
                 "type": "Label",
                 "properties": {
                   "X": "858",
-                  "Y": "150",
+                  "Y": "160",
                   "Width": "350",
-                  "Height": "22",
+                  "Height": "40",
                   "Visible": "true",
                   "DisplayMode": "DisplayMode.Edit",
                   "Text": "If(varSolicitor.state = \"found\", varSolicitor.name, varSolicitor.message)",
@@ -1792,9 +1288,9 @@
                 "type": "Label",
                 "properties": {
                   "X": "854",
-                  "Y": "191",
+                  "Y": "190",
                   "Width": "350",
-                  "Height": "40",
+                  "Height": "35",
                   "Visible": "varTried && !IsBlank(Trim(txtSolicitor.Text)) && varSolicitor.state <> \"found\"",
                   "DisplayMode": "DisplayMode.Edit",
                   "Text": "\"Check the solicitor's ID, or leave it empty.\"",
@@ -1842,6 +1338,103 @@
                   "Visible": "true",
                   "DisplayMode": "DisplayMode.Edit",
                   "Text": "\"Notes (facultatif)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "rectOverlay",
+                "type": "Rectangle",
+                "properties": {
+                  "X": "0",
+                  "Y": "0",
+                  "Width": "Parent.Width",
+                  "Height": "Parent.Height",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Fill": "RGBA(0, 0, 0, 0.4)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0"
+                },
+                "children": []
+              },
+              {
+                "name": "rectModalCard",
+                "type": "Rectangle",
+                "properties": {
+                  "X": "(Parent.Width - Self.Width) / 2",
+                  "Y": "(Parent.Height - Self.Height) / 2",
+                  "Width": "450",
+                  "Height": "260",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0"
+                },
+                "children": []
+              },
+              {
+                "name": "lblSuccessTitle",
+                "type": "Label",
+                "properties": {
+                  "X": "rectModalCard.X + 20",
+                  "Y": "rectModalCard.Y + 25",
+                  "Width": "rectModalCard.Width - 40",
+                  "Height": "40",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Don soumis avec succès !\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "18",
+                  "FontWeight": "FontWeight.Bold",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "btnClosePopup",
+                "type": "Button",
+                "properties": {
+                  "X": "rectModalCard.X + (rectModalCard.Width - Self.Width) / 2",
+                  "Y": "rectModalCard.Y + 175",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Fermer et réinitialiser\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(tglNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)"
+                },
+                "children": []
+              },
+              {
+                "name": "lblSuccessRef",
+                "type": "Label",
+                "properties": {
+                  "X": "rectModalCard.X + 20",
+                  "Y": "rectModalCard.Y + 85",
+                  "Width": "rectModalCard.Width - 40",
+                  "Height": "40",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Numéro de référence : \" & varSubmissionRef",
                   "Color": "RGBA(33, 37, 41, 1)",
                   "Fill": "RGBA(0, 0, 0, 0)",
                   "BorderColor": "RGBA(0, 0, 0, 0)",
