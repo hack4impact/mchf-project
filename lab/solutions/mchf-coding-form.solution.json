@@ -1,8 +1,8 @@
 {
   "format": "lowcode-lab-solution",
   "version": 1,
-  "name": "MCHF - Coding Form",
-  "exportedAt": "2026-11-17T04:12:11Z",
+  "name": "Ma solution",
+  "exportedAt": "2026-11-18T17:58:28Z",
   "lists": [],
   "flows": [],
   "apps": [
@@ -73,7 +73,7 @@
                 "type": "TextInput",
                 "properties": {
                   "X": "20",
-                  "Y": "385",
+                  "Y": "360",
                   "Width": "240",
                   "Height": "40",
                   "Visible": "true",
@@ -85,7 +85,8 @@
                   "Fill": "RGBA(255, 255, 255, 1)",
                   "BorderColor": "RGBA(134, 142, 150, 1)",
                   "BorderThickness": "1",
-                  "Size": "13"
+                  "Size": "13",
+                  "OnChange": "If(tglTaxReceipt.Value, Reset(txtReceiptAmount))"
                 },
                 "children": []
               },
@@ -94,7 +95,7 @@
                 "type": "TextInput",
                 "properties": {
                   "X": "20",
-                  "Y": "490",
+                  "Y": "460",
                   "Width": "240",
                   "Height": "40",
                   "Visible": "true",
@@ -114,10 +115,10 @@
                 "name": "lblNetAmount",
                 "type": "Label",
                 "properties": {
-                  "X": "23",
-                  "Y": "623",
-                  "Width": "209",
-                  "Height": "42",
+                  "X": "135",
+                  "Y": "528",
+                  "Width": "150",
+                  "Height": "30",
                   "Visible": "true",
                   "DisplayMode": "DisplayMode.Edit",
                   "Text": "If(!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || !(IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))), \"\",\n    Text(Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0), \"$#,##0.00\"))",
@@ -212,8 +213,8 @@
                 "name": "btnSubmit",
                 "type": "Button",
                 "properties": {
-                  "X": "20",
-                  "Y": "680",
+                  "X": "21",
+                  "Y": "700",
                   "Width": "200",
                   "Height": "40",
                   "Visible": "true",
@@ -225,7 +226,7 @@
                   "BorderThickness": "0",
                   "Size": "13",
                   "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "UpdateContext({varTried: true});\nIf(\n    (tglNewDonor.Value || (varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text))) &&\n    (!tglNewDonor.Value || !IsBlank(Trim(txtNewDonorName.Text))) &&\n    !IsBlank(dpGiftDate.SelectedDate) &&\n    !IsBlank(ddGiftType.Selected.code) &&\n    !IsBlank(ddPaymentType.Selected.code) &&\n    !IsBlank(ddCampaign.Selected.code) &&\n    !IsBlank(ddAppeal.Selected.code) &&\n    (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&\n    (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) &&\n    (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&\n    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&\n    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = \"found\"),\n    // 1. Save with a temporary Title, 2. set the reference SUB-00001 from the new ID (#1 data dictionary),\n    // 3. the fund lines (the split, or the fund chosen with the whole amount), 4. link the payment.\n    // Stops at the first failure. The submission's Fund is the primary fund: the largest line.\n    With({lines: If(tglSplitFunds.Value, colFundLines,\n            Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},\n    With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {\n            Title: \"NEW\",\n            'Constituent ID': If(tglNewDonor.Value, Blank(), varDonor.lookupId),\n            'Constituent Name': If(tglNewDonor.Value, Trim(txtNewDonorName.Text), varDonor.name),\n            'Constituent System ID': If(tglNewDonor.Value, \"\", varDonor.systemId),\n            'Payment Type': ddPaymentType.Selected.code,\n            'Gift Date': dpGiftDate.SelectedDate,\n            'Gift Type': ddGiftType.Selected.code,\n            'Gift Amount': Value(txtGiftAmount.Text),\n            Fees: Coalesce(Value(txtFees.Text), 0),\n            'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),\n            Campaign: ddCampaign.Selected.code,\n            Appeal: ddAppeal.Selected.code,\n            Fund: First(SortByColumns(lines, \"amount\", SortOrder.Descending)).fund,\n            Package: Trim(txtPackage.Text),\n            'Assigned Solicitor': Trim(txtSolicitor.Text),\n            Notes: txtNotes.Text,\n            'Payment Reference': varPaymentRecord.Reference,\n            'Processing status': {Value: \"Submitted\"}\n        })},\n        With({ref: \"SUB-\" & Text(created.ID, \"00000\")},\n            IfError(\n                created,\n                    Notify(\"The submission was not saved: \" & FirstError.Message, NotificationType.Error),\n                Patch('MCHF Submissions', created, {Title: ref}),\n                    Notify(\"Item \" & created.ID & \" was saved, but its reference could not be set: \" & FirstError.Message, NotificationType.Error),\n                ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),\n                    Notify(ref & \" was saved, but its fund lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),\n                    Notify(ref & \" was saved, but the payment could not be linked to it: \" & FirstError.Message, NotificationType.Error),\n                UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});\n                Notify(\"Soumission réussie. Référence : \" & ref, NotificationType.Success))))),\n    Notify(\"Some fields need your attention.\", NotificationType.Error)\n)"
+                  "OnSelect": "UpdateContext({varTried: true});\nIf(\n    (tglNewDonor.Value || (varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text))) &&\n    (!tglNewDonor.Value || !IsBlank(Trim(txtNewDonorName.Text))) &&\n    !IsBlank(dpGiftDate.SelectedDate) &&\n    !IsBlank(ddGiftType.Selected.code) &&\n    !IsBlank(ddPaymentType.Selected.code) &&\n    !IsBlank(ddCampaign.Selected.code) &&\n    !IsBlank(ddAppeal.Selected.code) &&\n    (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&\n    (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) &&\n    (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&\n    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&\n    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = \"found\") &&\n    (!tglTaxReceipt.Value || (\n        (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtBenefitAmount.Text) >= 0 && Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text))) &&\n        (IsMatch(Trim(txtReceiptAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtReceiptAmount.Text) >= 0 && Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text))\n    )),\n    With({lines: If(tglSplitFunds.Value, colFundLines,\n            Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},\n    With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {\n            Title: \"NEW\",\n            'Constituent ID': If(tglNewDonor.Value, Blank(), varDonor.lookupId),\n            'Constituent Name': If(tglNewDonor.Value, Trim(txtNewDonorName.Text), varDonor.name),\n            'Constituent System ID': If(tglNewDonor.Value, \"\", varDonor.systemId),\n            'Payment Type': ddPaymentType.Selected.code,\n            'Gift Date': dpGiftDate.SelectedDate,\n            'Gift Type': ddGiftType.Selected.code,\n            'Gift Amount': Value(txtGiftAmount.Text),\n            Fees: Coalesce(Value(txtFees.Text), 0),\n            'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),\n            Campaign: ddCampaign.Selected.code,\n            Appeal: ddAppeal.Selected.code,\n            Fund: First(SortByColumns(lines, \"amount\", SortOrder.Descending)).fund,\n            Package: Trim(txtPackage.Text),\n            'Assigned Solicitor': Trim(txtSolicitor.Text),\n            Notes: txtNotes.Text,\n            'Tax Receipt': tglTaxReceipt.Value,\n            'Receipt Amount': If(tglTaxReceipt.Value, Value(txtReceiptAmount.Text), Blank()),\n            'Benefit Amount': If(tglTaxReceipt.Value && !IsBlank(Trim(txtBenefitAmount.Text)), Value(txtBenefitAmount.Text), Blank()),\n            'Payment Reference': varPaymentRecord.Reference,\n            'Processing status': {Value: \"Submitted\"}\n        })},\n        With({ref: \"SUB-\" & Text(created.ID, \"00000\")},\n            IfError(\n                created,\n                    Notify(\"The submission was not saved: \" & FirstError.Message, NotificationType.Error),\n                Patch('MCHF Submissions', created, {Title: ref}),\n                    Notify(\"Item \" & created.ID & \" was saved, but its reference could not be set: \" & FirstError.Message, NotificationType.Error),\n                ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),\n                    Notify(ref & \" was saved, but its fund lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),\n                    Notify(ref & \" was saved, but the payment could not be linked to it: \" & FirstError.Message, NotificationType.Error),\n                UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});\n                Notify(\"Soumission réussie. Référence : \" & ref, NotificationType.Success))))),\n    Notify(\"Some fields need your attention.\", NotificationType.Error)\n)"
                 },
                 "children": []
               },
@@ -791,7 +792,7 @@
                 "type": "Label",
                 "properties": {
                   "X": "20",
-                  "Y": "427",
+                  "Y": "402",
                   "Width": "415",
                   "Height": "26",
                   "Visible": "varTried && !(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0)",
@@ -813,7 +814,7 @@
                 "type": "Label",
                 "properties": {
                   "X": "20",
-                  "Y": "532",
+                  "Y": "502",
                   "Width": "415",
                   "Height": "26",
                   "Visible": "varTried && !(IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text))))",
@@ -879,7 +880,7 @@
                 "type": "Label",
                 "properties": {
                   "X": "20",
-                  "Y": "355",
+                  "Y": "330",
                   "Width": "200",
                   "Height": "30",
                   "Visible": "true",
@@ -901,7 +902,7 @@
                 "type": "Label",
                 "properties": {
                   "X": "20",
-                  "Y": "460",
+                  "Y": "430",
                   "Width": "200",
                   "Height": "30",
                   "Visible": "true",
@@ -922,9 +923,9 @@
                 "name": "lblNetAmountText",
                 "type": "Label",
                 "properties": {
-                  "X": "18",
-                  "Y": "592",
-                  "Width": "200",
+                  "X": "20",
+                  "Y": "528",
+                  "Width": "115",
                   "Height": "30",
                   "Visible": "true",
                   "DisplayMode": "DisplayMode.Edit",
@@ -1350,6 +1351,154 @@
                 "children": []
               },
               {
+                "name": "tglTaxReceipt",
+                "type": "Toggle",
+                "properties": {
+                  "X": "20",
+                  "Y": "568",
+                  "Width": "100",
+                  "Height": "32",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "false",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "OnChange": "If(!Self.Value, Reset(txtBenefitAmount); Reset(txtReceiptAmount))"
+                },
+                "children": []
+              },
+              {
+                "name": "lblTaxReceipt",
+                "type": "Label",
+                "properties": {
+                  "X": "130",
+                  "Y": "564",
+                  "Width": "290",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Reçu fiscal à émettre ?\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtReceiptAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "225",
+                  "Y": "630",
+                  "Width": "190",
+                  "Height": "36",
+                  "Visible": "tglTaxReceipt.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(\r\n    IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0 &&\r\n    (IsBlank(Trim(txtBenefitAmount.Text)) || IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\")),\r\n    Text(Max(0, Value(txtGiftAmount.Text) - Coalesce(Value(txtBenefitAmount.Text), 0)), \"0.00\"),\r\n    \"\"\r\n)",
+                  "HintText": "\"Ex: 75.00\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblBenefitAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "605",
+                  "Width": "190",
+                  "Height": "24",
+                  "Visible": "tglTaxReceipt.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Avantage ($)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "12",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtBenefitAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "20",
+                  "Y": "630",
+                  "Width": "190",
+                  "Height": "36",
+                  "Visible": "tglTaxReceipt.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"0.00\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13",
+                  "OnChange": "Reset(txtReceiptAmount)"
+                },
+                "children": []
+              },
+              {
+                "name": "lblReceiptAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "225",
+                  "Y": "605",
+                  "Width": "190",
+                  "Height": "24",
+                  "Visible": "tglTaxReceipt.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Montant du reçu ($)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "12",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrTaxReceipt",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "668",
+                  "Width": "415",
+                  "Height": "24",
+                  "Visible": "varTried && tglTaxReceipt.Value && !(\r\n    (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtBenefitAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text)))) &&\r\n    (IsMatch(Trim(txtReceiptAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtReceiptAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text)))\r\n)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Avantage et reçu : entre 0 $ et le montant du don.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
                 "name": "rectOverlay",
                 "type": "Rectangle",
                 "properties": {
@@ -1420,7 +1569,7 @@
                   "BorderThickness": "0",
                   "Size": "13",
                   "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(tglNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)"
+                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(tglNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount);\nReset(tglTaxReceipt); Reset(txtBenefitAmount); Reset(txtReceiptAmount)"
                 },
                 "children": []
               },

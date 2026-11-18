@@ -1,14 +1,16 @@
 # Coding Form: Simple Gift
 
-Related issues: [#8](https://github.com/hack4impact/mchf-project/issues/8) (with follow-ups from PR #38), [#22](https://github.com/hack4impact/mchf-project/issues/22) (Package, Assigned Solicitor and Notes)
+Related issues: [#8](https://github.com/hack4impact/mchf-project/issues/8) (with follow-ups from PR #38), [#22](https://github.com/hack4impact/mchf-project/issues/22) (Package, Assigned Solicitor and Notes), [#23](https://github.com/hack4impact/mchf-project/issues/23) (Tax receipt section and receipt amount)
 App: **MCHF - Coding Form** (Équipe)
 Lab export: `lab/solutions/mchf-coding-form.solution.json` (the app and the five lists it uses, no items)
 
 A fundraiser enters one simple gift: the donor (or a new donor), the gift, its
 coding (campaign, appeal, one fund or a split across several funds, optional package,
-assigned solicitor and notes). The form saves it as a submission with the status
-`Submitted`, gives it a reference `SUB-00001`, writes its fund lines, and links it
-to the payment it codes when it was opened from the Payment Log.
+assigned solicitor and notes), and whether a tax receipt should be issued (with
+optional benefit amount and calculated/editable receipt amount). The form saves it as
+a submission with the status `Submitted`, gives it a reference `SUB-00001`, writes
+its fund lines, and links it to the payment it codes when it was opened from the
+Payment Log.
 
 Lab only. Saving uses `Patch` on lab lists; the real Power Apps and SharePoint
 version is rebuilt and tested in Sprint 4 (see section 7).
@@ -42,12 +44,15 @@ Then a popup shows the SUB number.
 | `Gift Date` | The date picker |
 | `Gift Amount` | Typed amount |
 | `Fees` | Typed fees, `0` when empty |
-| `Net Amount` | `Gift Amount - Fees` |
+| `Net Amount` | `Gift Amount - Fees` (never reduced by `Benefit Amount`) |
 | `Campaign`, `Appeal` | NXT `lookup_id` of the chosen item (e.g. `AC-2025-2026`, `EV-GOLF-2026`) |
 | `Fund` | Primary fund: the chosen fund, or with a split the line with the largest amount (e.g. `HA-GENE0001`) |
 | `Package` | Optional free-text package code (`Trim(txtPackage.Text)`), empty when omitted |
 | `Assigned Solicitor` | Optional 7-digit solicitor Constituent ID (`Trim(txtSolicitor.Text)`), validated as an active fundraiser in RE NXT; prefilled from the payment when present, never from the signed-in user |
 | `Notes` | Optional multiline gift notes (`txtNotes.Text`), prefilled from `varPaymentRecord.Notes` when present |
+| `TaxReceipt` | Boolean (`tglTaxReceipt.Value`): `true` if a tax receipt is to be issued, `false` otherwise |
+| `BenefitAmount` | Benefit amount (`Value(txtBenefitAmount.Text)`) when `TaxReceipt` is `true` and the input is non-empty; `Blank()` otherwise |
+| `ReceiptAmount` | Receipt amount (`Value(txtReceiptAmount.Text)`), defaulting to `Gift Amount - Benefit Amount` and editable when `TaxReceipt` is `true`; `Blank()` when `false` |
 | `Payment Reference` | The payment's `Reference` (e.g. `PAY-00012`), when there is one |
 
 ## 2. Screen
@@ -59,7 +64,11 @@ solicitor lookup messages are the English ones of the #2 and #22 contracts.
   line that shows the donor's name (`lblConstituentName`), a lookup message
   (`lblDonorMsg`) or the validation message (`lblErrorConstituentId`); the toggle
   `tglNewDonor`, then for a new donor `btnNewDonorLink` and `txtNewDonorName`;
-  `txtGiftAmount`, `txtFees`, `lblNetAmount`; `btnSubmit`.
+  `txtGiftAmount`, `txtFees`, `lblNetAmountText` / `lblNetAmount`; the tax receipt
+  toggle `tglTaxReceipt` + `lblTaxReceiptQuestion` ("Reçu fiscal à émettre ?"),
+  `lblBenefitAmount` + `txtBenefitAmount` ("Avantage ($)") and `lblReceiptAmount` +
+  `txtReceiptAmount` ("Montant du reçu ($)") (visible only when
+  `tglTaxReceipt.Value` is `true`), `lblErrTaxReceipt`; `btnSubmit`.
 - **Middle column:** `dpGiftDate`, `ddGiftType`, `ddPaymentType`, `ddCampaign`,
   `ddAppeal`, `ddFund` (hidden when the gift is split), and `txtPackage`
   ("Package (facultatif)").
@@ -114,6 +123,18 @@ solicitor lookup messages are the English ones of the #2 and #22 contracts.
 - **Package & Notes (#22 contract).** Both are optional. `txtPackage` is single-line
   free text; `txtNotes` is multiline free text, prefilled from `varPaymentRecord.Notes`
   when opened from the Payment Log, and saved to `MCHF Submissions.Notes`.
+- **Tax receipt (#23 contract).** `tglTaxReceipt` ("Reçu fiscal à émettre ?")
+  defaults to `false` (No). `txtBenefitAmount` and `txtReceiptAmount` are visible only
+  when `tglTaxReceipt.Value` is `true`. `txtBenefitAmount` starts empty (treated as
+  `0` by `Coalesce` when computing the receipt), and `txtReceiptAmount` defaults to
+  `Max(0, Gift Amount - Benefit Amount)`. Changing `txtGiftAmount` or
+  `txtBenefitAmount` resets and recalculates `txtReceiptAmount` (replacing any value
+  typed manually), while `txtReceiptAmount` remains manually editable afterwards.
+  Both amounts must stay between `0` and `Gift Amount` (up to two decimals); an
+  out-of-range amount (such as a $120 benefit on a $100 gift) blocks Submit and
+  shows `lblErrTaxReceipt`. Switching `tglTaxReceipt` back from Yes to No resets both
+  inputs and saves `TaxReceipt = false` with `Blank()` for `BenefitAmount` and
+  `ReceiptAmount`. `Net Amount` is never reduced by `Benefit Amount`.
 - **New donor** (PRD acceptance #19 and the decision on new donors). "Nouveau donateur ?"
   turns off the ID field and Lookup, shows the link to the new-donor form and a
   required name field. The submission is saved without a Constituent ID; Gift
@@ -139,9 +160,10 @@ solicitor lookup messages are the English ones of the #2 and #22 contracts.
   `paymentId` that matches no payment, or a payment that already has a
   `Submission Reference`, shows a warning; the second case is not blocked.
 - **After a save.** "Fermer et réinitialiser" clears every field (including
-  `txtPackage`, `txtSolicitor` and `txtNotes`), `varDonor`, `varSolicitor`, the
-  fund lines and `varPaymentRecord`, so the next gift cannot be linked to the
-  payment that was just coded.
+  `txtPackage`, `txtSolicitor`, `txtNotes`, `tglTaxReceipt`, `txtBenefitAmount` and
+  `txtReceiptAmount`), `varDonor`, `varSolicitor`, the fund lines and
+  `varPaymentRecord`, so the next gift cannot be linked to the payment that was
+  just coded.
 
 ## 4. Formulas
 
@@ -243,6 +265,37 @@ With({typedId: Trim(txtSolicitor.Text)},
 Set(varSolicitor, Blank())
 ```
 
+### Tax receipt (#23)
+
+`txtGiftAmount.OnChange`:
+
+```powerfx
+If(tglTaxReceipt.Value, Reset(txtReceiptAmount))
+```
+
+`tglTaxReceipt.OnChange`:
+
+```powerfx
+If(!Self.Value, Reset(txtBenefitAmount); Reset(txtReceiptAmount))
+```
+
+`txtBenefitAmount.OnChange`:
+
+```powerfx
+Reset(txtReceiptAmount)
+```
+
+`txtReceiptAmount.Default`:
+
+```powerfx
+If(
+    IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0 &&
+    (IsBlank(Trim(txtBenefitAmount.Text)) || IsMatch(Trim(txtBenefitAmount.Text), "^\d+(\.\d{1,2})?$")),
+    Text(Max(0, Value(txtGiftAmount.Text) - Coalesce(Value(txtBenefitAmount.Text), 0)), "0.00"),
+    ""
+)
+```
+
 ### `btnSubmit.OnSelect`
 
 ```powerfx
@@ -259,7 +312,11 @@ If(
     (IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) &&
     (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), "^\d+(\.\d{1,2})?$") && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&
     (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&
-    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = "found"),
+    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = "found") &&
+    (!tglTaxReceipt.Value || (
+        (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtBenefitAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text)))) &&
+        (IsMatch(Trim(txtReceiptAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtReceiptAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text)))
+    )),
     // 1. Save with a temporary Title, 2. set the reference SUB-00001 from the new ID (#1 data dictionary),
     // 3. the fund lines (the split, or the fund chosen with the whole amount), 4. link the payment.
     // Stops at the first failure. The submission's Fund is the primary fund: the largest line.
@@ -282,6 +339,9 @@ If(
             Package: Trim(txtPackage.Text),
             'Assigned Solicitor': Trim(txtSolicitor.Text),
             Notes: txtNotes.Text,
+            'Tax Receipt': tglTaxReceipt.Value,
+            'Receipt Amount': If(tglTaxReceipt.Value, Value(txtReceiptAmount.Text), Blank()),
+            'Benefit Amount': If(tglTaxReceipt.Value && !IsBlank(Trim(txtBenefitAmount.Text)), Value(txtBenefitAmount.Text), Blank()),
             'Payment Reference': varPaymentRecord.Reference,
             'Processing status': {Value: "Submitted"}
         })},
@@ -349,6 +409,7 @@ Clear(colFundLines);
 Reset(txtConstituentId); Reset(tglNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);
 Reset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);
 Reset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);
+Reset(tglTaxReceipt); Reset(txtBenefitAmount); Reset(txtReceiptAmount);
 Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)
 ```
 
@@ -361,6 +422,13 @@ Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)
 | `txtNewDonorName` | `Visible` | `tglNewDonor.Value` |
 | `txtGiftAmount` | `Default` | `If(IsBlank(varPaymentRecord), "", Text(varPaymentRecord.'Gift Amount', "0.00"))` |
 | `txtFees` | `Default` | `"0.00"` |
+| `tglTaxReceipt` | `Default` | `false` |
+| `lblBenefitAmount` | `Visible` | `tglTaxReceipt.Value` |
+| `txtBenefitAmount` | `Default` | `""` |
+| `txtBenefitAmount` | `Visible` | `tglTaxReceipt.Value` |
+| `lblReceiptAmount` | `Visible` | `tglTaxReceipt.Value` |
+| `txtReceiptAmount` | `Default` | `If(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0 && (IsBlank(Trim(txtBenefitAmount.Text)) \|\| IsMatch(Trim(txtBenefitAmount.Text), "^\d+(\.\d{1,2})?$")), Text(Max(0, Value(txtGiftAmount.Text) - Coalesce(Value(txtBenefitAmount.Text), 0)), "0.00"), "")` |
+| `txtReceiptAmount` | `Visible` | `tglTaxReceipt.Value` |
 | `dpGiftDate` | `DefaultDate` | `If(IsBlank(varPaymentRecord), Blank(), varPaymentRecord.'Gift Date')` |
 | `ddGiftType` | `Default` | `Coalesce(varPaymentRecord.'Gift Type', "")` |
 | `ddPaymentType` | `Default` | `Coalesce(varPaymentRecord.'Payment Type', "")` |
@@ -396,6 +464,7 @@ Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)
 | `lblErrFund` | `"Choisissez un fonds."` | `varTried && !(tglSplitFunds.Value \|\| !IsBlank(ddFund.Selected.code))` | `Color.Red` |
 | `lblErrGiftAmount` | `"Montant supérieur à 0, par exemple 100.00."` | `varTried && !(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0)` | `Color.Red` |
 | `lblErrFees` | `"Frais : un nombre comme 2.50, sans dépasser le montant."` | `varTried && !(IsBlank(Trim(txtFees.Text)) \|\| (IsMatch(Trim(txtFees.Text), "^\d+(\.\d{1,2})?$") && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) \|\| Value(txtFees.Text) <= Value(txtGiftAmount.Text))))` | `Color.Red` |
+| `lblErrTaxReceipt` | `"Avantage et reçu : entre 0 $ et le montant du don."` | `varTried && tglTaxReceipt.Value && !((IsBlank(Trim(txtBenefitAmount.Text)) \|\| (IsMatch(Trim(txtBenefitAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtBenefitAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) \|\| Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text)))) && (IsMatch(Trim(txtReceiptAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtReceiptAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) \|\| Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text))))` | `Color.Red` |
 | `lblErrFundLines` | `If(CountRows(colFundLines) = 0, "Ajoutez au moins une ligne de fonds.", "La somme des lignes doit égaler le montant du don.")` | `varTried && !(!tglSplitFunds.Value \|\| (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005))` | `Color.Red` |
 | `lblErrorConstituentId` | `If(IsBlank(Trim(txtConstituentId.Text)), "Saisissez l'ID (7 chiffres), puis cliquez sur Lookup.", "Cliquez sur Lookup pour vérifier le donateur.")` | `varTried && !tglNewDonor.Value && !(varDonor.state = "found" && varDonor.lookupId = Trim(txtConstituentId.Text)) && IsBlank(varDonor.message)` | `Color.Red` |
 | `lblDonorMsg` | `varDonor.message` | `!tglNewDonor.Value && !IsBlank(varDonor.message)` | `Color.Red` |
@@ -412,9 +481,10 @@ If(!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmou
 
 ## 5. Tests
 
-Run on 2026-11-10 in Jérémie's personal environment (#8 / PR #38) and on
-2026-11-14 in Yasmine's personal environment (#22). Test donor `1234567`
-(Camille Exemple); `9999500` is the simulated NXT's error-500 ID.
+Run on 2026-11-10 in Jérémie's personal environment (#8 / PR #38), on
+2026-11-14 in Yasmine's personal environment (#22), and on 2026-11-18 in
+Yasmine's personal environment (#23). Test donor `1234567` (Camille Exemple);
+`9999500` is the simulated NXT's error-500 ID.
 
 | # | Steps | Expected | Result |
 |---|---|---|---|
@@ -447,6 +517,11 @@ Run on 2026-11-10 in Jérémie's personal environment (#8 / PR #38) and on
 | 27 | Solicitor `9999500`, Check | `"Solicitor check unavailable. Try again in a moment."` in red; Submit blocked | Pass |
 | 28 | Solicitor `2012066` (Andrée Savard, inactive record), Check | Refused as inactive (`"Andrée Savard is not an active solicitor."`); Submit blocked | Blocked on 7-digit NXT rollout (currently returns `"No solicitor with this ID."`) |
 | 29 | Solicitor `2012008` (Raphaël Michaud, active), Check + `Package` + `Notes` all filled, Submit | `"Raphaël Michaud"` in black; Submit accepted and `2012008`, `Package` and `Notes` saved to `MCHF Submissions` | Blocked on 7-digit NXT rollout (currently returns `"No solicitor with this ID."`) |
+| 30 | Tax receipt toggle on No (default) | `txtBenefitAmount` and `txtReceiptAmount` hidden | Pass |
+| 31 | Gift `$100`, toggle Tax receipt to Yes, Benefit `$25`, then override Receipt to `$80` and Submit | `txtReceiptAmount` defaults to `75.00`; changing it to `80` is accepted and saved with `ReceiptAmount = 80` and `BenefitAmount = 25` | Pass |
+| 32 | Gift `$100`, Benefit `$2`, Submit (`SUB-00047`) | Saved to `MCHF Submissions` with `TaxReceipt = true`, `BenefitAmount = 2`, `ReceiptAmount = 98`, and `NetAmount` unchanged (`100`) | Pass |
+| 33 | Gift `$100`, Benefit `$120` (or Receipt `> $100` / `< $0`), Submit | Blocked: `"Avantage et reçu : entre 0 $ et le montant du don."` in red | Pass |
+| 34 | Toggle Tax receipt to Yes, enter Benefit `$20`, switch back to No, Submit | Both inputs hidden and reset; saved with `TaxReceipt = false`, `BenefitAmount` and `ReceiptAmount` empty | Pass |
 
 Not run: `9999504` (timeout; same `IfError` branch as tests 3 and 27, after a 10 s
 wait). Tests 26 (Check + Submit), 28 (`2012066`) and 29 (`2012008`) are ready and
@@ -471,6 +546,15 @@ waiting for Jérémie's 7-digit NXT constituent migration. App checker: no error
   in, otherwise a new donor's submission is refused ("The submission was not
   saved"). A change request only adds missing columns; it does not change an
   existing one.
+- **Package is free text in the lab.** `txtPackage` is a single-line text input in
+  the lab; the real RE NXT connector provides *List packages* filtered by appeal,
+  to be wired in Sprint 4.
+- **Only the solicitor's Constituent ID is saved.** `MCHF Submissions.Assigned Solicitor`
+  stores the 7-digit `lookup_id` (`Trim(txtSolicitor.Text)`), not the solicitor's
+  display name.
+- **Tax receipt default value (open question for Marc).** `tglTaxReceipt` currently
+  defaults to `false` (No). Should the form force an explicit choice (no default
+  selected) before Submit?
 - **Coding a payment twice** is warned about, not blocked.
 - **No transaction.** If step 2, 3 or 4 fails, the submission already exists; the
   message names it and the rest is fixed by hand. SharePoint has no transactions
@@ -480,9 +564,3 @@ waiting for Jérémie's 7-digit NXT constituent migration. App checker: no error
   as classic Power Apps), `Patch` returning the saved record (same with SharePoint),
   and the real connector's operation name (`SearchConstituent`, not
   `SearchConstituents`, see `DIFFERENCES.md` of the lab).
-- **Package is free text in the lab.** `txtPackage` is a single-line text input in
-  the lab; the real RE NXT connector provides *List packages* filtered by appeal,
-  to be wired in Sprint 4.
-- **Only the solicitor's Constituent ID is saved.** `MCHF Submissions.Assigned Solicitor`
-  stores the 7-digit `lookup_id` (`Trim(txtSolicitor.Text)`), not the solicitor's
-  display name.
