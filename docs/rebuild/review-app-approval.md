@@ -1,7 +1,7 @@
 # Review App, Approval Flow and Simulated Transfer
 
-Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27), [#28](https://github.com/hack4impact/mchf-project/issues/28)
-Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`, `feature/28-review-correct`
+Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27), [#28](https://github.com/hack4impact/mchf-project/issues/28), [#34](https://github.com/hack4impact/mchf-project/issues/34)
+Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`, `feature/28-review-correct`, `feature/34-audit-pdf-sprint3-fields`
 Environment: Équipe
 
 Gift Processing reviews a submission in the app **MCHF - Review**: claim,
@@ -107,8 +107,9 @@ an expression. Content of the **HTML** card:
 <h2>Donor</h2>
 <table>
 <tr><td><strong>Constituent ID</strong></td><td>@{body('Get_submission')?['ConstituentID']}</td></tr>
-<tr><td><strong>Constituent name</strong></td><td>@{body('Get_submission')?['ConstituentName']}</td></tr>
+<tr><td><strong>Constituent name</strong></td><td>@{replace(replace(replace(coalesce(body('Get_submission')?['ConstituentName'], ''), '&', '&amp;'), '<', '&lt;'), '>', '&gt;')}</td></tr>
 <tr><td><strong>Constituent system ID</strong></td><td>@{body('Get_submission')?['Constituent_x0020_System_x0020_I']}</td></tr>
+<tr><td><strong>New donor</strong></td><td>@{if(equals(body('Get_submission')?['NewDonor'], true), 'Yes', 'No')}</td></tr>
 </table>
 
 <h2>Gift</h2>
@@ -130,6 +131,16 @@ an expression. Content of the **HTML** card:
 <tr><td><strong>Assigned solicitor</strong></td><td>@{body('Get_submission')?['Assigned_x0020_Solicitor']}</td></tr>
 </table>
 
+<h2>Tax receipt</h2>
+<table>
+<tr><td><strong>Tax receipt to issue</strong></td><td>@{if(equals(body('Get_submission')?['TaxReceipt'], true), 'Yes', 'No')}</td></tr>
+<tr><td><strong>Benefit amount</strong></td><td>@{body('Get_submission')?['BenefitAmount']}</td></tr>
+<tr><td><strong>Receipt amount</strong></td><td>@{body('Get_submission')?['ReceiptAmount']}</td></tr>
+</table>
+
+<h2>Notes</h2>
+<p>@{replace(replace(replace(coalesce(body('Get_submission')?['Notes'], ''), '&', '&amp;'), '<', '&lt;'), '>', '&gt;')}</p>
+
 <h2>Fund lines</h2>
 <table>
 <tr><td><strong>Fund</strong></td><td><strong>Amount</strong></td></tr>
@@ -150,6 +161,10 @@ an expression. Content of the **HTML** card:
 
 Approved by and Approved at are written by the app before it calls the
 flow, so they are in the PDF.
+
+The Sprint 3 fields of this card come from #34. They are in a personal copy
+of the flow until the change request is merged in Équipe. The exports in
+`lab/solutions` don't have them yet (`audit-pdf.md`, Remaining work).
 
 ## 4. Review app: MCHF - Review
 
@@ -718,3 +733,5 @@ fund line of $100 with the same Submission Reference.
 ## Remaining work
 
 - Send a screenshot of the review screen to Hadyle (#32).
+- #34: merge the change request of `MCHF - ApproveGift`, then export the
+  flow again.
