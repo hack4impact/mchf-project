@@ -1,7 +1,7 @@
 # Audit PDF for a Coded Gift
 
-Related issue: [#11](https://github.com/hack4impact/mchf-project/issues/11)
-Branch: `feature/11-audit-pdf-template`
+Related issues: [#11](https://github.com/hack4impact/mchf-project/issues/11), [#34](https://github.com/hack4impact/mchf-project/issues/34)
+Branches: `feature/11-audit-pdf-template`, `feature/34-audit-pdf-sprint3-fields`
 Environment: Équipe
 
 The PDF kept with each approved submission for audit. The flow of #15
@@ -12,8 +12,8 @@ fills the HTML template and converts it to PDF at approval.
 | File | Use |
 |---|---|
 | `docs/rebuild/audit-template.html` | The template, with one `{{...}}` placeholder per value |
-| `docs/rebuild/audit-samples/single-fund.html` | Template filled with the test case, one fund line ($100) |
-| `docs/rebuild/audit-samples/multi-fund.html` | Template filled with the test case, two fund lines ($60 + $40) |
+| `docs/rebuild/audit-samples/single-fund.html` | Template filled with the test case, one fund line ($100), a tax receipt ($25 benefit, $75 receipt) and notes |
+| `docs/rebuild/audit-samples/multi-fund.html` | Template filled with the test case, two fund lines ($60 + $40), no tax receipt and no notes |
 
 ## 2. Template
 
@@ -24,12 +24,14 @@ Sections, in order:
 
 1. Header: "Gift coding record", submission reference, payment reference
    when there is one
-2. Donor
+2. Donor, with New donor
 3. Gift: types, date, amounts
 4. Coding: campaign, appeal, primary fund, package, solicitor
-5. Fund lines, with their total
-6. People: who submitted and when, who approved and when
-7. Footer: "Generated at approval. The NXT transfer result is not part of
+5. Tax receipt: tax receipt to issue, benefit amount, receipt amount
+6. Notes
+7. Fund lines, with their total
+8. People: who submitted and when, who approved and when
+9. Footer: "Generated at approval. The NXT transfer result is not part of
    this record."
 
 The PDF is made at approval, before NXT answers, so the transfer result
@@ -45,7 +47,6 @@ dynamic content from **Get submission**.
 |---|---|
 | `{{Title}}` | Submission reference, `SUB-00001` |
 | `{{ConstituentID}}` | Constituent ID |
-| `{{ConstituentName}}` | Constituent name |
 | `{{Constituent_x0020_System_x0020_I}}` | Constituent system ID |
 | `{{Gift_x0020_Type}}` | Gift type |
 | `{{Payment_x0020_Type}}` | Payment type |
@@ -58,6 +59,8 @@ dynamic content from **Get submission**.
 | `{{Fund}}` | Primary fund. The split between funds is in the fund lines |
 | `{{Package}}` | Package |
 | `{{Assigned_x0020_Solicitor}}` | Assigned solicitor |
+| `{{BenefitAmount}}` | Benefit amount (#21). Empty stays empty, and the row stays in the table |
+| `{{ReceiptAmount}}` | Receipt amount (#21). Empty stays empty, and the row stays in the table |
 | `{{ApprovedByEmail}}` | Who approved (#4) |
 | `{{ApprovedAt}}` | When it was approved (#4) |
 
@@ -80,8 +83,32 @@ For `{{PaymentReferenceLine}}`, the flow uses:
 The test case does not come from the registry, so its PDF has no payment
 reference line.
 
-Empty fields (Package, Assigned solicitor in the test case) stay in the
-table with an empty value.
+Four placeholders use a column, but the flow changes the value before it
+goes in the HTML:
+
+| Placeholder | Column | Value in the PDF |
+|---|---|---|
+| `{{NewDonor}}` | `NewDonor` (#21) | `Yes` or `No`. An empty value gives `No` |
+| `{{TaxReceipt}}` | `TaxReceipt` (#21) | `Yes` or `No`. An empty value gives `No` |
+| `{{Notes}}` | `Notes` (#21) | The text, with `&`, `<` and `>` escaped |
+| `{{ConstituentName}}` | `ConstituentName` | The name, with `&`, `<` and `>` escaped. It is typed by hand for a new donor (#25) |
+
+For `{{NewDonor}}` (same expression with `TaxReceipt` for `{{TaxReceipt}}`):
+
+```
+@{if(equals(body('Get_submission')?['NewDonor'], true), 'Yes', 'No')}
+```
+
+For `{{Notes}}` (same expression with `ConstituentName` for
+`{{ConstituentName}}`):
+
+```
+@{replace(replace(replace(coalesce(body('Get_submission')?['Notes'], ''), '&', '&amp;'), '<', '&lt;'), '>', '&gt;')}
+```
+
+Empty fields (Package and Assigned solicitor in the test case, Benefit
+amount and Receipt amount in `multi-fund.html`) stay in the table with an
+empty value. Empty notes leave the Notes section with an empty paragraph.
 
 ## 4. Repeated sections
 
@@ -139,6 +166,17 @@ Constituent ID `1234567`, one-time gift, $100, Personal Cheque, gift date
 | Multi fund: run the test flow with `multi-fund.html` | Passed. The PDF shows `HA-CARD0110` $60.00, `HA-ONCO0220` $40.00 and a $100.00 total |
 | PDF shows who submitted and when, who approved and when | Passed |
 | Content of Create PDF file set to `outputs('To_PDF')` | Failed: the file does not open. Fixed with `body('To_PDF')` |
+| #34: updated `single-fund.html`, converted by a test flow in a personal environment (PDF saved in OneDrive) | Passed. The PDF shows Tax receipt to issue Yes, Benefit amount $25.00, Receipt amount $75.00 and the notes |
+| #34: updated `multi-fund.html`, same test flow | Passed. The PDF shows Tax receipt to issue No. The Benefit amount and Receipt amount rows stay, empty, and Notes is empty |
+| #34: personal copy of `MCHF - ApproveGift`, `SUB-TEST34C` ($100, tax receipt, benefit $25, receipt $75) | Passed. The PDF in the copy's `MCHF - Audit documents` shows Benefit amount 25 and Receipt amount 75 |
+| #34: name `Camille <Exemple> & Fils` and notes `Gala <table> & dinner: benefit > 0` on `SUB-TEST34C` | Passed. The PDF shows both as typed |
+| #34: personal copy, `SUB-TEST34D` (new donor, no Constituent ID, no receipt, no notes, fund lines $60 + $40) | Passed. The PDF shows New donor Yes and Tax receipt to issue No. The empty rows stay |
+
+The #34 runs used a personal copy of the flow and were started directly, not
+with the Approve button of the app. Their Constituent System ID was left
+empty so that nothing is written to the shared simulated NXT: the recording
+step answers "Not sent to NXT" and the status is Transfer Failed, as
+expected.
 
 ## 8. Limits
 
@@ -153,8 +191,21 @@ Constituent ID `1234567`, one-time gift, $100, Personal Cheque, gift date
   response, not only the file.
 - An expression typed in a field must start with `@`. Without it, the
   text is used as is.
+- Notes and Constituent name are escaped, because they are typed by hand:
+  a `<` would break the table of the PDF. The other text fields are not
+  escaped.
+- HTML ignores line breaks, so a note of several lines shows as one
+  paragraph.
+- The Sprint 3 fields (#34) are only in the PDFs made after the change
+  request of #34 is merged in Équipe. An existing PDF is not made again.
 
 ## Remaining work
+
+- #34: propose the personal copy of `MCHF - ApproveGift` with a change
+  request (Demandes de modification › Nouvelle demande). After the merge,
+  approve a gift with a tax receipt in Équipe, then export the flow to the
+  solution file of #15 with Solutions › Exporter.
+- Soft credits are built in Sprint 4 (section 4).
 
 - Build the real chain in the approval flow `MCHF - ApproveGift` (#15):
   Get submission, Get fund lines, the loop, then the steps of section 6,
