@@ -2,6 +2,7 @@
 
 Related issue: [#3](https://github.com/hack4impact/mchf-project/issues/3)
 Related issue: [#10](https://github.com/hack4impact/mchf-project/issues/10)
+Related issue: [#14](https://github.com/hack4impact/mchf-project/issues/14)
 Related issue: [#24](https://github.com/hack4impact/mchf-project/issues/24) 
 
 ## List
@@ -32,6 +33,8 @@ Only fictional data is used in the lab.
 | ClaimedByName | Claimed By Name | Single line of text | No | None |
 | SubmissionReference | Submission Reference | Single line of text | No | None |
 | ConstituentSystemID | Constituent System ID | Single line of text | No | None |
+| ClaimedByEmail | Claimed By Email | Single line of text | No | None |
+| ClaimedAt | Claimed At | Date and time, including time | No | None |
 
 Status choices are Unclaimed, Claimed and Coded.
 
@@ -135,8 +138,9 @@ Coded means Gift Processing approved the linked submission. Successful
 addition to an NXT gift batch is tracked separately through the
 submission's Added to NXT Batch processing status.
 
-These transitions are documented rules. Their automatic execution
-has not been implemented in this issue.
+The Unclaimed → Claimed transition is implemented by the Claim button
+in issue #14. The other transitions remain documented rules handled
+by their respective issues.
 
 ## Payment claims and submission claims
 
@@ -399,7 +403,60 @@ ThisItem.Status.Value = "Unclaimed"
 Set btnClaim.OnSelect to:
 
 ```powerfx
-Blank()
+With(
+    {paymentIdToClaim: ThisItem.ID},
+    IfError(
+        Refresh('MCHF - Payment Log');
+        With(
+            {
+                currentPayment: LookUp(
+                    'MCHF - Payment Log',
+                    ID = paymentIdToClaim
+                )
+            },
+            If(
+                IsBlank(currentPayment),
+                Notify(
+                    "This payment no longer exists.",
+                    NotificationType.Error
+                ),
+                currentPayment.Status.Value <> "Unclaimed",
+                Notify(
+                    "This payment is no longer Unclaimed.",
+                    NotificationType.Error
+                ),
+                If(
+                    IfError(
+                        Patch(
+                            'MCHF - Payment Log',
+                            currentPayment,
+                            {
+                                Status: {Value: "Claimed"},
+                                'Claimed By Email': User().Email,
+                                'Claimed By Name': User().FullName,
+                                'Claimed At': Now()
+                            }
+                        );
+                        true,
+                        Notify(
+                            "The payment could not be claimed. Try again.",
+                            NotificationType.Error
+                        );
+                        false
+                    ),
+                    Launch(
+                        "https://lab.jeremieanglaret.com/play/e/ccb63468-42f6-4652-b4fb-6334dd28a27c/a/c0409020-01ef-4a43-95c7-e67639f231d5",
+                        {paymentId: paymentIdToClaim}
+                    )
+                )
+            )
+        ),
+        Notify(
+            "The claim action could not finish. Check the registry before retrying.",
+            NotificationType.Error
+        )
+    )
+)
 ```
 
 Set lblClaimedBy.Visible to:
@@ -411,8 +468,24 @@ ThisItem.Status.Value <> "Unclaimed"
 Unclaimed payments display the Claim button.
 Claimed and Coded payments display the saved claimant name instead.
 
-The Claim button does not modify any records in issue #10.
-The claiming action will be implemented in issue #14.
+Issue #14 implements the Claim action.
+
+The button captures the selected payment's ID, refreshes the Payment Log,
+and looks up the current record. A missing payment or a status other than
+Unclaimed blocks the claim.
+
+A successful claim saves Status Claimed, User().Email, User().FullName
+and Now() in the corresponding claimant fields.
+
+Only after the claim is saved does Launch open MCHF - Coding Form.
+The paymentId parameter contains the numeric list ID, not the PAY reference.
+The coding form from issue #8 reads Param("paymentId") and prefills itself.
+
+The Launch URL identifies the current lab coding app. When rebuilding
+in another environment, replace it with that environment's coding app link.
+
+Refresh, LookUp and Patch are separate operations. This does not guarantee
+protection against two claims at the exact same instant.
 
 ### Empty states
 
@@ -536,6 +609,35 @@ The Submit behaviour is described in the Payment entry section.
 Retain the working lookup and Submit formulas in the fresh application
 export. Their exact formulas are not reproduced in this document.
 
+## Claim tests — issue #14
+
+Tests used fictional data in Établi.
+
+| Test | Result |
+|---|---|
+| Claim an Unclaimed payment | Passed — status becomes Claimed |
+| Record claimant name, email and claim time | Passed — checked in the Payment Log |
+| Open the coding form with payment details | Passed — donor, amount, gift date and payment type prefilled |
+| Open the same Unclaimed payment in two tabs; claim in A, then click Claim in B without reloading | Passed — B displays "This payment is no longer Unclaimed." and refreshes the registry |
+| Repeat the second-claim test with two different accounts | Pending — teammate unavailable |
+| Simultaneous claims by two users | Not proven in the lab — test in the real tools |
+
+### Simultaneous-claim test to rerun in the real tools
+
+1. Sign in with two different accounts that can access the same registry.
+2. Open the same Unclaimed test payment in both sessions.
+3. Have both users click Claim at the same agreed moment.
+4. Check the resulting status, claimant name, email and claim time.
+
+Expected:
+- Exactly one claim succeeds and opens the coding form.
+- The other claim is refused.
+- The unsuccessful claim does not overwrite the successful claimant.
+
+Record the actual result when this test is run. The two-tab lab test
+verifies a second claim after the first has finished; it does not prove
+simultaneous-claim protection.
+
 ## Deliverables
 
 - Rebuild document: docs/rebuild/payment-log-registry.md
@@ -544,7 +646,9 @@ export. Their exact formulas are not reproduced in this document.
 - Reminder export: lab/solutions/mchf-reminder.solution.json
 - Reminder branch: feature/24-unclaimed-reminder
 - Screens branch: feature/10-payment-log-and-registry-screens
+- Claim branch: feature/14-claim-to-prefilled-form
 
 ## Remaining work
 
-- Claim action wiring belongs to issue #14.
+- Run the second-claim test with two different accounts.
+- Rerun the documented simultaneous-claim test in the real tools.
