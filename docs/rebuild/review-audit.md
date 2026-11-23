@@ -180,6 +180,76 @@ no adaptive cards or mentions.
 | Returned for information | Status becomes Needs Information (T4) | The fundraiser (chat) | `SUB-00042 was returned: <comment>. Open it to fix and resubmit.` | Coding form (#8) |
 | Added to the batch | Status becomes Added to NXT Batch (T8, T11) | The fundraiser (chat) | `SUB-00042 was added to an NXT gift batch.` | None |
 
+Lab assumption (#50): new submissions go to the channel MCHF Lab /
+Gift Processing, and Transfer Failed posts nothing (questions 2 and 3).
+Links to the apps are out of scope for now.
+
+### Flows (#50)
+
+Two flows publish these events. Neither touches the coding form or the
+review app, and neither writes to a list, so they cannot trigger
+themselves. In the lab, the team and channel names are free text.
+
+**MCHF - New submission notification**
+
+| Step | Action | Settings |
+|---|---|---|
+| Trigger | When an item is created | List `MCHF Submissions` |
+| Post new submission | Post message in a chat or channel | Flow bot, Channel, Team `MCHF Lab`, Channel `Gift Processing`. Message below |
+
+When the item is created, Title is still `NEW`, so the reference comes
+from the ID:
+
+```
+New submission @{concat('SUB-', formatNumber(triggerOutputs()?['body/ID'], '00000'))} from @{triggerOutputs()?['body/Author/DisplayName']}, @{triggerOutputs()?['body/Gift_x0020_Amount']} $.
+```
+
+**MCHF - Review notifications**
+
+The form writes no history row on Submit, but every review action
+does. This flow reads each new history row.
+
+| Step | Action | Settings |
+|---|---|---|
+| Trigger | When an item is created | List `MCHF - Submission History` |
+| Get submission | Get items | List `MCHF Submissions`, filter `Title eq '@{triggerOutputs()?['body/SubmissionReference']}'`, top 1 |
+| Switch on status | Switch | On `@triggerOutputs()?['body/ToStatus']` |
+
+The fundraiser is `first(body('Get_submission')?['value'])?['Author']`
+(its `Email` for the chat, its `DisplayName` for the channel message).
+
+| To Status | Action | Recipient | Message |
+|---|---|---|---|
+| Submitted | Condition: From Status is `Needs Information`. Yes: post. No: nothing | Channel MCHF Lab / Gift Processing | `@{triggerOutputs()?['body/SubmissionReference']} was corrected and resubmitted by <DisplayName>.` |
+| Needs Information | Post | Chat with Flow bot, the fundraiser's email | `@{triggerOutputs()?['body/SubmissionReference']} was returned: @{triggerOutputs()?['body/Comment']}. Open it to fix and resubmit.` |
+| Added to NXT Batch | Post | Chat with Flow bot, the fundraiser's email | `@{triggerOutputs()?['body/SubmissionReference']} was added to an NXT gift batch.` |
+| Any other (Default) | Nothing | | |
+
+Added to NXT Batch posts once whatever wrote the row: the approval (T8),
+Record again (T11) or the Gift is in NXT button.
+
+After a change request is merged, the administrator turns both flows
+on: copied and imported flows arrive turned off.
+
+### Tests (#50)
+
+Run on 2026-11-23 in Environnement de Yanis, with items created
+directly in the copies of the two lists. Fictional donor Camille
+Exemple (`1234567`), history rows on `SUB-TEST28N`. Results read in the
+run details of each flow.
+
+| # | Test | Result |
+|---|---|---|
+| 1 | New submission, Title `NEW`, ID 35, $150 | Passed: one message in Gift Processing, `New submission SUB-00035 from Yanis, 150 $.` |
+| 2 | History row Needs Information, comment `Missing payment reference (test #50)` | Passed: chat to the fundraiser only, with the comment |
+| 3 | History row Submitted, From Status Needs Information | Passed: `SUB-TEST28N was corrected and resubmitted by Yanis.` in Gift Processing, not the new submission text |
+| 4 | History row Added to NXT Batch | Passed: one chat to the fundraiser |
+| 5 | History row Transfer Failed | Passed: Default case, nothing posted |
+| 6 | History row Under Review (Claim) | Passed: Default case, nothing posted |
+
+Rejected, Cancelled and Correct also go to the Default case: they post
+nothing.
+
 ## 9. Open questions
 
 1. Can a reviewer release a claim (Under Review → Submitted) to hand a
@@ -204,6 +274,8 @@ no adaptive cards or mentions.
   `lab/solutions/mchf-submission-history.solution.json`
 - The six columns of section 6 are added to `MCHF Submissions` in Équipe.
   They appear in the next export of that list (#1).
+- Lab export of the two Teams flows (solution MCHF-Notifications, #50):
+  `lab/solutions/mchf-notifications.solution.json`
 
 ## Remaining work
 

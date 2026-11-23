@@ -1,0 +1,462 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "MCHF-Notifications",
+  "exportedAt": "2026-11-23T21:13:33Z",
+  "lists": [
+    {
+      "key": "58bf89fd-1339-4386-a584-82f33675e8f5",
+      "name": "MCHF Submissions",
+      "description": "Soumissions de codage de dons",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": false,
+          "maxLength": 7
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Constituent_x0020_System_x0020_I",
+          "displayName": "Constituent System ID",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Type",
+          "displayName": "Payment Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Date",
+          "displayName": "Gift Date",
+          "type": "date",
+          "required": true,
+          "dateOnly": true
+        },
+        {
+          "name": "Gift_x0020_Type",
+          "displayName": "Gift Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Amount",
+          "displayName": "Gift Amount",
+          "type": "currency",
+          "required": true,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Fees",
+          "displayName": "Fees",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Net_x0020_Amount",
+          "displayName": "Net Amount",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Campaign",
+          "displayName": "Campaign",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Appeal",
+          "displayName": "Appeal",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Fund",
+          "displayName": "Fund",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Package",
+          "displayName": "Package",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Assigned_x0020_Solicitor",
+          "displayName": "Assigned Solicitor",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Reference",
+          "displayName": "Payment Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Status",
+          "displayName": "Processing status",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "Submitted",
+            "Under Review",
+            "Needs Information",
+            "Rejected",
+            "Recording in Progress",
+            "Added to NXT Batch",
+            "Transfer Failed",
+            "Cancelled"
+          ],
+          "defaultValue": "Submitted"
+        },
+        {
+          "name": "ReviewerEmail",
+          "displayName": "Reviewer Email",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ReviewComment",
+          "displayName": "Review Comment",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "ApprovedByEmail",
+          "displayName": "Approved By Email",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ApprovedAt",
+          "displayName": "Approved At",
+          "type": "date",
+          "required": false,
+          "dateOnly": false
+        },
+        {
+          "name": "AuditPDF",
+          "displayName": "Audit PDF",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "AuditHTML",
+          "displayName": "Audit HTML",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "Notes",
+          "displayName": "Notes",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "TaxReceipt",
+          "displayName": "Tax Receipt",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
+        },
+        {
+          "name": "ReceiptAmount",
+          "displayName": "Receipt Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "BenefitAmount",
+          "displayName": "Benefit Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "NewDonor",
+          "displayName": "New Donor",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "key": "840916fd-9d81-4f79-b963-5f8d567a8512",
+      "name": "MCHF - Submission History",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "SubmissionReference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "FromStatus",
+          "displayName": "From Status",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ToStatus",
+          "displayName": "To Status",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "ActorEmail",
+          "displayName": "Actor Email",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Comment",
+          "displayName": "Comment",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "ActionAt",
+          "displayName": "Action At",
+          "type": "date",
+          "required": true,
+          "dateOnly": false
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "key": "061db1a9-9d7d-43fd-93b4-90d4c11533d5",
+      "name": "MCHF - New submission notification",
+      "description": "Posts new submissions in MCHF Lab / Gift Processing (issue #50).",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "When_an_item_is_created": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetOnNewItems"
+              },
+              "parameters": {
+                "table": "58bf89fd-1339-4386-a584-82f33675e8f5"
+              }
+            },
+            "recurrence": {
+              "interval": 1,
+              "frequency": "Minute"
+            },
+            "splitOn": "@triggerOutputs()?['body/value']"
+          }
+        },
+        "actions": {
+          "Post_new_submission": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_teams",
+                "connectionName": "shared_teams",
+                "operationId": "PostMessageToConversation"
+              },
+              "parameters": {
+                "poster": "Flow bot",
+                "location": "Channel",
+                "body/recipient/groupId": "MCHF Lab",
+                "body/recipient/channelId": "Gift Processing",
+                "body/messageBody": "New submission @{concat('SUB-', formatNumber(triggerOutputs()?['body/ID'], '00000'))} from @{triggerOutputs()?['body/Author/DisplayName']}, @{triggerOutputs()?['body/Gift_x0020_Amount']} $."
+              }
+            },
+            "runAfter": {}
+          }
+        },
+        "outputs": {}
+      }
+    },
+    {
+      "key": "dc6736fd-0461-46a1-9cea-705cdd968bd9",
+      "name": "MCHF - Review notifications",
+      "description": "Posts resubmissions, returns and batch additions from MCHF - Submission History (issue #50).",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "When_an_item_is_created": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetOnNewItems"
+              },
+              "parameters": {
+                "table": "840916fd-9d81-4f79-b963-5f8d567a8512"
+              }
+            },
+            "recurrence": {
+              "interval": 1,
+              "frequency": "Minute"
+            },
+            "splitOn": "@triggerOutputs()?['body/value']"
+          }
+        },
+        "actions": {
+          "Get_submission": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "58bf89fd-1339-4386-a584-82f33675e8f5",
+                "$filter": "Title eq '@{triggerOutputs()?['body/SubmissionReference']}'",
+                "$top": 1
+              }
+            },
+            "runAfter": {}
+          },
+          "Switch_on_status": {
+            "type": "Switch",
+            "expression": "@triggerOutputs()?['body/ToStatus']",
+            "runAfter": {
+              "Get_submission": [
+                "Succeeded"
+              ]
+            },
+            "cases": {
+              "Case_Submitted": {
+                "case": "Submitted",
+                "actions": {
+                  "Is_resubmission": {
+                    "type": "If",
+                    "expression": {
+                      "and": [
+                        {
+                          "equals": [
+                            "@triggerOutputs()?['body/FromStatus']",
+                            "Needs Information"
+                          ]
+                        }
+                      ]
+                    },
+                    "actions": {
+                      "Post_resubmission": {
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "host": {
+                            "apiId": "/providers/lab/apis/shared_teams",
+                            "connectionName": "shared_teams",
+                            "operationId": "PostMessageToConversation"
+                          },
+                          "parameters": {
+                            "poster": "Flow bot",
+                            "location": "Channel",
+                            "body/recipient/groupId": "MCHF Lab",
+                            "body/recipient/channelId": "Gift Processing",
+                            "body/messageBody": "@{triggerOutputs()?['body/SubmissionReference']} was corrected and resubmitted by @{first(body('Get_submission')?['value'])?['Author']?['DisplayName']}."
+                          }
+                        },
+                        "runAfter": {}
+                      }
+                    },
+                    "else": {
+                      "actions": {}
+                    },
+                    "runAfter": {}
+                  }
+                }
+              },
+              "Case_Needs_Information": {
+                "case": "Needs Information",
+                "actions": {
+                  "Post_return": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "apiId": "/providers/lab/apis/shared_teams",
+                        "connectionName": "shared_teams",
+                        "operationId": "PostMessageToConversation"
+                      },
+                      "parameters": {
+                        "poster": "Flow bot",
+                        "location": "Chat with Flow bot",
+                        "body/recipient": "@{first(body('Get_submission')?['value'])?['Author']?['Email']}",
+                        "body/messageBody": "@{triggerOutputs()?['body/SubmissionReference']} was returned: @{triggerOutputs()?['body/Comment']}. Open it to fix and resubmit."
+                      }
+                    },
+                    "runAfter": {}
+                  }
+                }
+              },
+              "Case_Added_to_NXT_Batch": {
+                "case": "Added to NXT Batch",
+                "actions": {
+                  "Post_added_to_batch": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "apiId": "/providers/lab/apis/shared_teams",
+                        "connectionName": "shared_teams",
+                        "operationId": "PostMessageToConversation"
+                      },
+                      "parameters": {
+                        "poster": "Flow bot",
+                        "location": "Chat with Flow bot",
+                        "body/recipient": "@{first(body('Get_submission')?['value'])?['Author']?['Email']}",
+                        "body/messageBody": "@{triggerOutputs()?['body/SubmissionReference']} was added to an NXT gift batch."
+                      }
+                    },
+                    "runAfter": {}
+                  }
+                }
+              }
+            },
+            "default": {
+              "actions": {}
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
+  "apps": []
+}
