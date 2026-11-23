@@ -2,10 +2,173 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "Ma solution",
-  "exportedAt": "2026-11-13T19:46:21Z",
+  "exportedAt": "2026-11-23T23:47:00Z",
   "lists": [
     {
-      "key": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+      "key": "3d207ee1-2b06-4944-9f98-06d8c3b3a513",
+      "name": "MCHF - Pledge Installments",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Submission",
+          "displayName": "Submission",
+          "type": "lookup",
+          "required": false,
+          "lookupListId": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
+          "lookupColumn": "Title"
+        },
+        {
+          "name": "Submission_x0020_Reference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "InstallmentNumber",
+          "displayName": "Installment Number",
+          "type": "number",
+          "required": false
+        },
+        {
+          "name": "DueDate",
+          "displayName": "Due Date",
+          "type": "date",
+          "required": false,
+          "dateOnly": true
+        },
+        {
+          "name": "Amount",
+          "displayName": "Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0.01,
+          "currencyCode": "CAD"
+        }
+      ],
+      "items": []
+    },
+    {
+      "key": "7d01bbe7-48c2-41ad-9042-5063b2a38483",
+      "name": "MCHF - Pledge Payments",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "PledgeID",
+          "displayName": "Pledge ID",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "PledgeConstituentID",
+          "displayName": "Pledge Constituent ID",
+          "type": "text",
+          "required": false,
+          "maxLength": 7
+        },
+        {
+          "name": "PledgeConstituentName",
+          "displayName": "Pledge Constituent Name",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "PledgeBalance",
+          "displayName": "Pledge Balance",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Amount",
+          "displayName": "Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0.01,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Submission_x0020_Reference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Submission",
+          "displayName": "Submission",
+          "type": "lookup",
+          "required": false,
+          "lookupListId": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
+          "lookupColumn": "Title"
+        }
+      ],
+      "items": []
+    },
+    {
+      "key": "cd0090e1-5197-4ba7-9675-f406273e9d0c",
+      "name": "MCHF - Soft Credits",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Submission",
+          "displayName": "Submission",
+          "type": "lookup",
+          "required": false,
+          "lookupListId": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
+          "lookupColumn": "Title"
+        },
+        {
+          "name": "Submission_x0020_Reference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": false,
+          "maxLength": 7
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Amount",
+          "displayName": "Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0.01,
+          "currencyCode": "CAD"
+        }
+      ],
+      "items": []
+    },
+    {
+      "key": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
       "name": "MCHF Submissions",
       "description": "Soumissions de codage de dons",
       "columns": [
@@ -201,6 +364,41 @@
           "type": "boolean",
           "required": false,
           "defaultValue": false
+        },
+        {
+          "name": "SoftCredit",
+          "displayName": "Soft Credit",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
+        },
+        {
+          "name": "PledgePayment",
+          "displayName": "Pledge Payment",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
+        },
+        {
+          "name": "InstallmentCount",
+          "displayName": "Installment Count",
+          "type": "number",
+          "required": false,
+          "min": 1,
+          "max": 5
+        },
+        {
+          "name": "InstallmentFrequency",
+          "displayName": "Installment Frequency",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "FirstInstallmentDate",
+          "displayName": "First Installment Date",
+          "type": "date",
+          "required": false,
+          "dateOnly": true
         }
       ],
       "items": [
@@ -482,7 +680,7 @@
       ]
     },
     {
-      "key": "240294e9-4751-4259-8c04-cd2c60fd746f",
+      "key": "3003a026-5bf8-44d3-a426-b572609011a1",
       "name": "MCHF Fund Lines",
       "description": "",
       "columns": [
@@ -498,7 +696,7 @@
           "displayName": "Submission",
           "type": "lookup",
           "required": true,
-          "lookupListId": "8739ddec-2c50-4b13-b7e1-9a09019faa77",
+          "lookupListId": "d92675c6-cec4-453c-8b5a-9dbb7196ba87",
           "lookupColumn": "Title"
         },
         {
@@ -544,7 +742,7 @@
       ]
     },
     {
-      "key": "28d68322-8a1a-424c-8e42-ce784eb6cddd",
+      "key": "c842f564-f45a-4b06-85c3-d92e02810f69",
       "name": "MCHF Gift Types",
       "description": "",
       "columns": [
@@ -588,7 +786,7 @@
       ]
     },
     {
-      "key": "090bc4f3-574a-4cd4-824b-9c2c93a6bb20",
+      "key": "14db9871-d248-4373-9953-ad47534c3e95",
       "name": "MCHF Payment Types",
       "description": "",
       "columns": [
