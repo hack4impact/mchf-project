@@ -1,6 +1,6 @@
 # Coding Form: Simple Gift
 
-Related issues: [#8](https://github.com/hack4impact/mchf-project/issues/8) (with follow-ups from PR #38), [#22](https://github.com/hack4impact/mchf-project/issues/22) (Package, Assigned Solicitor and Notes), [#23](https://github.com/hack4impact/mchf-project/issues/23) (Tax receipt section and receipt amount), [#25](https://github.com/hack4impact/mchf-project/issues/25) (New donor question)
+Related issues: [#8](https://github.com/hack4impact/mchf-project/issues/8) (with follow-ups from PR #38), [#22](https://github.com/hack4impact/mchf-project/issues/22) (Package, Assigned Solicitor and Notes), [#23](https://github.com/hack4impact/mchf-project/issues/23) (Tax receipt section and receipt amount), [#25](https://github.com/hack4impact/mchf-project/issues/25) (New donor question), [#26](https://github.com/hack4impact/mchf-project/issues/26) (Same-donor check)
 App: **MCHF - Coding Form** (Équipe)
 Lab export: `lab/solutions/mchf-coding-form.solution.json` (the app and the five lists it uses, no items)
 
@@ -9,8 +9,7 @@ coding (campaign, appeal, one fund or a split across several funds, optional pac
 assigned solicitor and notes), and whether a tax receipt should be issued (with
 optional benefit amount and calculated/editable receipt amount). The form saves it as
 a submission with the status `Submitted`, gives it a reference `SUB-00001`, writes
-its fund lines, and links it to the payment it codes when it was opened from the
-Payment Log.
+its fund lines, and links it to the payment it codes when opened from the Payment Log or when the fundraiser claims a payment in the form.
 
 Lab only. Saving uses `Patch` on lab lists; the real Power Apps and SharePoint
 version is rebuilt and tested in Sprint 4 (see section 7).
@@ -29,7 +28,7 @@ which one (section 4, `btnSubmit.OnSelect`):
 | 1 | `MCHF Submissions` | New item, `Title` = `"NEW"`, every field below, `Processing status` = `Submitted` |
 | 2 | `MCHF Submissions` | Same item, `Title` = `"SUB-" & Text(ID, "00000")` (data dictionary, #1) |
 | 3 | `MCHF Fund Lines` | One line per fund: `Title` = fund code, `Submission` = lookup to the new item, `Submission Reference` = its SUB number, `Amount`. Without a split: one line, the chosen fund, the whole gift amount |
-| 4 | `MCHF - Payment Log` | Only when opened with `paymentId`: `Submission Reference` = the SUB number |
+| 4 | `MCHF - Payment Log` | When a payment was loaded through `paymentId` or claimed in the same-donor panel: `Submission Reference` = the SUB number |
 
 Then a popup shows the SUB number.
 
@@ -247,13 +246,103 @@ With({typedId: Trim(txtConstituentId.Text)},
                     0, {state: "notfound", systemId: "", lookupId: "", name: "", message: "No donor with this Constituent ID. Check the number."},
                     1, {state: "found", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: ""},
                     {state: "error", systemId: "", lookupId: "", name: "", message: "Several donors match. Contact Gift Processing."})),
-            {state: "error", systemId: "", lookupId: "", name: "", message: "Donor lookup unavailable. Try again in a moment."}))))
+            {state: "error", systemId: "", lookupId: "", name: "", message: "Donor lookup unavailable. Try again in a moment."}))));
+Refresh('MCHF - Payment Log');
+ClearCollect(
+    colSameDonor,
+    ForAll(
+        Filter(
+            'MCHF - Payment Log',
+            'Constituent ID' = varDonor.lookupId && Status.Value = "Unclaimed"
+        ),
+        {
+            ID: ThisRecord.ID,
+            Reference: ThisRecord.Reference,
+            'Gift Amount': ThisRecord.'Gift Amount',
+            'Gift Date': ThisRecord.'Gift Date',
+            'Payment Type': ThisRecord.'Payment Type'
+        }
+    )
+);
+Set(varSameDonorDone, false)
 ```
 
 `txtConstituentId.OnChange`:
 
 ```powerfx
 Set(varDonor, Blank())
+```
+
+### Same-donor check (#26)
+
+After a successful donor lookup on a blank form, show the donor’s Unclaimed payments. The lookup above refreshes the Payment Log and copies the payment ID and four display fields into `colSameDonor`. Each new lookup resets the dismissal flag.
+
+| Control | Property | Formula |
+|---|---|---|
+| `conSameDonor` | `Visible` | `varDonor.state = "found" && IsBlank(varPaymentRecord) && !varSameDonorDone && !IsEmpty(colSameDonor)` |
+| `lblSameDonor` | `Text` | `"This donor has payments waiting to be claimed. Is one of them your gift?"` |
+| `galSameDonor` | `Items` | `colSameDonor` |
+| `lblSameReference` | `Text` | `ThisItem.Reference` |
+| `lblSameAmount` | `Text` | `Text(ThisItem.'Gift Amount', "0.00")` |
+| `lblSameDate` | `Text` | `ThisItem.'Gift Date'` |
+| `lblSamePaymentType` | `Text` | `ThisItem.'Payment Type'` |
+| `btnClaimThis` | `Text` | `"Claim this payment"` |
+| `btnNoneMine` | `Text` | `"None of these is my gift"` |
+| `btnNoneMine` | `OnSelect` | `Set(varSameDonorDone, true)` |
+
+Place the four payment labels and `btnClaimThis` inside the gallery row. Place the prompt above the gallery and `btnNoneMine` below it inside the container. Dismissing the panel leaves the fundraiser on the blank form.
+
+`btnClaimThis.OnSelect` refreshes the list and looks up the selected payment by ID. A successful claim stores the updated record in `varPaymentRecord`, which supplies the existing field defaults and the payment reference on Submit.
+
+```powerfx
+With(
+    {paymentIdToClaim: ThisItem.ID},
+    IfError(
+        Refresh('MCHF - Payment Log');
+        With(
+            {current: LookUp('MCHF - Payment Log', ID = paymentIdToClaim)},
+            If(
+                IsBlank(current),
+                Notify("This payment no longer exists.", NotificationType.Error);
+                Remove(colSameDonor, ThisItem),
+                current.Status.Value <> "Unclaimed",
+                Notify(
+                    If(
+                        current.Status.Value = "Claimed" && !IsBlank(current.'Claimed By Name'),
+                        "Already claimed by " & current.'Claimed By Name' & ".",
+                        "This payment is no longer Unclaimed."
+                    ) & " Choose another payment or continue without it.",
+                    NotificationType.Error
+                );
+                Remove(colSameDonor, ThisItem),
+                With(
+                    {
+                        claimed: Patch(
+                            'MCHF - Payment Log',
+                            current,
+                            {
+                                Status: {Value: "Claimed"},
+                                'Claimed By Name': User().FullName,
+                                'Claimed By Email': User().Email,
+                                'Claimed At': Now()
+                            }
+                        )
+                    },
+                    Set(varPaymentRecord, claimed);
+                    Set(varSameDonorDone, true);
+                    Notify(
+                        "Payment " & claimed.Reference & " claimed. The form now shows it.",
+                        NotificationType.Success
+                    )
+                )
+            )
+        ),
+        Notify(
+            "The claim could not finish. Check the Payment Log before retrying.",
+            NotificationType.Error
+        )
+    )
+)
 ```
 
 ### `btnCheckSolicitor.OnSelect`
@@ -552,6 +641,16 @@ other required gift fields completed.
 | 36 | Select Yes, leave the donor name empty, submit | Name error appears and Submit is blocked | Pass |
 | 37 | Switch to No, enter a valid seven-digit ID, submit before clicking Lookup | Lookup is required again and Submit is blocked | Pass |
 
+Same-donor tests in Alexandre’s personal environment (#26):
+
+| # | Steps | Result |
+|---|---|---|
+| 38 | Look up `1234567` on a blank form | Six Unclaimed payments appeared. The existing Coded payment `PAY-00016` was excluded. |
+| 39 | Claim `PAY-00012` from the panel and submit the $100 gift | The payment was Claimed by Alexandre. `SUB-00036` stored `PAY-00012`, and the payment stored `SUB-00036`. |
+| 40 | With the panel open, set `PAY-00013` to Claimed by Test in a second tab, then try to claim it from the panel | The second claim was refused. Test remained the claimant and the submission reference stayed empty. |
+
+Both test payments were restored to Unclaimed and their claim details and submission references were cleared. Additional preview checks: dismiss the panel, look up `7654321`, and open the form with `?paymentId=12`. The last two paths should leave the panel hidden.
+
 Not run: `9999504` (timeout; same `IfError` branch as tests 3 and 27, after a 10 s
 wait). Tests 26 (Check + Submit), 28 (`2012066`) and 29 (`2012008`) are ready and
 waiting for Jérémie's 7-digit NXT constituent migration. App checker: no errors.
@@ -566,6 +665,9 @@ waiting for Jérémie's 7-digit NXT constituent migration. App checker: no error
 | Export | `lab/solutions/mchf-coding-form.solution.json` |
 
 ## 7. Limits and remaining work
+
+- **Abandoned claims (#26).** A payment claimed from the panel stays Claimed if the fundraiser leaves before submitting. Gift Processing can release it manually. Automatic release is an open question for Marc.
+- **Fresh environment.** The export includes the app and five list definitions without items. Populate the active gift types and payment types before testing Submit. To test the panel, add an Unclaimed payment for a donor the lookup can find.
 
 - **New donor form URLs (#25).** Both buttons use placeholder addresses. When
   Marc provides the Foundation URLs, update `varNewIndividualUrl` and
@@ -592,3 +694,7 @@ waiting for Jérémie's 7-digit NXT constituent migration. App checker: no error
   as classic Power Apps), `Patch` returning the saved record (same with SharePoint),
   and the real connector's operation name (`SearchConstituent`, not
   `SearchConstituents`, see `DIFFERENCES.md` of the lab).
+
+
+
+
