@@ -1,0 +1,2705 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "mchf-coding-form",
+  "exportedAt": "2026-11-23T04:31:51Z",
+  "lists": [
+    {
+      "key": "1f9b894b-3402-400f-afd4-1c60af881676",
+      "name": "MCHF Submissions",
+      "description": "Soumissions de codage de dons",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": false,
+          "maxLength": 7
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Constituent_x0020_System_x0020_I",
+          "displayName": "Constituent System ID",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Type",
+          "displayName": "Payment Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Date",
+          "displayName": "Gift Date",
+          "type": "date",
+          "required": true,
+          "dateOnly": true
+        },
+        {
+          "name": "Gift_x0020_Type",
+          "displayName": "Gift Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Gift_x0020_Amount",
+          "displayName": "Gift Amount",
+          "type": "currency",
+          "required": true,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Fees",
+          "displayName": "Fees",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Net_x0020_Amount",
+          "displayName": "Net Amount",
+          "type": "currency",
+          "required": false,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "Campaign",
+          "displayName": "Campaign",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Appeal",
+          "displayName": "Appeal",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Fund",
+          "displayName": "Fund",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "Package",
+          "displayName": "Package",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Assigned_x0020_Solicitor",
+          "displayName": "Assigned Solicitor",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Payment_x0020_Reference",
+          "displayName": "Payment Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Status",
+          "displayName": "Processing status",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "Submitted",
+            "Under Review",
+            "Needs Information",
+            "Rejected",
+            "Recording in Progress",
+            "Added to NXT Batch",
+            "Transfer Failed",
+            "Cancelled"
+          ],
+          "defaultValue": "Submitted"
+        },
+        {
+          "name": "ReviewerEmail",
+          "displayName": "Reviewer Email",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ReviewComment",
+          "displayName": "Review Comment",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "ApprovedByEmail",
+          "displayName": "Approved By Email",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ApprovedAt",
+          "displayName": "Approved At",
+          "type": "date",
+          "required": false,
+          "dateOnly": false
+        },
+        {
+          "name": "AuditPDF",
+          "displayName": "Audit PDF",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "AuditHTML",
+          "displayName": "Audit HTML",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "Notes",
+          "displayName": "Notes",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "TaxReceipt",
+          "displayName": "Tax Receipt",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
+        },
+        {
+          "name": "ReceiptAmount",
+          "displayName": "Receipt Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "BenefitAmount",
+          "displayName": "Benefit Amount",
+          "type": "currency",
+          "required": false,
+          "min": 0,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "NewDonor",
+          "displayName": "New Donor",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "key": "5b7f5c2e-31da-4487-8225-62f0e625409d",
+      "name": "MCHF Fund Lines",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Submission",
+          "displayName": "Submission",
+          "type": "lookup",
+          "required": true,
+          "lookupListId": "1f9b894b-3402-400f-afd4-1c60af881676",
+          "lookupColumn": "Title"
+        },
+        {
+          "name": "Submission_x0020_Reference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Amount",
+          "displayName": "Amount",
+          "type": "currency",
+          "required": true,
+          "currencyCode": "CAD"
+        }
+      ]
+    },
+    {
+      "key": "808d2018-9415-4fd7-bb54-e00a6bc73297",
+      "name": "MCHF Payment Types",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Active",
+          "displayName": "Active",
+          "type": "boolean",
+          "required": true,
+          "defaultValue": true
+        },
+        {
+          "name": "Sort_x0020_Order",
+          "displayName": "Sort Order",
+          "type": "number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "db323dda-98a1-43d4-9ccb-25dbf2c952b0",
+      "name": "MCHF Gift Types",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "Active",
+          "displayName": "Active",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": true
+        },
+        {
+          "name": "Sort_x0020_Order",
+          "displayName": "Sort Order",
+          "type": "number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
+      "name": "MCHF - Payment Log",
+      "description": "",
+      "columns": [
+        {
+          "name": "Title",
+          "displayName": "Titre",
+          "type": "text",
+          "required": true,
+          "maxLength": 255
+        },
+        {
+          "name": "ConstituentID",
+          "displayName": "Constituent ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "PaymentType",
+          "displayName": "Payment Type",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "GiftDate",
+          "displayName": "Gift Date",
+          "type": "date",
+          "required": true,
+          "dateOnly": true
+        },
+        {
+          "name": "GiftAmount",
+          "displayName": "Gift Amount",
+          "type": "currency",
+          "required": true,
+          "min": 0.01,
+          "currencyCode": "CAD"
+        },
+        {
+          "name": "GiftType",
+          "displayName": "Gift Type",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "AssignedSolicitor",
+          "displayName": "Assigned Solicitor",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Notes",
+          "displayName": "Notes",
+          "type": "note",
+          "required": false
+        },
+        {
+          "name": "Reference",
+          "displayName": "Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "Status",
+          "displayName": "Status",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "Claimed",
+            "Unclaimed",
+            "Coded"
+          ],
+          "defaultValue": "Unclaimed"
+        },
+        {
+          "name": "ClaimedByName",
+          "displayName": "Claimed By Name",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "SubmissionReference",
+          "displayName": "Submission Reference",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ConstituentName",
+          "displayName": "Constituent Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "ConstituentSystemID",
+          "displayName": "Constituent System ID",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ClaimedByEmail",
+          "displayName": "Claimed By Email",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "ClaimedAt",
+          "displayName": "Claimed At",
+          "type": "date",
+          "required": false,
+          "dateOnly": false
+        }
+      ]
+    }
+  ],
+  "flows": [],
+  "apps": [
+    {
+      "key": "b4926586-12db-4131-945a-b74ad2f7883a",
+      "name": "MCHF - Coding Form",
+      "description": "Coding form (#8) with the #38 follow-ups: empty required fields, list-driven types, SUB-00001 reference, payment reference, fund line, lookup errors.",
+      "definition": {
+        "locale": "en",
+        "width": 1366,
+        "height": 768,
+        "properties": {
+          "OnStart": ""
+        },
+        "screens": [
+          {
+            "name": "Screen1",
+            "properties": {
+              "Fill": "RGBA(255, 255, 255, 1)",
+              "OnVisible": "// 1. The payment being coded, when the form is opened from the Payment Log with ?paymentId=<item ID> (#14)\nSet(varPaymentIdParam, Trim(Param(\"paymentId\")));\nSet(varPaymentRecord, If(IsBlank(varPaymentIdParam), Blank(), LookUp('MCHF - Payment Log', ID = IfError(Value(varPaymentIdParam), -1))));\nIf(!IsBlank(varPaymentIdParam) && IsBlank(varPaymentRecord),\n    Notify(\"Payment \" & varPaymentIdParam & \" is not in the Payment Log. Fill in the form by hand.\", NotificationType.Warning));\nIf(!IsBlank(varPaymentRecord.'Submission Reference'),\n    Notify(\"This payment is already coded as \" & varPaymentRecord.'Submission Reference' & \". Submitting again creates a second submission.\", NotificationType.Warning));\n\n// 2. Payment types and gift types from the #1 lists, with an empty first choice (code \"\")\nClearCollect(colPaymentTypes, {Value: \"Sélectionner un mode de paiement...\", code: \"\"});\nCollect(colPaymentTypes, ForAll(Sort(Filter('MCHF Payment Types', Active), 'Sort Order'), {Value: Title, code: Title}));\nClearCollect(colGiftTypes, {Value: \"Sélectionner un type de don...\", code: \"\"});\nCollect(colGiftTypes, ForAll(Sort(Filter('MCHF Gift Types', Active), 'Sort Order'), {Value: Title, code: Title}));\n\n// 3. Campaigns, appeals and funds from RE NXT, with an empty first choice (code \"\")\nIfError(\n    ClearCollect(colCampaigns, {Value: \"Sélectionner une campagne...\", code: \"\"});\n    Collect(colCampaigns, ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colAppeals, {Value: \"Sélectionner un appel...\", code: \"\"});\n    Collect(colAppeals, ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colFunds, {Value: \"Sélectionner un fonds...\", code: \"\"});\n    Collect(colFunds, ForAll(RENXT.ListFunds().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id})),\n    Notify(\"NXT lists are unavailable. Reopen the form to retry.\", NotificationType.Error)\n);\n\n// 4. Screen state; colFundLines holds the lines of a gift split across several funds\nSet(varDonor, {state: \"\", systemId: \"\", lookupId: \"\", name: \"\", message: \"\"});\nSet(varSolicitor, Blank());\nUpdateContext({varTried: false, varSubmissionRef: \"\", varShowSuccessPopup: false, varEditLineId: 0, varLineError: \"\"});\nClearCollect(colFundLines, {lineId: 0, fund: \"\", fundLabel: \"\", amount: 0});\nClear(colFundLines);\n\n// 5. A prefilled donor is looked up right away (same lookup as the Lookup button, #2 contract)\nIf(!IsBlank(varPaymentRecord),\n    With({typedId: Trim(varPaymentRecord.'Constituent ID')},\n        If(IsMatch(typedId, \"\\d{7}\"),\n            Set(varDonor, IfError(\n                With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                    Switch(CountRows(r),\n                        0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                        1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                        {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n                {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"}))))); \nSet(varNewIndividualUrl, \"https://example.org/new-individual\");\nSet(varNewOrganizationUrl, \"https://example.org/new-organization\")"
+            },
+            "controls": [
+              {
+                "name": "txtConstituentId",
+                "type": "TextInput",
+                "properties": {
+                  "X": "20",
+                  "Y": "105",
+                  "Width": "200",
+                  "Height": "40",
+                  "Visible": "(rdoNewDonor.Selected.Value = \"No\")",
+                  "DisplayMode": "If((rdoNewDonor.Selected.Value = \"Yes\"), DisplayMode.Disabled, DisplayMode.Edit)",
+                  "Default": "If(IsBlank(varPaymentRecord), \"\", varPaymentRecord.'Constituent ID')",
+                  "HintText": "\"Ex: 1000001\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13",
+                  "OnChange": "Set(varDonor, Blank())"
+                },
+                "children": []
+              },
+              {
+                "name": "btnSearchDonor",
+                "type": "Button",
+                "properties": {
+                  "X": "235",
+                  "Y": "105",
+                  "Width": "120",
+                  "Height": "40",
+                  "Visible": "(rdoNewDonor.Selected.Value = \"No\")",
+                  "DisplayMode": "If((rdoNewDonor.Selected.Value = \"Yes\"), DisplayMode.Disabled, DisplayMode.Edit)",
+                  "Text": "\"Lookup\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With({typedId: Trim(txtConstituentId.Text)},\n    If(!IsMatch(typedId, \"\\d{7}\"),\n        Set(varDonor, {state: \"invalid\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Enter the 7-digit Constituent ID.\"}),\n        Set(varDonor, IfError(\n            With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                Switch(CountRows(r),\n                    0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                    1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                    {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n            {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"}))))\n           ;\nRefresh('MCHF - Payment Log');\nClearCollect(\n    colSameDonor,\n    ForAll(\n        Filter(\n            'MCHF - Payment Log',\n            'Constituent ID' = varDonor.lookupId && Status.Value = \"Unclaimed\"\n        ),\n        {\n            ID: ThisRecord.ID,\n            Reference: ThisRecord.Reference,\n            'Gift Amount': ThisRecord.'Gift Amount',\n            'Gift Date': ThisRecord.'Gift Date',\n            'Payment Type': ThisRecord.'Payment Type'\n        }\n    )\n);\nSet(varSameDonorDone, false)\n"
+                },
+                "children": []
+              },
+              {
+                "name": "txtGiftAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "20",
+                  "Y": "360",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(IsBlank(varPaymentRecord), \"\", Text(varPaymentRecord.'Gift Amount', \"0.00\"))",
+                  "HintText": "\"Ex: 100.00\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13",
+                  "OnChange": "If(tglTaxReceipt.Value, Reset(txtReceiptAmount))"
+                },
+                "children": []
+              },
+              {
+                "name": "txtFees",
+                "type": "TextInput",
+                "properties": {
+                  "X": "20",
+                  "Y": "460",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"0.00\"",
+                  "HintText": "\"0.00\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblNetAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "135",
+                  "Y": "528",
+                  "Width": "150",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || !(IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))), \"\",\n    Text(Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0), \"$#,##0.00\"))",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "ddPaymentType",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "443",
+                  "Y": "303",
+                  "Width": "320",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "colPaymentTypes",
+                  "Default": "Coalesce(varPaymentRecord.'Payment Type', \"\")",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "ddCampaign",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "443",
+                  "Y": "402",
+                  "Width": "320",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "colCampaigns",
+                  "Default": "\"\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "ddAppeal",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "447",
+                  "Y": "493",
+                  "Width": "320",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "colAppeals",
+                  "Default": "\"\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "ddFund",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "448",
+                  "Y": "586",
+                  "Width": "320",
+                  "Height": "40",
+                  "Visible": "!tglSplitFunds.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "colFunds",
+                  "Default": "\"\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "btnSubmit",
+                "type": "Button",
+                "properties": {
+                  "X": "21",
+                  "Y": "700",
+                  "Width": "200",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Submit\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "UpdateContext({varTried: true});\nIf(\n    ((rdoNewDonor.Selected.Value = \"Yes\") || (varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text))) &&\n    ((rdoNewDonor.Selected.Value = \"No\") || !IsBlank(Trim(txtNewDonorName.Text))) &&\n    !IsBlank(dpGiftDate.SelectedDate) &&\n    !IsBlank(ddGiftType.Selected.code) &&\n    !IsBlank(ddPaymentType.Selected.code) &&\n    !IsBlank(ddCampaign.Selected.code) &&\n    !IsBlank(ddAppeal.Selected.code) &&\n    (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&\n    (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) &&\n    (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&\n    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&\n    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = \"found\") &&\n    (!tglTaxReceipt.Value || (\n        (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtBenefitAmount.Text) >= 0 && Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text))) &&\n        (IsMatch(Trim(txtReceiptAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtReceiptAmount.Text) >= 0 && Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text))\n    )),\n    With({lines: If(tglSplitFunds.Value, colFundLines,\n            Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},\n    With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {\n            Title: \"NEW\",\n            'New Donor': (rdoNewDonor.Selected.Value = \"Yes\"),\n            'Constituent ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.lookupId),\n            'Constituent Name': If((rdoNewDonor.Selected.Value = \"Yes\"), Trim(txtNewDonorName.Text), varDonor.name),\n            'Constituent System ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.systemId),\n            'Payment Type': ddPaymentType.Selected.code,\n            'Gift Date': dpGiftDate.SelectedDate,\n            'Gift Type': ddGiftType.Selected.code,\n            'Gift Amount': Value(txtGiftAmount.Text),\n            Fees: Coalesce(Value(txtFees.Text), 0),\n            'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),\n            Campaign: ddCampaign.Selected.code,\n            Appeal: ddAppeal.Selected.code,\n            Fund: First(SortByColumns(lines, \"amount\", SortOrder.Descending)).fund,\n            Package: Trim(txtPackage.Text),\n            'Assigned Solicitor': Trim(txtSolicitor.Text),\n            Notes: txtNotes.Text,\n            'Tax Receipt': tglTaxReceipt.Value,\n            'Receipt Amount': If(tglTaxReceipt.Value, Value(txtReceiptAmount.Text), Blank()),\n            'Benefit Amount': If(tglTaxReceipt.Value && !IsBlank(Trim(txtBenefitAmount.Text)), Value(txtBenefitAmount.Text), Blank()),\n            'Payment Reference': varPaymentRecord.Reference,\n            'Processing status': {Value: \"Submitted\"}\n        })},\n        With({ref: \"SUB-\" & Text(created.ID, \"00000\")},\n            IfError(\n                created,\n                    Notify(\"The submission was not saved: \" & FirstError.Message, NotificationType.Error),\n                Patch('MCHF Submissions', created, {Title: ref}),\n                    Notify(\"Item \" & created.ID & \" was saved, but its reference could not be set: \" & FirstError.Message, NotificationType.Error),\n                ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),\n                    Notify(ref & \" was saved, but its fund lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),\n                    Notify(ref & \" was saved, but the payment could not be linked to it: \" & FirstError.Message, NotificationType.Error),\n                UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});\n                Notify(\"Soumission réussie. Référence : \" & ref, NotificationType.Success))))),\n    Notify(\"Some fields need your attention.\", NotificationType.Error)\n)"
+                },
+                "children": []
+              },
+              {
+                "name": "dpGiftDate",
+                "type": "DatePicker",
+                "properties": {
+                  "X": "440",
+                  "Y": "105",
+                  "Width": "320",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "DefaultDate": "If(IsBlank(varPaymentRecord), Blank(), varPaymentRecord.'Gift Date')",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "ddGiftType",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "444",
+                  "Y": "213",
+                  "Width": "320",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "colGiftTypes",
+                  "Default": "Coalesce(varPaymentRecord.'Gift Type', \"\")",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "conNewDonor",
+                "type": "Container",
+                "properties": {
+                  "X": "20",
+                  "Y": "68",
+                  "Width": "415",
+                  "Height": "117",
+                  "Visible": "rdoNewDonor.Selected.Value = \"Yes\""
+                },
+                "children": [
+                  {
+                    "name": "btnNewIndividual",
+                    "type": "Button",
+                    "properties": {
+                      "X": "0",
+                      "Y": "0",
+                      "Width": "195",
+                      "Text": "\"New individual donor form\"",
+                      "OnSelect": "Launch(varNewIndividualUrl)",
+                      "Height": "44"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "btnNewOrganization",
+                    "type": "Button",
+                    "properties": {
+                      "X": "200",
+                      "Y": "0",
+                      "Width": "210",
+                      "Text": "\"New organization donor form\"",
+                      "OnSelect": "Launch(varNewOrganizationUrl)",
+                      "Height": "44"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "txtNewDonorName",
+                    "type": "TextInput",
+                    "properties": {
+                      "X": "0",
+                      "Y": "50",
+                      "Width": "300",
+                      "Height": "40",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Default": "\"\"",
+                      "HintText": "\"Donor name, as on the cheque\"",
+                      "Mode": "TextMode.SingleLine",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(255, 255, 255, 1)",
+                      "BorderColor": "RGBA(134, 142, 150, 1)",
+                      "BorderThickness": "1",
+                      "Size": "13"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblErrNewDonorName",
+                    "type": "Label",
+                    "properties": {
+                      "X": "0",
+                      "Y": "91",
+                      "Width": "415",
+                      "Height": "26",
+                      "Visible": "varTried && IsBlank(Trim(txtNewDonorName.Text))",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "\"Enter the new donor’s name.\"",
+                      "Color": "Color.Red",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "11",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "name": "lblAssignedSolicitor",
+                "type": "Label",
+                "properties": {
+                  "X": "855",
+                  "Y": "75",
+                  "Width": "320",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Sollicitateur assigné (facultatif)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtSolicitor",
+                "type": "TextInput",
+                "properties": {
+                  "X": "856",
+                  "Y": "105",
+                  "Width": "320",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(IsBlank(varPaymentRecord), \"\", varPaymentRecord.'Assigned Solicitor')",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13",
+                  "OnChange": "Set(varSolicitor, Blank())"
+                },
+                "children": []
+              },
+              {
+                "name": "tglSplitFunds",
+                "type": "Toggle",
+                "properties": {
+                  "X": "880",
+                  "Y": "225",
+                  "Width": "100",
+                  "Height": "32",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "false",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)"
+                },
+                "children": []
+              },
+              {
+                "name": "lblSplitFunds",
+                "type": "Label",
+                "properties": {
+                  "X": "990",
+                  "Y": "221",
+                  "Width": "330",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Répartir entre plusieurs fonds ?\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "ddLineFund",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "880",
+                  "Y": "270",
+                  "Width": "300",
+                  "Height": "40",
+                  "Visible": "tglSplitFunds.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "colFunds",
+                  "Default": "If(varEditLineId = 0, \"\", LookUp(colFundLines, lineId = varEditLineId).fundLabel)",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "txtLineAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "1190",
+                  "Y": "270",
+                  "Width": "130",
+                  "Height": "40",
+                  "Visible": "tglSplitFunds.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(varEditLineId = 0, \"\", Text(LookUp(colFundLines, lineId = varEditLineId).amount, \"0.00\"))",
+                  "HintText": "\"Montant\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrLine",
+                "type": "Label",
+                "properties": {
+                  "X": "880",
+                  "Y": "312",
+                  "Width": "440",
+                  "Height": "26",
+                  "Visible": "tglSplitFunds.Value && !IsBlank(varLineError)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "varLineError",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "btnAddLine",
+                "type": "Button",
+                "properties": {
+                  "X": "880",
+                  "Y": "342",
+                  "Width": "200",
+                  "Height": "36",
+                  "Visible": "tglSplitFunds.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(varEditLineId = 0, \"Ajouter la ligne\", \"Mettre à jour la ligne\")",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With({amt: Trim(txtLineAmount.Text), code: ddLineFund.Selected.code},\n    If(\n        IsBlank(code),\n            UpdateContext({varLineError: \"Choisissez le fonds de la ligne.\"}),\n        !IsMatch(amt, \"^\\d+(\\.\\d{1,2})?$\") || Value(amt) <= 0,\n            UpdateContext({varLineError: \"Montant de la ligne : un nombre supérieur à 0, par exemple 60.00.\"}),\n        CountRows(Filter(colFundLines, fund = code && lineId <> varEditLineId)) > 0,\n            UpdateContext({varLineError: \"Ce fonds est déjà dans la répartition : modifiez sa ligne.\"}),\n        varEditLineId = 0,\n            Collect(colFundLines, {lineId: Coalesce(Max(colFundLines, lineId), 0) + 1, fund: code, fundLabel: ddLineFund.Selected.Value, amount: Value(amt)});\n            UpdateContext({varLineError: \"\"});\n            Reset(ddLineFund); Reset(txtLineAmount),\n        Patch(colFundLines, LookUp(colFundLines, lineId = varEditLineId), {fund: code, fundLabel: ddLineFund.Selected.Value, amount: Value(amt)});\n            UpdateContext({varEditLineId: 0, varLineError: \"\"});\n            Reset(ddLineFund); Reset(txtLineAmount)))"
+                },
+                "children": []
+              },
+              {
+                "name": "btnCancelLine",
+                "type": "Button",
+                "properties": {
+                  "X": "1090",
+                  "Y": "342",
+                  "Width": "120",
+                  "Height": "36",
+                  "Visible": "tglSplitFunds.Value && varEditLineId <> 0",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Annuler\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "UpdateContext({varEditLineId: 0, varLineError: \"\"}); Reset(ddLineFund); Reset(txtLineAmount)"
+                },
+                "children": []
+              },
+              {
+                "name": "galFundLines",
+                "type": "Gallery",
+                "properties": {
+                  "X": "872",
+                  "Y": "407",
+                  "Width": "440",
+                  "Height": "115",
+                  "Visible": "tglSplitFunds.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "colFundLines",
+                  "TemplateSize": "42",
+                  "TemplateFill": "RGBA(0, 0, 0, 0)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1"
+                },
+                "children": [
+                  {
+                    "name": "lblLineFund",
+                    "type": "Label",
+                    "children": [],
+                    "properties": {
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "11",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle",
+                      "X": "8",
+                      "Y": "6",
+                      "Width": "270",
+                      "Height": "30",
+                      "Visible": "true",
+                      "Text": "ThisItem.fundLabel"
+                    }
+                  },
+                  {
+                    "name": "lblLineAmount",
+                    "type": "Label",
+                    "children": [],
+                    "properties": {
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "11",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Right",
+                      "VerticalAlign": "VerticalAlign.Middle",
+                      "X": "282",
+                      "Y": "6",
+                      "Width": "80",
+                      "Height": "30",
+                      "Visible": "true",
+                      "Text": "Text(ThisItem.amount, \"$#,##0.00\")"
+                    }
+                  },
+                  {
+                    "name": "icoEditLine",
+                    "type": "Icon",
+                    "children": [],
+                    "properties": {
+                      "X": "370",
+                      "Y": "7",
+                      "Width": "28",
+                      "Height": "28",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Icon": "Icon.Edit",
+                      "Color": "RGBA(15, 108, 101, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "OnSelect": "UpdateContext({varEditLineId: ThisItem.lineId, varLineError: \"\"})"
+                    }
+                  },
+                  {
+                    "name": "icoDeleteLine",
+                    "type": "Icon",
+                    "children": [],
+                    "properties": {
+                      "X": "404",
+                      "Y": "7",
+                      "Width": "28",
+                      "Height": "28",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Icon": "Icon.Trash",
+                      "Color": "RGBA(196, 43, 28, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "OnSelect": "If(varEditLineId = ThisItem.lineId, UpdateContext({varEditLineId: 0}); Reset(ddLineFund); Reset(txtLineAmount));\nRemove(colFundLines, ThisItem)"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "lblFundTotal",
+                "type": "Label",
+                "properties": {
+                  "X": "879",
+                  "Y": "540",
+                  "Width": "440",
+                  "Height": "30",
+                  "Visible": "tglSplitFunds.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Total des lignes : \" & Text(Sum(colFundLines, amount), \"$#,##0.00\") & If((IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0), \" sur \" & Text(Value(txtGiftAmount.Text), \"$#,##0.00\"), \"\")",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrGiftDate",
+                "type": "Label",
+                "properties": {
+                  "X": "440",
+                  "Y": "146",
+                  "Width": "380",
+                  "Height": "26",
+                  "Visible": "varTried && IsBlank(dpGiftDate.SelectedDate)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Choisissez la date du don.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrGiftType",
+                "type": "Label",
+                "properties": {
+                  "X": "438",
+                  "Y": "249",
+                  "Width": "380",
+                  "Height": "26",
+                  "Visible": "varTried && IsBlank(ddGiftType.Selected.code)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Choisissez le type de don.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrPaymentType",
+                "type": "Label",
+                "properties": {
+                  "X": "439",
+                  "Y": "340",
+                  "Width": "380",
+                  "Height": "26",
+                  "Visible": "varTried && IsBlank(ddPaymentType.Selected.code)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Choisissez le mode de paiement.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrCampaign",
+                "type": "Label",
+                "properties": {
+                  "X": "442",
+                  "Y": "436",
+                  "Width": "380",
+                  "Height": "26",
+                  "Visible": "varTried && IsBlank(ddCampaign.Selected.code)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Choisissez une campagne.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrAppeal",
+                "type": "Label",
+                "properties": {
+                  "X": "444",
+                  "Y": "529",
+                  "Width": "380",
+                  "Height": "26",
+                  "Visible": "varTried && IsBlank(ddAppeal.Selected.code)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Choisissez un appel.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrFund",
+                "type": "Label",
+                "properties": {
+                  "X": "445",
+                  "Y": "622",
+                  "Width": "380",
+                  "Height": "26",
+                  "Visible": "varTried && !(tglSplitFunds.Value || !IsBlank(ddFund.Selected.code))",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Choisissez un fonds.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrGiftAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "402",
+                  "Width": "415",
+                  "Height": "26",
+                  "Visible": "varTried && !(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Montant supérieur à 0, par exemple 100.00.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrFees",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "502",
+                  "Width": "415",
+                  "Height": "26",
+                  "Visible": "varTried && !(IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text))))",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Frais : un nombre comme 2.50, sans dépasser le montant.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrFundLines",
+                "type": "Label",
+                "properties": {
+                  "X": "885",
+                  "Y": "608",
+                  "Width": "440",
+                  "Height": "26",
+                  "Visible": "varTried && !(!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005))",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(CountRows(colFundLines) = 0, \"Ajoutez au moins une ligne de fonds.\", \"La somme des lignes doit égaler le montant du don.\")",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblDonatorID",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "75",
+                  "Width": "200",
+                  "Height": "30",
+                  "Visible": "(rdoNewDonor.Selected.Value = \"No\")",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"ID Donateur\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblGiftAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "330",
+                  "Width": "200",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Montant du don ($)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblFees",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "430",
+                  "Width": "200",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Frais ($)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblNetAmountText",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "528",
+                  "Width": "115",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Montant net :\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblGiftDate",
+                "type": "Label",
+                "properties": {
+                  "X": "440",
+                  "Y": "75",
+                  "Width": "200",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Date du don\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblGiftType",
+                "type": "Label",
+                "properties": {
+                  "X": "438",
+                  "Y": "187",
+                  "Width": "200",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Type de don\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblPaymentType",
+                "type": "Label",
+                "properties": {
+                  "X": "439",
+                  "Y": "277",
+                  "Width": "200",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Mode de paiement\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblCampaign",
+                "type": "Label",
+                "properties": {
+                  "X": "438",
+                  "Y": "375",
+                  "Width": "200",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Campagne\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblAppeal",
+                "type": "Label",
+                "properties": {
+                  "X": "443",
+                  "Y": "465",
+                  "Width": "200",
+                  "Height": "30",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Appel\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblFunds",
+                "type": "Label",
+                "properties": {
+                  "X": "443",
+                  "Y": "561",
+                  "Width": "200",
+                  "Height": "30",
+                  "Visible": "!tglSplitFunds.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Fonds\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblNewDonator",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "190",
+                  "Width": "185",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Is this a new donor?\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "rectHeaderBg",
+                "type": "Rectangle",
+                "properties": {
+                  "X": "0",
+                  "Y": "0",
+                  "Width": "Parent.Width",
+                  "Height": "60",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0"
+                },
+                "children": []
+              },
+              {
+                "name": "lblHeader",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "0",
+                  "Width": "1238",
+                  "Height": "60",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"MCHF - Saisie des dons (Gift Coding Form)\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "18",
+                  "FontWeight": "FontWeight.Bold",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrorConstituentId",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "150",
+                  "Width": "415",
+                  "Height": "30",
+                  "Visible": "varTried && (rdoNewDonor.Selected.Value = \"No\") && !(varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text)) && IsBlank(varDonor.message)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(IsBlank(Trim(txtConstituentId.Text)), \"Saisissez l'ID (7 chiffres), puis cliquez sur Lookup.\", \"Cliquez sur Lookup pour vérifier le donateur.\")",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblConstituentName",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "150",
+                  "Width": "415",
+                  "Height": "30",
+                  "Visible": "(rdoNewDonor.Selected.Value = \"No\") && varDonor.state = \"found\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "varDonor.name",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Bold",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblDonorMsg",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "150",
+                  "Width": "415",
+                  "Height": "30",
+                  "Visible": "(rdoNewDonor.Selected.Value = \"No\") && !IsBlank(varDonor.message)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "varDonor.message",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "btnCheckSolicitor",
+                "type": "Button",
+                "properties": {
+                  "X": "1190",
+                  "Y": "106",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Check\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With({typedId: Trim(txtSolicitor.Text)},\r\n  If(IsBlank(typedId),\r\n    Set(varSolicitor, Blank()),\r\n    !IsMatch(typedId, \"\\d{7}\"),\r\n    Set(varSolicitor, {state: \"invalid\", name: \"\", message: \"Enter the solicitor's 7-digit Constituent ID.\"}),\r\n    Set(varSolicitor, IfError(\r\n      With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\", include_inactive: true}).value, lookup_id = typedId)},\r\n        If(CountRows(r) <> 1,\r\n          {state: \"notfound\", name: \"\", message: \"No solicitor with this ID.\"},\r\n          First(r).fundraiser_status = \"Active\" && !First(r).inactive,\r\n          {state: \"found\", name: First(r).name, message: \"\"},\r\n          {state: \"refused\", name: First(r).name, message: First(r).name & \" is not an active solicitor.\"}\r\n        )\r\n      ),\r\n      {state: \"error\", name: \"\", message: \"Solicitor check unavailable. Try again in a moment.\"}\r\n    ))\r\n  )\r\n)"
+                },
+                "children": []
+              },
+              {
+                "name": "txtPackage",
+                "type": "TextInput",
+                "properties": {
+                  "X": "449",
+                  "Y": "683",
+                  "Width": "240",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "txtNotes",
+                "type": "TextInput",
+                "properties": {
+                  "X": "892",
+                  "Y": "663",
+                  "Width": "320",
+                  "Height": "80",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(IsBlank(varPaymentRecord), \"\", varPaymentRecord.Notes)",
+                  "HintText": "\"\"",
+                  "Mode": "TextMode.MultiLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblSolicitor",
+                "type": "Label",
+                "properties": {
+                  "X": "858",
+                  "Y": "160",
+                  "Width": "350",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(varSolicitor.state = \"found\", varSolicitor.name, varSolicitor.message)",
+                  "Color": "If(varSolicitor.state = \"found\", Color.Black, Color.Red)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrSolicitor",
+                "type": "Label",
+                "properties": {
+                  "X": "854",
+                  "Y": "190",
+                  "Width": "350",
+                  "Height": "35",
+                  "Visible": "varTried && !IsBlank(Trim(txtSolicitor.Text)) && varSolicitor.state <> \"found\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Check the solicitor's ID, or leave it empty.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblPackage",
+                "type": "Label",
+                "properties": {
+                  "X": "446",
+                  "Y": "654",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Package (facultatif)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblNotes",
+                "type": "Label",
+                "properties": {
+                  "X": "895",
+                  "Y": "629",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Notes (facultatif)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "tglTaxReceipt",
+                "type": "Toggle",
+                "properties": {
+                  "X": "20",
+                  "Y": "568",
+                  "Width": "100",
+                  "Height": "32",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "false",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "OnChange": "If(!Self.Value, Reset(txtBenefitAmount); Reset(txtReceiptAmount))"
+                },
+                "children": []
+              },
+              {
+                "name": "lblTaxReceipt",
+                "type": "Label",
+                "properties": {
+                  "X": "130",
+                  "Y": "564",
+                  "Width": "290",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Reçu fiscal à émettre ?\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtReceiptAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "225",
+                  "Y": "630",
+                  "Width": "190",
+                  "Height": "36",
+                  "Visible": "tglTaxReceipt.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(\r\n    IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0 &&\r\n    (IsBlank(Trim(txtBenefitAmount.Text)) || IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\")),\r\n    Text(Max(0, Value(txtGiftAmount.Text) - Coalesce(Value(txtBenefitAmount.Text), 0)), \"0.00\"),\r\n    \"\"\r\n)",
+                  "HintText": "\"Ex: 75.00\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblBenefitAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "605",
+                  "Width": "190",
+                  "Height": "24",
+                  "Visible": "tglTaxReceipt.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Avantage ($)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "12",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtBenefitAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "20",
+                  "Y": "630",
+                  "Width": "190",
+                  "Height": "36",
+                  "Visible": "tglTaxReceipt.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"0.00\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13",
+                  "OnChange": "Reset(txtReceiptAmount)"
+                },
+                "children": []
+              },
+              {
+                "name": "lblReceiptAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "225",
+                  "Y": "605",
+                  "Width": "190",
+                  "Height": "24",
+                  "Visible": "tglTaxReceipt.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Montant du reçu ($)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "12",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrTaxReceipt",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "668",
+                  "Width": "415",
+                  "Height": "24",
+                  "Visible": "varTried && tglTaxReceipt.Value && !(\r\n    (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtBenefitAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text)))) &&\r\n    (IsMatch(Trim(txtReceiptAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtReceiptAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text)))\r\n)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Avantage et reçu : entre 0 $ et le montant du don.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "rectOverlay",
+                "type": "Rectangle",
+                "properties": {
+                  "X": "0",
+                  "Y": "0",
+                  "Width": "Parent.Width",
+                  "Height": "Parent.Height",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Fill": "RGBA(0, 0, 0, 0.4)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0"
+                },
+                "children": []
+              },
+              {
+                "name": "rectModalCard",
+                "type": "Rectangle",
+                "properties": {
+                  "X": "(Parent.Width - Self.Width) / 2",
+                  "Y": "(Parent.Height - Self.Height) / 2",
+                  "Width": "450",
+                  "Height": "260",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0"
+                },
+                "children": []
+              },
+              {
+                "name": "lblSuccessTitle",
+                "type": "Label",
+                "properties": {
+                  "X": "rectModalCard.X + 20",
+                  "Y": "rectModalCard.Y + 25",
+                  "Width": "rectModalCard.Width - 40",
+                  "Height": "40",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Don soumis avec succès !\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "18",
+                  "FontWeight": "FontWeight.Bold",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "btnClosePopup",
+                "type": "Button",
+                "properties": {
+                  "X": "rectModalCard.X + (rectModalCard.Width - Self.Width) / 2",
+                  "Y": "rectModalCard.Y + 175",
+                  "Width": "160",
+                  "Height": "40",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Fermer et réinitialiser\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(rdoNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount);\nReset(tglTaxReceipt); Reset(txtBenefitAmount); Reset(txtReceiptAmount)"
+                },
+                "children": []
+              },
+              {
+                "name": "lblSuccessRef",
+                "type": "Label",
+                "properties": {
+                  "X": "rectModalCard.X + 20",
+                  "Y": "rectModalCard.Y + 85",
+                  "Width": "rectModalCard.Width - 40",
+                  "Height": "40",
+                  "Visible": "varShowSuccessPopup",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Numéro de référence : \" & varSubmissionRef",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "rdoNewDonor",
+                "type": "Radio",
+                "properties": {
+                  "X": "210",
+                  "Y": "190",
+                  "Items": "[\"No\", \"Yes\"]",
+                  "Default": "\"No\"",
+                  "OnChange": "Set(varDonor, Blank()); Reset(txtConstituentId); Reset(txtNewDonorName)",
+                  "Width": "200",
+                  "Height": "84"
+                },
+                "children": []
+              },
+              {
+                "name": "conSameDonor",
+                "type": "Container",
+                "properties": {
+                  "X": "283",
+                  "Y": "170",
+                  "Width": "800",
+                  "Height": "418",
+                  "Visible": "varDonor.state = \"found\" && IsBlank(varPaymentRecord) && !varSameDonorDone && !IsEmpty(colSameDonor)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Fill": "Color.White",
+                  "BorderColor": "RGBA(15, 108, 101, 1)",
+                  "BorderThickness": "1"
+                },
+                "children": [
+                  {
+                    "name": "lblSameDonor",
+                    "type": "Label",
+                    "properties": {
+                      "X": "16",
+                      "Y": "8",
+                      "Width": "768",
+                      "Height": "42",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "\"This donor has payments waiting to be claimed. Is one of them your gift?\"",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "galSameDonor",
+                    "type": "Gallery",
+                    "properties": {
+                      "X": "16",
+                      "Y": "56",
+                      "Width": "768",
+                      "Height": "288",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Items": "colSameDonor",
+                      "TemplateSize": "48",
+                      "TemplateFill": "RGBA(0, 0, 0, 0)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(134, 142, 150, 1)",
+                      "BorderThickness": "1"
+                    },
+                    "children": [
+                      {
+                        "name": "lblSameReference",
+                        "type": "Label",
+                        "properties": {
+                          "X": "4",
+                          "Y": "4",
+                          "Width": "120",
+                          "Height": "40",
+                          "Text": "ThisItem.Reference"
+                        },
+                        "children": []
+                      },
+                      {
+                        "name": "lblSameAmount",
+                        "type": "Label",
+                        "properties": {
+                          "X": "130",
+                          "Y": "4",
+                          "Width": "90",
+                          "Height": "40",
+                          "Text": "Text(ThisItem.'Gift Amount', \"0.00\")"
+                        },
+                        "children": []
+                      },
+                      {
+                        "name": "lblSameDate",
+                        "type": "Label",
+                        "properties": {
+                          "X": "226",
+                          "Y": "4",
+                          "Width": "126",
+                          "Height": "40",
+                          "Text": "ThisItem.'Gift Date'"
+                        },
+                        "children": []
+                      },
+                      {
+                        "name": "lblSamePaymentType",
+                        "type": "Label",
+                        "properties": {
+                          "X": "360",
+                          "Y": "4",
+                          "Width": "194",
+                          "Height": "40",
+                          "Text": "ThisItem.'Payment Type'"
+                        },
+                        "children": []
+                      },
+                      {
+                        "name": "btnClaimThis",
+                        "type": "Button",
+                        "properties": {
+                          "X": "562",
+                          "Y": "4",
+                          "Width": "182",
+                          "Height": "40",
+                          "Text": "\"Claim this payment\"",
+                          "OnSelect": "With(     {paymentIdToClaim: ThisItem.ID},     IfError(         Refresh('MCHF - Payment Log');         With(             {current: LookUp('MCHF - Payment Log', ID = paymentIdToClaim)},             If(                 IsBlank(current),                 Notify(\"This payment no longer exists.\", NotificationType.Error);                 Remove(colSameDonor, ThisItem),                  current.Status.Value <> \"Unclaimed\",                 Notify(                     If(                         current.Status.Value = \"Claimed\" && !IsBlank(current.'Claimed By Name'),                         \"Already claimed by \" & current.'Claimed By Name' & \".\",                         \"This payment is no longer Unclaimed.\"                     ) & \" Choose another payment or continue without it.\",                     NotificationType.Error                 );                 Remove(colSameDonor, ThisItem),                  With(                     {                         claimed: Patch(                             'MCHF - Payment Log',                             current,                             {                                 Status: {Value: \"Claimed\"},                                 'Claimed By Name': User().FullName,                                 'Claimed By Email': User().Email,                                 'Claimed At': Now()                             }                         )                     },                     Set(varPaymentRecord, claimed);                     Set(varSameDonorDone, true);                     Notify(                         \"Payment \" & claimed.Reference & \" claimed. The form now shows it.\",                         NotificationType.Success                     )                 )             )         ),         Notify(             \"The claim could not finish. Check the Payment Log before retrying.\",             NotificationType.Error         )     ) )"
+                        },
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "name": "btnNoneMine",
+                    "type": "Button",
+                    "properties": {
+                      "X": "16",
+                      "Y": "358",
+                      "Width": "240",
+                      "Height": "44",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "\"None of these is my gift\"",
+                      "Color": "RGBA(255, 255, 255, 1)",
+                      "Fill": "RGBA(15, 108, 101, 1)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Semibold",
+                      "OnSelect": "Set(varSameDonorDone, true)"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "dataSources": [
+          {
+            "kind": "list",
+            "name": "MCHF Fund Lines",
+            "id": "5b7f5c2e-31da-4487-8225-62f0e625409d",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Submission",
+                "displayName": "Submission",
+                "type": "lookup",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": "1f9b894b-3402-400f-afd4-1c60af881676"
+              },
+              {
+                "name": "Submission_x0020_Reference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Amount",
+                "displayName": "Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF Payment Types",
+            "id": "808d2018-9415-4fd7-bb54-e00a6bc73297",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Active",
+                "displayName": "Active",
+                "type": "boolean",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Sort_x0020_Order",
+                "displayName": "Sort Order",
+                "type": "number",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF Gift Types",
+            "id": "db323dda-98a1-43d4-9ccb-25dbf2c952b0",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Active",
+                "displayName": "Active",
+                "type": "boolean",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Sort_x0020_Order",
+                "displayName": "Sort Order",
+                "type": "number",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "connector",
+            "name": "RENXT",
+            "id": "renxt"
+          },
+          {
+            "kind": "list",
+            "name": "MCHF Submissions",
+            "id": "1f9b894b-3402-400f-afd4-1c60af881676",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentID",
+                "displayName": "Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Constituent_x0020_System_x0020_I",
+                "displayName": "Constituent System ID",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Payment_x0020_Type",
+                "displayName": "Payment Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Gift_x0020_Date",
+                "displayName": "Gift Date",
+                "type": "date",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Gift_x0020_Type",
+                "displayName": "Gift Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Gift_x0020_Amount",
+                "displayName": "Gift Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Fees",
+                "displayName": "Fees",
+                "type": "currency",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Net_x0020_Amount",
+                "displayName": "Net Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Campaign",
+                "displayName": "Campaign",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Appeal",
+                "displayName": "Appeal",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Fund",
+                "displayName": "Fund",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Package",
+                "displayName": "Package",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Assigned_x0020_Solicitor",
+                "displayName": "Assigned Solicitor",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Payment_x0020_Reference",
+                "displayName": "Payment Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Status",
+                "displayName": "Processing status",
+                "type": "choice",
+                "multiple": false,
+                "required": true,
+                "choices": [
+                  "Submitted",
+                  "Under Review",
+                  "Needs Information",
+                  "Rejected",
+                  "Recording in Progress",
+                  "Added to NXT Batch",
+                  "Transfer Failed",
+                  "Cancelled"
+                ],
+                "lookupListId": null
+              },
+              {
+                "name": "ReviewerEmail",
+                "displayName": "Reviewer Email",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ReviewComment",
+                "displayName": "Review Comment",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ApprovedByEmail",
+                "displayName": "Approved By Email",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ApprovedAt",
+                "displayName": "Approved At",
+                "type": "datetime",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AuditPDF",
+                "displayName": "Audit PDF",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AuditHTML",
+                "displayName": "Audit HTML",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Notes",
+                "displayName": "Notes",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "TaxReceipt",
+                "displayName": "Tax Receipt",
+                "type": "boolean",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ReceiptAmount",
+                "displayName": "Receipt Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "BenefitAmount",
+                "displayName": "Benefit Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "NewDonor",
+                "displayName": "New Donor",
+                "type": "boolean",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF - Payment Log",
+            "id": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentID",
+                "displayName": "Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PaymentType",
+                "displayName": "Payment Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftDate",
+                "displayName": "Gift Date",
+                "type": "date",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftAmount",
+                "displayName": "Gift Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftType",
+                "displayName": "Gift Type",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AssignedSolicitor",
+                "displayName": "Assigned Solicitor",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Notes",
+                "displayName": "Notes",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Reference",
+                "displayName": "Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Status",
+                "displayName": "Status",
+                "type": "choice",
+                "multiple": false,
+                "required": true,
+                "choices": [
+                  "Claimed",
+                  "Unclaimed",
+                  "Coded"
+                ],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedByName",
+                "displayName": "Claimed By Name",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "SubmissionReference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentSystemID",
+                "displayName": "Constituent System ID",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedByEmail",
+                "displayName": "Claimed By Email",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedAt",
+                "displayName": "Claimed At",
+                "type": "datetime",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          }
+        ],
+        "id": "b4926586-12db-4131-945a-b74ad2f7883a",
+        "name": "MCHF - Coding Form"
+      }
+    }
+  ]
+}
