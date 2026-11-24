@@ -265,7 +265,10 @@ expected.
   (text), not by the `Submission` lookup. The coding form must fill it, as
   it does for the fund lines.
 - Amounts are written as stored (`100`, not `$100.00`), like the fund lines.
-  The two samples show `$100.00` as the target format.
+  The Sprint 4 rows of the samples show the amounts as the flow writes them
+  today (`60`, `40`). The other amounts of the samples show `$100.00`, the
+  target format: formatting every amount is left for the check of the
+  formats (see Remaining work).
 
 ## Remaining work
 
