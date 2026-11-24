@@ -1,7 +1,7 @@
 # Audit PDF for a Coded Gift
 
-Related issues: [#11](https://github.com/hack4impact/mchf-project/issues/11), [#34](https://github.com/hack4impact/mchf-project/issues/34)
-Branches: `feature/11-audit-pdf-template`, `feature/34-audit-pdf-sprint3-fields`
+Related issues: [#11](https://github.com/hack4impact/mchf-project/issues/11), [#34](https://github.com/hack4impact/mchf-project/issues/34), [#57](https://github.com/hack4impact/mchf-project/issues/57)
+Branches: `feature/11-audit-pdf-template`, `feature/34-audit-pdf-sprint3-fields`, `feature/57-audit-pdf-sprint4-sections`
 Environment: Équipe
 
 The PDF kept with each approved submission for audit. The flow of #15
@@ -12,8 +12,10 @@ fills the HTML template and converts it to PDF at approval.
 | File | Use |
 |---|---|
 | `docs/rebuild/audit-template.html` | The template, with one `{{...}}` placeholder per value |
-| `docs/rebuild/audit-samples/single-fund.html` | Template filled with the test case, one fund line ($100), a tax receipt ($25 benefit, $75 receipt) and notes |
-| `docs/rebuild/audit-samples/multi-fund.html` | Template filled with the test case, two fund lines ($60 + $40), no tax receipt and no notes |
+| `docs/rebuild/audit-samples/single-fund.html` | Template filled with the test case, one fund line ($100), a tax receipt ($25 benefit, $75 receipt), notes and two soft credits ($60 + $40). The pledge payments and installments tables are empty |
+| `docs/rebuild/audit-samples/multi-fund.html` | Template filled with the test case, two fund lines ($60 + $40), no tax receipt and no notes. The soft credits, pledge payments and installments tables are empty |
+| `docs/rebuild/audit-samples/screenshots/pledge-installments.png` | Page 2 of the PDF made by the lab for `SUB-TEST57B` (#57): three installments, the other two tables empty |
+| `docs/rebuild/audit-samples/screenshots/soft-credits.png` | Page 2 of the PDF made by the lab for `SUB-TEST57C` (#57): two soft credits, the other two tables empty |
 
 ## 2. Template
 
@@ -30,9 +32,17 @@ Sections, in order:
 5. Tax receipt: tax receipt to issue, benefit amount, receipt amount
 6. Notes
 7. Fund lines, with their total
-8. People: who submitted and when, who approved and when
-9. Footer: "Generated at approval. The NXT transfer result is not part of
-   this record."
+8. Soft credits (#57): constituent, constituent ID, amount
+9. Pledge payments (#57): constituent, pledge ID, amount paid
+10. Pledge installments (#57): number, due date, amount
+11. People: who submitted and when, who approved and when
+12. Footer: "Generated at approval. The NXT transfer result is not part of
+    this record."
+
+The three tables of #57 keep their heading row when the gift has no
+entry: the PDF shows an empty table, without error. The NXT batch does
+not carry soft credits or pledge payments (known limit of the lab), so
+Gift Processing enters them by hand from these tables.
 
 The PDF is made at approval, before NXT answers, so the transfer result
 is never in it.
@@ -64,13 +74,16 @@ dynamic content from **Get submission**.
 | `{{ApprovedByEmail}}` | Who approved (#4) |
 | `{{ApprovedAt}}` | When it was approved (#4) |
 
-Five placeholders are not columns. The flow builds them:
+Eight placeholders are not columns. The flow builds them:
 
 | Placeholder | Built from |
 |---|---|
 | `{{PaymentReferenceLine}}` | `<p><strong>Payment reference:</strong> PAY-00001</p>` when `Payment_x0020_Reference` has a value, empty otherwise |
 | `{{FundLineRows}}` | One `<tr>` per row of `MCHF Fund Lines` for this submission |
 | `{{FundLinesTotal}}` | Sum of the fund line amounts |
+| `{{SoftCreditRows}}` | One `<tr>` per row of `MCHF - Soft Credits` for this submission (#57) |
+| `{{PledgePaymentRows}}` | One `<tr>` per row of `MCHF - Pledge Payments` for this submission (#57) |
+| `{{InstallmentRows}}` | One `<tr>` per row of `MCHF - Pledge Installments` for this submission, by installment number (#57) |
 | `{{SubmittedBy}}` | System column Author (Créé par) of the submission |
 | `{{SubmittedAt}}` | System column Created (Créé) of the submission |
 
@@ -123,9 +136,41 @@ variable**:
 The template inserts this variable at `{{FundLineRows}}`. The same loop
 adds each amount to the total.
 
-Soft credits are out of the base scope (#1, section 3). When they are
-added, they follow the same pattern: their own table and their own
-`{{SoftCreditRows}}` variable.
+### Sprint 4 sections (#57)
+
+Soft credits, pledge payments and pledge installments follow the same
+pattern as the fund lines, with the lists of #49. The flow reads them with
+three **Get items**, placed after **Get fund lines**, each filtered on the
+submission reference:
+
+```
+Submission_x0020_Reference eq '@{outputs('Get_submission')?['body/Title']}'
+```
+
+| Get items | List | Variable (string) | Loop | Row added by Append to string variable |
+|---|---|---|---|---|
+| `Get_soft_credits` | `MCHF - Soft Credits` | `softCreditRows` | `Each_soft_credit` | `<tr><td>name</td><td>ConstituentID</td><td>Amount</td></tr>` |
+| `Get_pledge_payments` | `MCHF - Pledge Payments` | `pledgePaymentRows` | `Each_pledge_payment` | `<tr><td>PledgeConstituentName</td><td>PledgeID</td><td>Amount</td></tr>` |
+| `Get_pledge_installments` | `MCHF - Pledge Installments`, `$orderby` `InstallmentNumber asc` | `installmentRows` | `Each_installment` | `<tr><td>InstallmentNumber</td><td>due date</td><td>Amount</td></tr>` |
+
+The three variables are initialised with the other two (`rows`, `total`),
+at the top of the flow, never inside a loop or a condition. The three loops
+come after `Each_line`, before `PDF_Needed`. The `HTML` Compose, inside
+`PDF_Needed`, has no template file: the HTML of `audit-template.html` is
+written in it, with `@{variables('softCreditRows')}`,
+`@{variables('pledgePaymentRows')}` and `@{variables('installmentRows')}`
+where the template has its placeholders.
+
+The names are escaped like `{{ConstituentName}}`. The due date is written
+`yyyy-MM-dd`, and left empty when the item has no date:
+
+```
+@{replace(replace(replace(coalesce(items('Each_soft_credit')?['ConstituentName'], ''), '&', '&amp;'), '<', '&lt;'), '>', '&gt;')}
+@{if(empty(items('Each_installment')?['DueDate']), '', formatDateTime(items('Each_installment')?['DueDate'], 'yyyy-MM-dd'))}
+```
+
+With no item, the loop does not run: the variable stays empty and the
+section keeps its heading row and an empty table.
 
 ## 5. Where the PDF is kept
 
@@ -172,6 +217,20 @@ Constituent ID `1234567`, one-time gift, $100, Personal Cheque, gift date
 | #34: name `Camille <Exemple> & Fils` and notes `Gala <table> & dinner: benefit > 0` on `SUB-TEST34C` | Passed. The PDF shows both as typed |
 | #34: personal copy, `SUB-TEST34D` (new donor, no Constituent ID, no receipt, no notes, fund lines $60 + $40) | Passed. The PDF shows New donor Yes and Tax receipt to issue No. The empty rows stay |
 
+#57 tests, in a personal environment, on copies of `MCHF - ApproveGift` and of
+the lists of #49. Each test used a new submission, because the PDF is only
+made when `AuditPDF` is empty. The items were created directly in the lists
+and the flow was started directly. `Constituent System ID` was left empty,
+so nothing is written to the shared simulated NXT.
+
+| Test | Result |
+|---|---|
+| `SUB-TEST57A`: one-time gift, no soft credit, pledge payment or installment | Passed. The three tables show their heading row and no data, no error |
+| `SUB-TEST57B`: pledge of $300, three installments created in the order 3, 2, 1 | Passed. The installments come out as 1, 2, 3 with due dates `2026-12-01`, `2027-12-01`, `2028-12-01` and $100 each |
+| `SUB-TEST57C`: two soft credits, one named `Second <Exemple> & Fils` | Passed. Both rows are in the table and the name is shown as typed |
+| `SUB-TEST57D`: pledge payment of $150 on pledge `20001` | Passed. The table shows the pledge owner, the pledge ID and the amount paid |
+| Approval of the four test submissions | Known limit of the lab: status Transfer Failed (no Constituent System ID, and the simulated NXT refuses Pledge and PledgePayment). The PDF is made before this step, and it exists |
+
 The #34 runs used a personal copy of the flow and were started directly, not
 with the Approve button of the app. Their Constituent System ID was left
 empty so that nothing is written to the shared simulated NXT: the recording
@@ -198,6 +257,15 @@ expected.
   paragraph.
 - The Sprint 3 fields (#34) are only in the PDFs made after the change
   request of #34 is merged in Équipe. An existing PDF is not made again.
+- The Sprint 4 sections (#57) follow the same rule: only the PDFs made
+  after the change request of #57 is merged have them.
+- A test needs a new submission each time. With `AuditPDF` filled,
+  `PDF_Needed` skips the PDF, and "Record again" does not make it again.
+- The three Sprint 4 tables read the lists by `Submission_x0020_Reference`
+  (text), not by the `Submission` lookup. The coding form must fill it, as
+  it does for the fund lines.
+- Amounts are written as stored (`100`, not `$100.00`), like the fund lines.
+  The two samples show `$100.00` as the target format.
 
 ## Remaining work
 
@@ -205,7 +273,9 @@ expected.
   request (Demandes de modification › Nouvelle demande). After the merge,
   approve a gift with a tax receipt in Équipe, then export the flow to the
   solution file of #15 with Solutions › Exporter.
-- Soft credits are built in Sprint 4 (section 4).
+- #57: propose the personal copy of `MCHF - ApproveGift` with a change
+  request, then export the flow to
+  `lab/solutions/mchf-audit-pdf-sprint4.solution.json`.
 
 - Build the real chain in the approval flow `MCHF - ApproveGift` (#15):
   Get submission, Get fund lines, the loop, then the steps of section 6,
