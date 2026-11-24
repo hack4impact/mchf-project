@@ -1,7 +1,7 @@
 # Review App, Approval Flow and Simulated Transfer
 
-Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27), [#28](https://github.com/hack4impact/mchf-project/issues/28), [#34](https://github.com/hack4impact/mchf-project/issues/34)
-Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`, `feature/28-review-correct`, `feature/34-audit-pdf-sprint3-fields`
+Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27), [#28](https://github.com/hack4impact/mchf-project/issues/28), [#34](https://github.com/hack4impact/mchf-project/issues/34), [#51](https://github.com/hack4impact/mchf-project/issues/51)
+Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`, `feature/28-review-correct`, `feature/34-audit-pdf-sprint3-fields`, `feature/51-review-history`
 Environment: Équipe
 
 Gift Processing reviews a submission in the app **MCHF - Review**: claim,
@@ -236,7 +236,7 @@ notification (#27, Sprint 3 guide section 7).
 | `btnInNxt` | `varSel.'Processing status'.Value = "Transfer Failed"` | T11 |
 | `btnRecordAgain` | `varSel.'Processing status'.Value = "Transfer Failed"` | T12 |
 
-No button shows in Recording in Progress, Added to NXT Batch, Rejected or
+No status-changing review button shows in Recording in Progress, Added to NXT Batch, Rejected or
 Cancelled. There is no Retry: a gift is never sent again before someone
 checked NXT.
 
@@ -550,6 +550,38 @@ create the constituent in NXT, then add its Constituent ID with Correct."`):
 The disabled button isn't enough, because `varSel` can be old: the OnSelect
 of Approve checks again (see `btnApprove.OnSelect` above).
 
+### Activity history and audit PDF (#51)
+
+On `scrReview`, place **Activity history** below **Review actions**, following the history panel in #32. The submission queue is on the left. The right side shows the selected gift, fundraising coding, fund lines, review actions and history. The positions in the earlier Sprint 3 instructions describe the previous layout. Use `lab/solutions/mchf-review-history.solution.json` for the #51 layout.
+
+The selected submission is stored in `varSel`. Add a vertical gallery named `galHistory` with these properties:
+
+| Property | Formula |
+|---|---|
+| Items | `Sort(Filter('MCHF - Submission History', 'Submission Reference' = varSel.Title), 'Action At', SortOrder.Descending)` |
+| Visible | `!IsBlank(varSel.ID)` |
+| Y | `If(varEditing, 675, 587)` |
+| Height | `If(varEditing, 78, 166)` |
+| TemplateSize | `77` |
+
+Add these labels inside the gallery row:
+
+| Label | Text |
+|---|---|
+| `lblHistoryAction` | `ThisItem.Title & " · " & If(IsBlank(ThisItem.'From Status'), "", ThisItem.'From Status' & " → ") & ThisItem.'To Status'` |
+| `lblHistoryActor` | `ThisItem.'Actor Email' & " · " & Text(ThisItem.'Action At', "yyyy-mm-dd hh:mm")` |
+| `lblHistoryComment` | `ThisItem.Comment` |
+
+The gallery reads the comment saved by each action. A Correct row shows the field and its old and new values, for example `Notes: (empty) → History Test`. A recording result written by the approval flow displays `System` as the actor.
+
+Place `btnOpenPdf` beside the history heading. Use the selected submission's saved link:
+
+| Property | Formula |
+|---|---|
+| Text | `"Open audit PDF"` |
+| Visible | `!IsBlank(LookUp('MCHF Submissions', ID = varSel.ID).'Audit PDF')` |
+| OnSelect | `Launch(LookUp('MCHF Submissions', ID = varSel.ID).'Audit PDF')` |
+
 ### Fundraiser screen: scrReturned (T5)
 
 The fundraiser sees their own submissions in Needs Information, reads the
@@ -729,6 +761,7 @@ fund line of $100 with the same Submission Reference.
   `docs/rebuild/mchf-approve-gift-plan.pdf`.
 - #28: `lab/solutions/mchf-review-correct.solution.json` (the app, the flow
   and the lists it uses). The flow did not change.
+- #51: `lab/solutions/mchf-review-history.solution.json` (the review app).
 
 ## Remaining work
 
