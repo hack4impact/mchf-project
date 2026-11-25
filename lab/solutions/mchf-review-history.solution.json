@@ -2,7 +2,7 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "mchf-review-history",
-  "exportedAt": "2026-11-24T00:54:57Z",
+  "exportedAt": "2026-11-25T17:50:43Z",
   "lists": [],
   "flows": [],
   "apps": [
@@ -101,14 +101,14 @@
                 "name": "txtComment",
                 "type": "TextInput",
                 "properties": {
-                  "X": "350",
+                  "X": "If(lblCheckNxt.Visible, 842, 350)",
                   "Y": "433",
-                  "Width": "986",
+                  "Width": "If(lblCheckNxt.Visible, 494, 986)",
                   "Height": "40",
-                  "Visible": "!IsBlank(varSel.ID) && !varEditing && varSel.'Processing status'.Value in [\"Under Review\",\"Submitted\",\"Needs Information\"]",
+                  "Visible": "!IsBlank(varSel.ID) && !varEditing && varSel.'Processing status'.Value in [\"Under Review\", \"Submitted\", \"Needs Information\", \"Transfer Failed\"]",
                   "DisplayMode": "DisplayMode.Edit",
                   "Default": "\"\"",
-                  "HintText": "\"Comment for the fundraiser (required for Return and Reject)\"",
+                  "HintText": "If(lblCheckNxt.Visible, \"Batch number or NXT check details\", \"Comment for the fundraiser (required for Return and Reject)\")",
                   "Mode": "TextMode.MultiLine",
                   "Color": "RGBA(33, 37, 41, 1)",
                   "Fill": "RGBA(255, 255, 255, 1)",
@@ -271,8 +271,8 @@
                 "properties": {
                   "X": "350",
                   "Y": "430",
-                  "Width": "986",
-                  "Height": "52",
+                  "Width": "480",
+                  "Height": "86",
                   "Visible": "varSel.'Processing status'.Value = \"Transfer Failed\"",
                   "DisplayMode": "DisplayMode.Edit",
                   "Text": "\"Check the NXT gift batches for \" & varSel.Title & \" before choosing. \" & First(Sort(Filter('MCHF - Submission History', 'Submission Reference' = varSel.Title), 'Action At', SortOrder.Descending)).Comment",
@@ -292,7 +292,7 @@
                 "type": "Button",
                 "properties": {
                   "X": "350",
-                  "Y": "486",
+                  "Y": "526",
                   "Width": "237",
                   "Height": "34",
                   "Visible": "(varSel.'Processing status'.Value = \"Transfer Failed\") && !varEditing",
@@ -313,7 +313,7 @@
                 "type": "Button",
                 "properties": {
                   "X": "600",
-                  "Y": "486",
+                  "Y": "526",
                   "Width": "380",
                   "Height": "34",
                   "Visible": "(varSel.'Processing status'.Value = \"Transfer Failed\") && !varEditing",
@@ -654,76 +654,6 @@
                   "FontWeight": "FontWeight.Normal",
                   "Align": "Align.Left",
                   "VerticalAlign": "VerticalAlign.Middle"
-                },
-                "children": []
-              },
-              {
-                "name": "galHistory",
-                "type": "Gallery",
-                "properties": {
-                  "X": "350",
-                  "Y": "If(varEditing, 675, 587)",
-                  "Width": "986",
-                  "Height": "If(varEditing, 78, 166)",
-                  "TemplateSize": "77",
-                  "Visible": "!IsBlank(varSel.ID)",
-                  "Items": "Sort(Filter('MCHF - Submission History', 'Submission Reference' = varSel.Title), 'Action At', SortOrder.Descending)"
-                },
-                "children": [
-                  {
-                    "name": "lblHistoryAction",
-                    "type": "Label",
-                    "properties": {
-                      "X": "4",
-                      "Y": "1",
-                      "Width": "530",
-                      "Height": "28",
-                      "Text": "ThisItem.Title & \" · \" & If(IsBlank(ThisItem.'From Status'), \"\", ThisItem.'From Status' & \" → \") & ThisItem.'To Status'",
-                      "Size": "12",
-                      "Fill": "RGBA(241,244,244,1)",
-                      "FontWeight": "FontWeight.Semibold"
-                    },
-                    "children": []
-                  },
-                  {
-                    "name": "lblHistoryActor",
-                    "type": "Label",
-                    "properties": {
-                      "X": "536",
-                      "Y": "1",
-                      "Width": "425",
-                      "Height": "28",
-                      "Text": "ThisItem.'Actor Email' & \" · \" & Text(ThisItem.'Action At', \"yyyy-mm-dd hh:mm\")",
-                      "Size": "11"
-                    },
-                    "children": []
-                  },
-                  {
-                    "name": "lblHistoryComment",
-                    "type": "Label",
-                    "properties": {
-                      "X": "4",
-                      "Y": "30",
-                      "Width": "956",
-                      "Height": "44",
-                      "Text": "ThisItem.Comment",
-                      "Size": "11"
-                    },
-                    "children": []
-                  }
-                ]
-              },
-              {
-                "name": "btnOpenPdf",
-                "type": "Button",
-                "properties": {
-                  "X": "1138",
-                  "Y": "If(varEditing, 638, 550)",
-                  "Width": "198",
-                  "Height": "31",
-                  "Text": "\"Open audit PDF\"",
-                  "Visible": "!IsBlank(LookUp('MCHF Submissions', ID = varSel.ID).'Audit PDF')",
-                  "OnSelect": "Launch(LookUp('MCHF Submissions', ID = varSel.ID).'Audit PDF')"
                 },
                 "children": []
               },
@@ -1178,18 +1108,16 @@
                 "children": []
               },
               {
-                "name": "lblActivityHeading",
-                "type": "Label",
+                "name": "btnMore",
+                "type": "Button",
                 "properties": {
                   "X": "350",
-                  "Y": "If(varEditing, 641, 552)",
-                  "Width": "520",
-                  "Height": "28",
-                  "Text": "\"Activity history\"",
-                  "Size": "15",
-                  "Color": "RGBA(35,48,51,1)",
-                  "Visible": "!IsBlank(varSel.ID)",
-                  "FontWeight": "FontWeight.Semibold"
+                  "Y": "580",
+                  "Width": "220",
+                  "Height": "38",
+                  "Text": "\"History and details\"",
+                  "Visible": "!IsBlank(varSel.ID) && !varEditing",
+                  "OnSelect": "Navigate(scrSubmission)"
                 },
                 "children": []
               }
@@ -1443,6 +1371,113 @@
                   "OnSelect": "Navigate(scrReview)"
                 },
                 "children": []
+              }
+            ]
+          },
+          {
+            "name": "scrSubmission",
+            "properties": {
+              "OnVisible": "Refresh('MCHF - Submission History'); Refresh('MCHF Submissions')"
+            },
+            "controls": [
+              {
+                "name": "btnBack",
+                "type": "Button",
+                "properties": {
+                  "X": "30",
+                  "Y": "12",
+                  "Width": "100",
+                  "Height": "36",
+                  "Text": "\"Back\"",
+                  "OnSelect": "Back()"
+                },
+                "children": []
+              },
+              {
+                "name": "lblActivityHeading",
+                "type": "Label",
+                "properties": {
+                  "X": "30",
+                  "Y": "64",
+                  "Width": "520",
+                  "Height": "28",
+                  "Text": "\"Activity history · \" & varSel.Title",
+                  "Size": "15",
+                  "Color": "RGBA(35,48,51,1)",
+                  "Visible": "!IsBlank(varSel.ID)",
+                  "FontWeight": "FontWeight.Semibold"
+                },
+                "children": []
+              },
+              {
+                "name": "btnOpenPdf",
+                "type": "Button",
+                "properties": {
+                  "X": "1140",
+                  "Y": "64",
+                  "Width": "198",
+                  "Height": "31",
+                  "Text": "\"Open audit PDF\"",
+                  "Visible": "!IsBlank(LookUp('MCHF Submissions', ID = varSel.ID).'Audit PDF')",
+                  "OnSelect": "Launch(LookUp('MCHF Submissions', ID = varSel.ID).'Audit PDF')"
+                },
+                "children": []
+              },
+              {
+                "name": "galHistory",
+                "type": "Gallery",
+                "properties": {
+                  "X": "30",
+                  "Y": "106",
+                  "Width": "1306",
+                  "Height": "260",
+                  "TemplateSize": "77",
+                  "Visible": "!IsBlank(varSel.ID)",
+                  "Items": "Sort(Filter('MCHF - Submission History', 'Submission Reference' = varSel.Title), 'Action At', SortOrder.Descending)"
+                },
+                "children": [
+                  {
+                    "name": "lblHistoryAction",
+                    "type": "Label",
+                    "properties": {
+                      "X": "4",
+                      "Y": "1",
+                      "Width": "530",
+                      "Height": "28",
+                      "Text": "ThisItem.Title & \" · \" & If(IsBlank(ThisItem.'From Status'), \"\", ThisItem.'From Status' & \" → \") & ThisItem.'To Status'",
+                      "Size": "12",
+                      "Fill": "RGBA(241,244,244,1)",
+                      "FontWeight": "FontWeight.Semibold"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblHistoryActor",
+                    "type": "Label",
+                    "properties": {
+                      "X": "536",
+                      "Y": "1",
+                      "Width": "425",
+                      "Height": "28",
+                      "Text": "ThisItem.'Actor Email' & \" · \" & Text(ThisItem.'Action At', \"yyyy-mm-dd hh:mm\")",
+                      "Size": "11"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblHistoryComment",
+                    "type": "Label",
+                    "properties": {
+                      "X": "4",
+                      "Y": "30",
+                      "Width": "956",
+                      "Height": "44",
+                      "Text": "ThisItem.Comment",
+                      "Size": "11"
+                    },
+                    "children": []
+                  }
+                ]
               }
             ]
           }
