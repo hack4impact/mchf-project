@@ -1,0 +1,600 @@
+{
+  "format": "lowcode-lab-solution",
+  "version": 1,
+  "name": "Ma solution",
+  "exportedAt": "2026-11-24T21:03:57Z",
+  "lists": [],
+  "flows": [
+    {
+      "key": "1f5b3ac0-069f-44bf-9dc2-a683ded260b1",
+      "name": "MCHF - ApproveGift",
+      "description": "",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "manual": {
+            "type": "Request",
+            "kind": "PowerAppV2",
+            "inputs": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "number",
+                    "x-ms-content-hint": "NUMBER",
+                    "title": "SubmissionID",
+                    "description": "",
+                    "x-ms-dynamically-added": true
+                  }
+                },
+                "required": [
+                  "number"
+                ]
+              }
+            }
+          }
+        },
+        "actions": {
+          "Answer_the_app": {
+            "type": "Response",
+            "kind": "PowerApp",
+            "inputs": {
+              "statusCode": 200,
+              "body": {
+                "text": "started"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "title": "text",
+                    "x-ms-dynamically-added": true
+                  }
+                }
+              }
+            },
+            "runAfter": {}
+          },
+          "Get_submission": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItem"
+              },
+              "parameters": {
+                "table": "58bf89fd-1339-4386-a584-82f33675e8f5",
+                "id": "@{triggerBody()?['number']}"
+              }
+            },
+            "runAfter": {
+              "Answer_the_app": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Get_fund_lines": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "43eddfd9-afe3-4856-a902-3a7c65708ae3",
+                "$filter": "Submission_x0020_Reference eq '@{outputs('Get_submission')?['body/Title']}'"
+              }
+            },
+            "runAfter": {
+              "Get_submission": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Get_soft_credits": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "c9e00ebc-bb3b-4775-ba87-a93d9e83ec2d",
+                "$filter": "Submission_x0020_Reference eq '@{outputs('Get_submission')?['body/Title']}'"
+              }
+            },
+            "runAfter": {
+              "Get_fund_lines": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Get_pledge_payments": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "6a977a12-85bc-4c5f-81c5-5bd5268b7a74",
+                "$filter": "Submission_x0020_Reference eq '@{outputs('Get_submission')?['body/Title']}'"
+              }
+            },
+            "runAfter": {
+              "Get_soft_credits": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Get_pledge_installments": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_lists",
+                "connectionName": "shared_lists",
+                "operationId": "GetItems"
+              },
+              "parameters": {
+                "table": "118ca8a6-60ba-4c79-bda5-bbac41dd61bb",
+                "$filter": "Submission_x0020_Reference eq '@{outputs('Get_submission')?['body/Title']}'",
+                "$orderby": "InstallmentNumber asc"
+              }
+            },
+            "runAfter": {
+              "Get_pledge_payments": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_variable": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "rows",
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            },
+            "runAfter": {
+              "Get_pledge_installments": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Initialize_variable_2": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "total",
+                  "type": "float",
+                  "value": 0
+                }
+              ]
+            },
+            "runAfter": {
+              "Initialize_variable": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Init_soft_credit_rows": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "softCreditRows",
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            },
+            "runAfter": {
+              "Initialize_variable_2": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Init_pledge_payment_rows": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "pledgePaymentRows",
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            },
+            "runAfter": {
+              "Init_soft_credit_rows": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Init_installment_rows": {
+            "type": "InitializeVariable",
+            "inputs": {
+              "variables": [
+                {
+                  "name": "installmentRows",
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            },
+            "runAfter": {
+              "Init_pledge_payment_rows": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Each_line": {
+            "type": "Foreach",
+            "foreach": "@outputs('Get_fund_lines')?['body/value']",
+            "actions": {
+              "Append_to_string_variable": {
+                "type": "AppendToStringVariable",
+                "inputs": {
+                  "name": "rows",
+                  "value": "<tr><td>@{items('Each_line')?['Title']}</td><td>@{items('Each_line')?['Amount']}</td></tr>"
+                },
+                "runAfter": {}
+              },
+              "Increment_variable": {
+                "type": "IncrementVariable",
+                "inputs": {
+                  "name": "total",
+                  "value": "@items('Each_line')?['Amount']"
+                },
+                "runAfter": {
+                  "Append_to_string_variable": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            },
+            "runAfter": {
+              "Init_installment_rows": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Each_soft_credit": {
+            "type": "Foreach",
+            "foreach": "@outputs('Get_soft_credits')?['body/value']",
+            "actions": {
+              "Add_soft_credit_row": {
+                "type": "AppendToStringVariable",
+                "inputs": {
+                  "name": "softCreditRows",
+                  "value": "<tr><td>@{replace(replace(replace(coalesce(items('Each_soft_credit')?['ConstituentName'], ''), '&', '&amp;'), '<', '&lt;'), '>', '&gt;')}</td><td>@{items('Each_soft_credit')?['ConstituentID']}</td><td>@{items('Each_soft_credit')?['Amount']}</td></tr>"
+                },
+                "runAfter": {}
+              }
+            },
+            "runAfter": {
+              "Each_line": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Each_pledge_payment": {
+            "type": "Foreach",
+            "foreach": "@outputs('Get_pledge_payments')?['body/value']",
+            "actions": {
+              "Add_pledge_payment_row": {
+                "type": "AppendToStringVariable",
+                "inputs": {
+                  "name": "pledgePaymentRows",
+                  "value": "<tr><td>@{replace(replace(replace(coalesce(items('Each_pledge_payment')?['PledgeConstituentName'], ''), '&', '&amp;'), '<', '&lt;'), '>', '&gt;')}</td><td>@{items('Each_pledge_payment')?['PledgeID']}</td><td>@{items('Each_pledge_payment')?['Amount']}</td></tr>"
+                },
+                "runAfter": {}
+              }
+            },
+            "runAfter": {
+              "Each_soft_credit": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Each_installment": {
+            "type": "Foreach",
+            "foreach": "@outputs('Get_pledge_installments')?['body/value']",
+            "actions": {
+              "Add_installment_row": {
+                "type": "AppendToStringVariable",
+                "inputs": {
+                  "name": "installmentRows",
+                  "value": "<tr><td>@{items('Each_installment')?['InstallmentNumber']}</td><td>@{if(empty(items('Each_installment')?['DueDate']), '', formatDateTime(items('Each_installment')?['DueDate'], 'yyyy-MM-dd'))}</td><td>@{items('Each_installment')?['Amount']}</td></tr>"
+                },
+                "runAfter": {}
+              }
+            },
+            "runAfter": {
+              "Each_pledge_payment": [
+                "Succeeded"
+              ]
+            }
+          },
+          "PDF_Needed": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "equals": [
+                    "@empty(body('Get_submission')?['AuditPDF'])",
+                    true
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "HTML": {
+                "type": "Compose",
+                "inputs": "<h1>Gift coding record</h1>\n<p><strong>Submission reference:</strong> @{body('Get_submission')?['Title']}</p>\n@{if(empty(body('Get_submission')?['Payment_x0020_Reference']), '', concat('<p><strong>Payment reference:</strong> ', body('Get_submission')?['Payment_x0020_Reference'], '</p>'))}\n\n<h2>Donor</h2>\n<table>\n<tr><td><strong>Constituent ID</strong></td><td>@{body('Get_submission')?['ConstituentID']}</td></tr>\n<tr><td><strong>Constituent name</strong></td><td>@{replace(replace(replace(coalesce(body('Get_submission')?['ConstituentName'], ''), '&', '&amp;'), '<', '&lt;'), '>', '&gt;')}</td></tr>\n<tr><td><strong>Constituent system ID</strong></td><td>@{body('Get_submission')?['Constituent_x0020_System_x0020_I']}</td></tr>\n<tr><td><strong>New donor</strong></td><td>@{if(equals(body('Get_submission')?['NewDonor'], true), 'Yes', 'No')}</td></tr>\n</table>\n\n<h2>Gift</h2>\n<table>\n<tr><td><strong>Gift type</strong></td><td>@{body('Get_submission')?['Gift_x0020_Type']}</td></tr>\n<tr><td><strong>Payment type</strong></td><td>@{body('Get_submission')?['Payment_x0020_Type']}</td></tr>\n<tr><td><strong>Gift date</strong></td><td>@{body('Get_submission')?['Gift_x0020_Date']}</td></tr>\n<tr><td><strong>Gift amount</strong></td><td>@{body('Get_submission')?['Gift_x0020_Amount']}</td></tr>\n<tr><td><strong>Fees</strong></td><td>@{body('Get_submission')?['Fees']}</td></tr>\n<tr><td><strong>Net amount</strong></td><td>@{body('Get_submission')?['Net_x0020_Amount']}</td></tr>\n</table>\n\n<h2>Coding</h2>\n<table>\n<tr><td><strong>Campaign</strong></td><td>@{body('Get_submission')?['Campaign']}</td></tr>\n<tr><td><strong>Appeal</strong></td><td>@{body('Get_submission')?['Appeal']}</td></tr>\n<tr><td><strong>Primary fund</strong></td><td>@{body('Get_submission')?['Fund']}</td></tr>\n<tr><td><strong>Package</strong></td><td>@{body('Get_submission')?['Package']}</td></tr>\n<tr><td><strong>Assigned solicitor</strong></td><td>@{body('Get_submission')?['Assigned_x0020_Solicitor']}</td></tr>\n</table>\n\n<h2>Tax receipt</h2>\n<table>\n<tr><td><strong>Tax receipt to issue</strong></td><td>@{if(equals(body('Get_submission')?['TaxReceipt'], true), 'Yes', 'No')}</td></tr>\n<tr><td><strong>Benefit amount</strong></td><td>@{body('Get_submission')?['BenefitAmount']}</td></tr>\n<tr><td><strong>Receipt amount</strong></td><td>@{body('Get_submission')?['ReceiptAmount']}</td></tr>\n</table>\n\n<h2>Notes</h2>\n<p>@{replace(replace(replace(coalesce(body('Get_submission')?['Notes'], ''), '&', '&amp;'), '<', '&lt;'), '>', '&gt;')}</p>\n\n<h2>Fund lines</h2>\n<table>\n<tr><td><strong>Fund</strong></td><td><strong>Amount</strong></td></tr>\n@{variables('rows')}\n<tr><td><strong>Total</strong></td><td><strong>@{variables('total')}</strong></td></tr>\n</table>\n\n<h2>Soft credits</h2>\n<table>\n<tr><td><strong>Constituent</strong></td><td><strong>Constituent ID</strong></td><td><strong>Amount</strong></td></tr>\n@{variables('softCreditRows')}\n</table>\n\n<h2>Pledge payments</h2>\n<table>\n<tr><td><strong>Constituent</strong></td><td><strong>Pledge ID</strong></td><td><strong>Amount paid</strong></td></tr>\n@{variables('pledgePaymentRows')}\n</table>\n\n<h2>Pledge installments</h2>\n<table>\n<tr><td><strong>Number</strong></td><td><strong>Due date</strong></td><td><strong>Amount</strong></td></tr>\n@{variables('installmentRows')}\n</table>\n\n<h2>People</h2>\n<table>\n<tr><td><strong>Submitted by</strong></td><td>@{body('Get_submission')?['Author']?['Email']}</td></tr>\n<tr><td><strong>Submitted at</strong></td><td>@{body('Get_submission')?['Created']}</td></tr>\n<tr><td><strong>Approved by</strong></td><td>@{body('Get_submission')?['ApprovedByEmail']}</td></tr>\n<tr><td><strong>Approved at</strong></td><td>@{body('Get_submission')?['ApprovedAt']}</td></tr>\n</table>\n\n<p>Generated at approval. The NXT transfer result is not part of this record.</p>",
+                "runAfter": {}
+              },
+              "Create_HTML_file": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_onedriveforbusiness",
+                    "connectionName": "shared_onedriveforbusiness",
+                    "operationId": "CreateFile"
+                  },
+                  "parameters": {
+                    "folderPath": "/MCHF-Audit",
+                    "name": "@{body('Get_submission')?['Title']}-@{formatDateTime(utcNow(), 'yyyyMMdd-HHmmss')}.html",
+                    "body": "@outputs('HTML')"
+                  }
+                },
+                "runAfter": {
+                  "HTML": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Wait": {
+                "type": "Wait",
+                "inputs": {
+                  "interval": {
+                    "count": 1,
+                    "unit": "Minute"
+                  }
+                },
+                "runAfter": {
+                  "Create_HTML_file": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "To_PDF": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_onedriveforbusiness",
+                    "connectionName": "shared_onedriveforbusiness",
+                    "operationId": "ConvertFile"
+                  },
+                  "parameters": {
+                    "type": "PDF",
+                    "id": "@outputs('Create_HTML_file')?['body/Id']"
+                  }
+                },
+                "runAfter": {
+                  "Wait": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Create_PDF_file": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "CreateFile"
+                  },
+                  "parameters": {
+                    "folderPath": "/MCHF - Audit documents",
+                    "name": "@{outputs('Create_HTML_file')?['body/NameNoExt']}.pdf",
+                    "body": "@body('To_PDF')"
+                  }
+                },
+                "runAfter": {
+                  "To_PDF": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Get_link": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "GetFileItem"
+                  },
+                  "parameters": {
+                    "table": "e493dee6-4f39-40c6-b625-14bd42089c17",
+                    "id": "@outputs('Create_PDF_file')?['body/ItemId']"
+                  }
+                },
+                "runAfter": {
+                  "Create_PDF_file": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Save_link": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "PatchItem"
+                  },
+                  "parameters": {
+                    "table": "58bf89fd-1339-4386-a584-82f33675e8f5",
+                    "id": "@triggerBody()?['number']",
+                    "item/AuditPDF": "@{outputs('Get_link')?['body/{Link}']}"
+                  }
+                },
+                "runAfter": {
+                  "Get_link": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "actions": {}
+            },
+            "runAfter": {
+              "Each_installment": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Record_in_NXT": {
+            "type": "Workflow",
+            "inputs": {
+              "host": {
+                "workflowReferenceName": "7cb2bdc6-7993-4d4c-b5e2-01fe4c2a8aa1"
+              },
+              "body": {
+                "number": "@triggerBody()?['number']"
+              }
+            },
+            "runAfter": {
+              "PDF_Needed": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Added": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "equals": [
+                    "@body('Record_in_NXT')?['outcome']",
+                    "success"
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "Set_added": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "PatchItem"
+                  },
+                  "parameters": {
+                    "table": "58bf89fd-1339-4386-a584-82f33675e8f5",
+                    "id": "@triggerBody()?['number']",
+                    "item/Status/Value": "Added to NXT Batch"
+                  }
+                },
+                "runAfter": {}
+              },
+              "History_added": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "apiId": "/providers/lab/apis/shared_lists",
+                    "connectionName": "shared_lists",
+                    "operationId": "PostItem"
+                  },
+                  "parameters": {
+                    "table": "840916fd-9d81-4f79-b963-5f8d567a8512",
+                    "item/SubmissionReference": "@outputs('Get_submission')?['body/Title']",
+                    "item/FromStatus": "Recording in Progress",
+                    "item/ToStatus": "Added to NXT Batch",
+                    "item/ActorEmail": "System",
+                    "item/Comment": "@{body('Record_in_NXT')?['detail']}",
+                    "item/ActionAt": "@{utcNow()}",
+                    "item/Title": "Recording result"
+                  }
+                },
+                "runAfter": {
+                  "Set_added": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "actions": {
+                "Set_failed": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "apiId": "/providers/lab/apis/shared_lists",
+                      "connectionName": "shared_lists",
+                      "operationId": "PatchItem"
+                    },
+                    "parameters": {
+                      "table": "58bf89fd-1339-4386-a584-82f33675e8f5",
+                      "id": "@triggerBody()?['number']",
+                      "item/Status/Value": "Transfer Failed"
+                    }
+                  },
+                  "runAfter": {}
+                },
+                "History_failed": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "apiId": "/providers/lab/apis/shared_lists",
+                      "connectionName": "shared_lists",
+                      "operationId": "PostItem"
+                    },
+                    "parameters": {
+                      "table": "840916fd-9d81-4f79-b963-5f8d567a8512",
+                      "item/Title": "Recording result",
+                      "item/SubmissionReference": "@outputs('Get_submission')?['body/Title']",
+                      "item/FromStatus": "Recording in Progress",
+                      "item/ToStatus": "Transfer Failed",
+                      "item/ActorEmail": "System",
+                      "item/Comment": "@{coalesce(body('Record_in_NXT')?['detail'], 'The recording flow did not answer. Check the gift batch in NXT before any retry.')}",
+                      "item/ActionAt": "@{utcNow()}"
+                    }
+                  },
+                  "runAfter": {
+                    "Set_failed": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              }
+            },
+            "runAfter": {
+              "Record_in_NXT": [
+                "Succeeded",
+                "Failed",
+                "TimedOut"
+              ]
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
+  "apps": []
+}
