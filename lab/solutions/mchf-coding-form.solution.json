@@ -2,413 +2,259 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "mchf-coding-form",
-  "exportedAt": "2026-11-23T04:31:51Z",
-  "lists": [
+  "exportedAt": "2026-11-26T06:57:55Z",
+  "lists": [],
+  "flows": [
     {
-      "key": "1f9b894b-3402-400f-afd4-1c60af881676",
-      "name": "MCHF Submissions",
-      "description": "Soumissions de codage de dons",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
+      "key": "f04edeb7-c1e3-4871-a911-07e6ca0b78c8",
+      "name": "MCHF - Create test pledges",
+      "description": "Sprint 4 issue #53. Manually creates three open test pledges and a fourth pledge paid in full in the shared simulated RE NXT.",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "manual": {
+            "type": "Request",
+            "kind": "Button",
+            "inputs": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
         },
-        {
-          "name": "ConstituentID",
-          "displayName": "Constituent ID",
-          "type": "text",
-          "required": false,
-          "maxLength": 7
+        "actions": {
+          "List_funds": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "ListFunds"
+              },
+              "parameters": {
+                "limit": 1
+              }
+            },
+            "runAfter": {}
+          },
+          "Create_300_pledge": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11001",
+                "gift/type": "Pledge",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 300,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 300
+                    }
+                  }
+                ],
+                "gift/installments": [
+                  {
+                    "date": "2026-12-01",
+                    "amount": {
+                      "value": 100
+                    }
+                  },
+                  {
+                    "date": "2027-12-01",
+                    "amount": {
+                      "value": 100
+                    }
+                  },
+                  {
+                    "date": "2028-12-01",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ]
+              }
+            },
+            "runAfter": {
+              "List_funds": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Create_200_pledge": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11001",
+                "gift/type": "Pledge",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 200,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 200
+                    }
+                  }
+                ],
+                "gift/installments": [
+                  {
+                    "date": "2026-12-15",
+                    "amount": {
+                      "value": 100
+                    }
+                  },
+                  {
+                    "date": "2027-12-15",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ]
+              }
+            },
+            "runAfter": {
+              "Create_300_pledge": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Create_500_third_party_pledge": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11003",
+                "gift/type": "Pledge",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 500,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 500
+                    }
+                  }
+                ],
+                "gift/installments": [
+                  {
+                    "date": "2027-01-15",
+                    "amount": {
+                      "value": 250
+                    }
+                  },
+                  {
+                    "date": "2028-01-15",
+                    "amount": {
+                      "value": 250
+                    }
+                  }
+                ]
+              }
+            },
+            "runAfter": {
+              "Create_200_pledge": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Create_100_pledge": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11001",
+                "gift/type": "Pledge",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 100,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ],
+                "gift/installments": [
+                  {
+                    "date": "2026-12-01",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ]
+              }
+            },
+            "runAfter": {
+              "Create_500_third_party_pledge": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Pay_100_pledge_in_full": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11001",
+                "gift/type": "PledgePayment",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 100,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ],
+                "gift/payments": [
+                  {
+                    "payment_method": "Cash"
+                  }
+                ],
+                "gift/linked_gifts": [
+                  "@body('Create_100_pledge')?['id']"
+                ]
+              }
+            },
+            "runAfter": {
+              "Create_100_pledge": [
+                "Succeeded"
+              ]
+            }
+          }
         },
-        {
-          "name": "ConstituentName",
-          "displayName": "Constituent Name",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Constituent_x0020_System_x0020_I",
-          "displayName": "Constituent System ID",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Payment_x0020_Type",
-          "displayName": "Payment Type",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Gift_x0020_Date",
-          "displayName": "Gift Date",
-          "type": "date",
-          "required": true,
-          "dateOnly": true
-        },
-        {
-          "name": "Gift_x0020_Type",
-          "displayName": "Gift Type",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Gift_x0020_Amount",
-          "displayName": "Gift Amount",
-          "type": "currency",
-          "required": true,
-          "min": 0,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "Fees",
-          "displayName": "Fees",
-          "type": "currency",
-          "required": false,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "Net_x0020_Amount",
-          "displayName": "Net Amount",
-          "type": "currency",
-          "required": false,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "Campaign",
-          "displayName": "Campaign",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Appeal",
-          "displayName": "Appeal",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Fund",
-          "displayName": "Fund",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "Package",
-          "displayName": "Package",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Assigned_x0020_Solicitor",
-          "displayName": "Assigned Solicitor",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Payment_x0020_Reference",
-          "displayName": "Payment Reference",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Status",
-          "displayName": "Processing status",
-          "type": "choice",
-          "required": true,
-          "choices": [
-            "Submitted",
-            "Under Review",
-            "Needs Information",
-            "Rejected",
-            "Recording in Progress",
-            "Added to NXT Batch",
-            "Transfer Failed",
-            "Cancelled"
-          ],
-          "defaultValue": "Submitted"
-        },
-        {
-          "name": "ReviewerEmail",
-          "displayName": "Reviewer Email",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "ReviewComment",
-          "displayName": "Review Comment",
-          "type": "note",
-          "required": false
-        },
-        {
-          "name": "ApprovedByEmail",
-          "displayName": "Approved By Email",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "ApprovedAt",
-          "displayName": "Approved At",
-          "type": "date",
-          "required": false,
-          "dateOnly": false
-        },
-        {
-          "name": "AuditPDF",
-          "displayName": "Audit PDF",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "AuditHTML",
-          "displayName": "Audit HTML",
-          "type": "note",
-          "required": false
-        },
-        {
-          "name": "Notes",
-          "displayName": "Notes",
-          "type": "note",
-          "required": false
-        },
-        {
-          "name": "TaxReceipt",
-          "displayName": "Tax Receipt",
-          "type": "boolean",
-          "required": false,
-          "defaultValue": false
-        },
-        {
-          "name": "ReceiptAmount",
-          "displayName": "Receipt Amount",
-          "type": "currency",
-          "required": false,
-          "min": 0,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "BenefitAmount",
-          "displayName": "Benefit Amount",
-          "type": "currency",
-          "required": false,
-          "min": 0,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "NewDonor",
-          "displayName": "New Donor",
-          "type": "boolean",
-          "required": false,
-          "defaultValue": false
-        }
-      ]
-    },
-    {
-      "key": "5b7f5c2e-31da-4487-8225-62f0e625409d",
-      "name": "MCHF Fund Lines",
-      "description": "",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "Submission",
-          "displayName": "Submission",
-          "type": "lookup",
-          "required": true,
-          "lookupListId": "1f9b894b-3402-400f-afd4-1c60af881676",
-          "lookupColumn": "Title"
-        },
-        {
-          "name": "Submission_x0020_Reference",
-          "displayName": "Submission Reference",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Amount",
-          "displayName": "Amount",
-          "type": "currency",
-          "required": true,
-          "currencyCode": "CAD"
-        }
-      ]
-    },
-    {
-      "key": "808d2018-9415-4fd7-bb54-e00a6bc73297",
-      "name": "MCHF Payment Types",
-      "description": "",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "Active",
-          "displayName": "Active",
-          "type": "boolean",
-          "required": true,
-          "defaultValue": true
-        },
-        {
-          "name": "Sort_x0020_Order",
-          "displayName": "Sort Order",
-          "type": "number",
-          "required": true
-        }
-      ]
-    },
-    {
-      "key": "db323dda-98a1-43d4-9ccb-25dbf2c952b0",
-      "name": "MCHF Gift Types",
-      "description": "",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "Active",
-          "displayName": "Active",
-          "type": "boolean",
-          "required": false,
-          "defaultValue": true
-        },
-        {
-          "name": "Sort_x0020_Order",
-          "displayName": "Sort Order",
-          "type": "number",
-          "required": true
-        }
-      ]
-    },
-    {
-      "key": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
-      "name": "MCHF - Payment Log",
-      "description": "",
-      "columns": [
-        {
-          "name": "Title",
-          "displayName": "Titre",
-          "type": "text",
-          "required": true,
-          "maxLength": 255
-        },
-        {
-          "name": "ConstituentID",
-          "displayName": "Constituent ID",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "PaymentType",
-          "displayName": "Payment Type",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "GiftDate",
-          "displayName": "Gift Date",
-          "type": "date",
-          "required": true,
-          "dateOnly": true
-        },
-        {
-          "name": "GiftAmount",
-          "displayName": "Gift Amount",
-          "type": "currency",
-          "required": true,
-          "min": 0.01,
-          "currencyCode": "CAD"
-        },
-        {
-          "name": "GiftType",
-          "displayName": "Gift Type",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "AssignedSolicitor",
-          "displayName": "Assigned Solicitor",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Notes",
-          "displayName": "Notes",
-          "type": "note",
-          "required": false
-        },
-        {
-          "name": "Reference",
-          "displayName": "Reference",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "Status",
-          "displayName": "Status",
-          "type": "choice",
-          "required": true,
-          "choices": [
-            "Claimed",
-            "Unclaimed",
-            "Coded"
-          ],
-          "defaultValue": "Unclaimed"
-        },
-        {
-          "name": "ClaimedByName",
-          "displayName": "Claimed By Name",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "SubmissionReference",
-          "displayName": "Submission Reference",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "ConstituentName",
-          "displayName": "Constituent Name",
-          "type": "text",
-          "required": true
-        },
-        {
-          "name": "ConstituentSystemID",
-          "displayName": "Constituent System ID",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "ClaimedByEmail",
-          "displayName": "Claimed By Email",
-          "type": "text",
-          "required": false
-        },
-        {
-          "name": "ClaimedAt",
-          "displayName": "Claimed At",
-          "type": "date",
-          "required": false,
-          "dateOnly": false
-        }
-      ]
+        "outputs": {}
+      }
     }
   ],
-  "flows": [],
   "apps": [
     {
       "key": "b4926586-12db-4131-945a-b74ad2f7883a",
@@ -417,7 +263,7 @@
       "definition": {
         "locale": "en",
         "width": 1366,
-        "height": 768,
+        "height": 1080,
         "properties": {
           "OnStart": ""
         },
@@ -426,7 +272,7 @@
             "name": "Screen1",
             "properties": {
               "Fill": "RGBA(255, 255, 255, 1)",
-              "OnVisible": "// 1. The payment being coded, when the form is opened from the Payment Log with ?paymentId=<item ID> (#14)\nSet(varPaymentIdParam, Trim(Param(\"paymentId\")));\nSet(varPaymentRecord, If(IsBlank(varPaymentIdParam), Blank(), LookUp('MCHF - Payment Log', ID = IfError(Value(varPaymentIdParam), -1))));\nIf(!IsBlank(varPaymentIdParam) && IsBlank(varPaymentRecord),\n    Notify(\"Payment \" & varPaymentIdParam & \" is not in the Payment Log. Fill in the form by hand.\", NotificationType.Warning));\nIf(!IsBlank(varPaymentRecord.'Submission Reference'),\n    Notify(\"This payment is already coded as \" & varPaymentRecord.'Submission Reference' & \". Submitting again creates a second submission.\", NotificationType.Warning));\n\n// 2. Payment types and gift types from the #1 lists, with an empty first choice (code \"\")\nClearCollect(colPaymentTypes, {Value: \"Sélectionner un mode de paiement...\", code: \"\"});\nCollect(colPaymentTypes, ForAll(Sort(Filter('MCHF Payment Types', Active), 'Sort Order'), {Value: Title, code: Title}));\nClearCollect(colGiftTypes, {Value: \"Sélectionner un type de don...\", code: \"\"});\nCollect(colGiftTypes, ForAll(Sort(Filter('MCHF Gift Types', Active), 'Sort Order'), {Value: Title, code: Title}));\n\n// 3. Campaigns, appeals and funds from RE NXT, with an empty first choice (code \"\")\nIfError(\n    ClearCollect(colCampaigns, {Value: \"Sélectionner une campagne...\", code: \"\"});\n    Collect(colCampaigns, ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colAppeals, {Value: \"Sélectionner un appel...\", code: \"\"});\n    Collect(colAppeals, ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colFunds, {Value: \"Sélectionner un fonds...\", code: \"\"});\n    Collect(colFunds, ForAll(RENXT.ListFunds().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id})),\n    Notify(\"NXT lists are unavailable. Reopen the form to retry.\", NotificationType.Error)\n);\n\n// 4. Screen state; colFundLines holds the lines of a gift split across several funds\nSet(varDonor, {state: \"\", systemId: \"\", lookupId: \"\", name: \"\", message: \"\"});\nSet(varSolicitor, Blank());\nUpdateContext({varTried: false, varSubmissionRef: \"\", varShowSuccessPopup: false, varEditLineId: 0, varLineError: \"\"});\nClearCollect(colFundLines, {lineId: 0, fund: \"\", fundLabel: \"\", amount: 0});\nClear(colFundLines);\n\n// 5. A prefilled donor is looked up right away (same lookup as the Lookup button, #2 contract)\nIf(!IsBlank(varPaymentRecord),\n    With({typedId: Trim(varPaymentRecord.'Constituent ID')},\n        If(IsMatch(typedId, \"\\d{7}\"),\n            Set(varDonor, IfError(\n                With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                    Switch(CountRows(r),\n                        0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                        1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                        {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n                {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"}))))); \nSet(varNewIndividualUrl, \"https://example.org/new-individual\");\nSet(varNewOrganizationUrl, \"https://example.org/new-organization\")"
+              "OnVisible": "// 1. The payment being coded, when the form is opened from the Payment Log with ?paymentId=<item ID> (#14)\nSet(varPaymentIdParam, Trim(Param(\"paymentId\")));\nSet(varPaymentRecord, If(IsBlank(varPaymentIdParam), Blank(), LookUp('MCHF - Payment Log', ID = IfError(Value(varPaymentIdParam), -1))));\nIf(!IsBlank(varPaymentIdParam) && IsBlank(varPaymentRecord),\n    Notify(\"Payment \" & varPaymentIdParam & \" is not in the Payment Log. Fill in the form by hand.\", NotificationType.Warning));\nIf(!IsBlank(varPaymentRecord.'Submission Reference'),\n    Notify(\"This payment is already coded as \" & varPaymentRecord.'Submission Reference' & \". Submitting again creates a second submission.\", NotificationType.Warning));\n\n// 2. Payment types and gift types from the #1 lists, with an empty first choice (code \"\")\nClearCollect(colPaymentTypes, {Value: \"Sélectionner un mode de paiement...\", code: \"\"});\nCollect(colPaymentTypes, ForAll(Sort(Filter('MCHF Payment Types', Active), 'Sort Order'), {Value: Title, code: Title}));\nClearCollect(colGiftTypes, {Value: \"Sélectionner un type de don...\", code: \"\"});\nCollect(colGiftTypes, ForAll(Sort(Filter('MCHF Gift Types', Active), 'Sort Order'), {Value: Title, code: Title}));\n\n// 3. Campaigns, appeals and funds from RE NXT, with an empty first choice (code \"\")\nIfError(\n    ClearCollect(colCampaigns, {Value: \"Sélectionner une campagne...\", code: \"\"});\n    Collect(colCampaigns, ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colAppeals, {Value: \"Sélectionner un appel...\", code: \"\"});\n    Collect(colAppeals, ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colFunds, {Value: \"Sélectionner un fonds...\", code: \"\"});\n    Collect(colFunds, ForAll(RENXT.ListFunds().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id})),\n    Notify(\"NXT lists are unavailable. Reopen the form to retry.\", NotificationType.Error)\n);\n\n// 4. Screen state; colFundLines holds the lines of a gift split across several funds\nSet(varDonor, {state: \"\", systemId: \"\", lookupId: \"\", name: \"\", message: \"\"});\nSet(varSolicitor, Blank());\nUpdateContext({varTried: false, varSubmissionRef: \"\", varShowSuccessPopup: false, varEditLineId: 0, varLineError: \"\"});\nClearCollect(colFundLines, {lineId: 0, fund: \"\", fundLabel: \"\", amount: 0});\nClear(colFundLines);\nClearCollect(colOpenPledges, {Value: \"\", pledgeId: \"\", balance: 0});\nClear(colOpenPledges);\nClearCollect(colPledgeLines, {lineId: 0, pledgeId: \"\", pledgeLabel: \"\", constituentId: \"\", constituentName: \"\", balance: 0, amount: 0});\nClear(colPledgeLines);\nUpdateContext({\n    varPledgeEditLineId: 0,\n    varPledgeLineError: \"\",\n    varPledgeOwnerId: \"\",\n    varPledgeOwnerName: \"\"\n});\n\n// 5. A prefilled donor is looked up right away (same lookup as the Lookup button, #2 contract)\nIf(!IsBlank(varPaymentRecord),\n    With({typedId: Trim(varPaymentRecord.'Constituent ID')},\n        If(IsMatch(typedId, \"\\d{7}\"),\n            Set(varDonor, IfError(\n                With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                    Switch(CountRows(r),\n                        0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                        1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                        {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n                {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"}))))); \nSet(varNewIndividualUrl, \"https://example.org/new-individual\");\nSet(varNewOrganizationUrl, \"https://example.org/new-organization\")"
             },
             "controls": [
               {
@@ -618,7 +464,7 @@
                 "type": "Button",
                 "properties": {
                   "X": "21",
-                  "Y": "700",
+                  "Y": "If(tglPledgePayment.Value, 1024, 800)",
                   "Width": "200",
                   "Height": "40",
                   "Visible": "true",
@@ -630,7 +476,7 @@
                   "BorderThickness": "0",
                   "Size": "13",
                   "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "UpdateContext({varTried: true});\nIf(\n    ((rdoNewDonor.Selected.Value = \"Yes\") || (varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text))) &&\n    ((rdoNewDonor.Selected.Value = \"No\") || !IsBlank(Trim(txtNewDonorName.Text))) &&\n    !IsBlank(dpGiftDate.SelectedDate) &&\n    !IsBlank(ddGiftType.Selected.code) &&\n    !IsBlank(ddPaymentType.Selected.code) &&\n    !IsBlank(ddCampaign.Selected.code) &&\n    !IsBlank(ddAppeal.Selected.code) &&\n    (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&\n    (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) &&\n    (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&\n    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&\n    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = \"found\") &&\n    (!tglTaxReceipt.Value || (\n        (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtBenefitAmount.Text) >= 0 && Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text))) &&\n        (IsMatch(Trim(txtReceiptAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtReceiptAmount.Text) >= 0 && Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text))\n    )),\n    With({lines: If(tglSplitFunds.Value, colFundLines,\n            Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},\n    With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {\n            Title: \"NEW\",\n            'New Donor': (rdoNewDonor.Selected.Value = \"Yes\"),\n            'Constituent ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.lookupId),\n            'Constituent Name': If((rdoNewDonor.Selected.Value = \"Yes\"), Trim(txtNewDonorName.Text), varDonor.name),\n            'Constituent System ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.systemId),\n            'Payment Type': ddPaymentType.Selected.code,\n            'Gift Date': dpGiftDate.SelectedDate,\n            'Gift Type': ddGiftType.Selected.code,\n            'Gift Amount': Value(txtGiftAmount.Text),\n            Fees: Coalesce(Value(txtFees.Text), 0),\n            'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),\n            Campaign: ddCampaign.Selected.code,\n            Appeal: ddAppeal.Selected.code,\n            Fund: First(SortByColumns(lines, \"amount\", SortOrder.Descending)).fund,\n            Package: Trim(txtPackage.Text),\n            'Assigned Solicitor': Trim(txtSolicitor.Text),\n            Notes: txtNotes.Text,\n            'Tax Receipt': tglTaxReceipt.Value,\n            'Receipt Amount': If(tglTaxReceipt.Value, Value(txtReceiptAmount.Text), Blank()),\n            'Benefit Amount': If(tglTaxReceipt.Value && !IsBlank(Trim(txtBenefitAmount.Text)), Value(txtBenefitAmount.Text), Blank()),\n            'Payment Reference': varPaymentRecord.Reference,\n            'Processing status': {Value: \"Submitted\"}\n        })},\n        With({ref: \"SUB-\" & Text(created.ID, \"00000\")},\n            IfError(\n                created,\n                    Notify(\"The submission was not saved: \" & FirstError.Message, NotificationType.Error),\n                Patch('MCHF Submissions', created, {Title: ref}),\n                    Notify(\"Item \" & created.ID & \" was saved, but its reference could not be set: \" & FirstError.Message, NotificationType.Error),\n                ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),\n                    Notify(ref & \" was saved, but its fund lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),\n                    Notify(ref & \" was saved, but the payment could not be linked to it: \" & FirstError.Message, NotificationType.Error),\n                UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});\n                Notify(\"Soumission réussie. Référence : \" & ref, NotificationType.Success))))),\n    Notify(\"Some fields need your attention.\", NotificationType.Error)\n)"
+                  "OnSelect": "UpdateContext({varTried: true});\nIf(\n    ((rdoNewDonor.Selected.Value = \"Yes\") || (varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text))) &&\n    ((rdoNewDonor.Selected.Value = \"No\") || !IsBlank(Trim(txtNewDonorName.Text))) &&\n    !IsBlank(dpGiftDate.SelectedDate) &&\n    !IsBlank(ddGiftType.Selected.code) &&\n    !IsBlank(ddPaymentType.Selected.code) &&\n    !IsBlank(ddCampaign.Selected.code) &&\n    !IsBlank(ddAppeal.Selected.code) &&\n    (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&\n    (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) &&\n    (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&\n    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&\n    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = \"found\") &&\n    (!tglPledgePayment.Value || (ddGiftType.Selected.code = \"Pledge Payment\" && CountRows(colPledgeLines) > 0 && Abs(Sum(colPledgeLines, amount) - IfError(Value(txtGiftAmount.Text), 0)) < 0.005)) &&\n    (!tglTaxReceipt.Value || (\n        (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtBenefitAmount.Text) >= 0 && Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text))) &&\n        (IsMatch(Trim(txtReceiptAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtReceiptAmount.Text) >= 0 && Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text))\n    )),\n    With({lines: If(tglSplitFunds.Value, colFundLines,\n            Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},\n    With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {\n            Title: \"NEW\",\n            'New Donor': (rdoNewDonor.Selected.Value = \"Yes\"),\n            'Constituent ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.lookupId),\n            'Constituent Name': If((rdoNewDonor.Selected.Value = \"Yes\"), Trim(txtNewDonorName.Text), varDonor.name),\n            'Constituent System ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.systemId),\n            'Payment Type': ddPaymentType.Selected.code,\n            'Gift Date': dpGiftDate.SelectedDate,\n            'Gift Type': ddGiftType.Selected.code,\n            'Pledge Payment': tglPledgePayment.Value,\n            'Gift Amount': Value(txtGiftAmount.Text),\n            Fees: Coalesce(Value(txtFees.Text), 0),\n            'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),\n            Campaign: ddCampaign.Selected.code,\n            Appeal: ddAppeal.Selected.code,\n            Fund: First(SortByColumns(lines, \"amount\", SortOrder.Descending)).fund,\n            Package: Trim(txtPackage.Text),\n            'Assigned Solicitor': Trim(txtSolicitor.Text),\n            Notes: txtNotes.Text,\n            'Tax Receipt': tglTaxReceipt.Value,\n            'Receipt Amount': If(tglTaxReceipt.Value, Value(txtReceiptAmount.Text), Blank()),\n            'Benefit Amount': If(tglTaxReceipt.Value && !IsBlank(Trim(txtBenefitAmount.Text)), Value(txtBenefitAmount.Text), Blank()),\n            'Payment Reference': varPaymentRecord.Reference,\n            'Processing status': {Value: \"Submitted\"}\n        })},\n        With({ref: \"SUB-\" & Text(created.ID, \"00000\")},\n            IfError(\n                created,\n                    Notify(\"The submission was not saved: \" & FirstError.Message, NotificationType.Error),\n                Patch('MCHF Submissions', created, {Title: ref}),\n                    Notify(\"Item \" & created.ID & \" was saved, but its reference could not be set: \" & FirstError.Message, NotificationType.Error),\n                ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),\n                    Notify(ref & \" was saved, but its fund lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(\n                    tglPledgePayment.Value,\n                    ForAll(\n                        colPledgeLines As pledgeLine,\n                        Patch(\n                            'MCHF - Pledge Payments',\n                            Defaults('MCHF - Pledge Payments'),\n                            {\n                                Title: pledgeLine.pledgeId,\n                                'Pledge ID': pledgeLine.pledgeId,\n                                'Pledge Constituent ID': pledgeLine.constituentId,\n                                'Pledge Constituent Name': pledgeLine.constituentName,\n                                'Pledge Balance': pledgeLine.balance,\n                                Amount: pledgeLine.amount,\n                                Submission: {Id: created.ID, Value: ref},\n                                'Submission Reference': ref\n                            }\n                        )\n                    )\n                ),\n                    Notify(ref & \" was saved, but its pledge lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),\n                    Notify(ref & \" was saved, but the payment could not be linked to it: \" & FirstError.Message, NotificationType.Error),\n                UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});\n                Notify(\"Soumission réussie. Référence : \" & ref, NotificationType.Success))))),\n    Notify(\"Some fields need your attention.\", NotificationType.Error)\n)"
                 },
                 "children": []
               },
@@ -1902,6 +1748,379 @@
                 "children": []
               },
               {
+                "name": "tglPledgePayment",
+                "type": "Toggle",
+                "properties": {
+                  "X": "20",
+                  "Y": "752",
+                  "Width": "100",
+                  "Height": "32",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "false",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "OnChange": "If(\r\n    !Self.Value,\r\n    Clear(colOpenPledges);\r\n    Clear(colPledgeLines);\r\n    UpdateContext({\r\n        varPledgeEditLineId: 0,\r\n        varPledgeLineError: \"\",\r\n        varPledgeOwnerId: \"\",\r\n        varPledgeOwnerName: \"\"\r\n    });\r\n    Reset(txtPledgeConstituent);\r\n    Reset(ddPledge);\r\n    Reset(txtPledgeAmount)\r\n)\r\n"
+                },
+                "children": []
+              },
+              {
+                "name": "lblPledgePayment",
+                "type": "Label",
+                "properties": {
+                  "X": "130",
+                  "Y": "748",
+                  "Width": "295",
+                  "Height": "40",
+                  "Visible": "true",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Is this a pledge payment?\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtPledgeAmount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "950",
+                  "Y": "826",
+                  "Width": "150",
+                  "Height": "40",
+                  "Visible": "tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "If(varPledgeEditLineId = 0, \"\", Text(LookUp(colPledgeLines, lineId = varPledgeEditLineId).amount, \"0.00\"))",
+                  "HintText": "\"0.00\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblPledgeConstituent",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "805",
+                  "Width": "180",
+                  "Height": "21",
+                  "Visible": "tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Constituent ID\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtPledgeConstituent",
+                "type": "TextInput",
+                "properties": {
+                  "X": "20",
+                  "Y": "826",
+                  "Width": "180",
+                  "Height": "40",
+                  "Visible": "tglPledgePayment.Value",
+                  "DisplayMode": "If(varPledgeEditLineId = 0, DisplayMode.Edit, DisplayMode.Disabled)",
+                  "Default": "Coalesce(varDonor.lookupId, \"\")",
+                  "HintText": "\"7-digit Constituent ID\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13",
+                  "OnChange": "Clear(colOpenPledges);\r\nReset(ddPledge);\r\nUpdateContext({varPledgeOwnerId: \"\", varPledgeOwnerName: \"\", varPledgeLineError: \"\"})\r\n"
+                },
+                "children": []
+              },
+              {
+                "name": "btnFindPledges",
+                "type": "Button",
+                "properties": {
+                  "X": "214",
+                  "Y": "826",
+                  "Width": "170",
+                  "Height": "40",
+                  "Visible": "tglPledgePayment.Value",
+                  "DisplayMode": "If(varPledgeEditLineId = 0, DisplayMode.Edit, DisplayMode.Disabled)",
+                  "Text": "\"Find open pledges\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "Clear(colOpenPledges); Reset(ddPledge); UpdateContext({varPledgeOwnerId: \"\", varPledgeOwnerName: \"\", varPledgeLineError: \"\"});  With(     {typedId: Trim(txtPledgeConstituent.Text)},     If(         !IsMatch(typedId, \"\\d{7}\"),         UpdateContext({varPledgeLineError: \"Enter the 7-digit Constituent ID.\"}),         IfError(             With(                 {                     matches: Filter(                         RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value,                         lookup_id = typedId                     )                 },                 Switch(                     CountRows(matches),                     0, UpdateContext({                         varPledgeLineError: \"No donor with this Constituent ID. Check the number.\"                     }),                     1,                     With(                         {owner: First(matches)},                         With(                             {                                 openPledges: Filter(                                     RENXT.ListGifts({                                         constituent_id: Text(owner.id),                                         gift_type: \"Pledge\"                                     }).value,                                     balance.value > 0                                 )                             },                             If(                                 IsEmpty(openPledges),                                 UpdateContext({                                     varPledgeLineError: \"No open pledge for this constituent.\"                                 }),                                 UpdateContext({                                     varPledgeOwnerId: owner.lookup_id,                                     varPledgeOwnerName: owner.name                                 });                                 ClearCollect(                                     colOpenPledges,                                     {Value: \"Choose an open pledge\", pledgeId: \"\", balance: 0}                                 );                                 ForAll(\n                                    openPledges As pledge,\n                                    Collect(\n                                        colOpenPledges,\n                                        {\n                                            Value: \"#\" & Text(pledge.id) & \" · \" & Left(Text(pledge.date), 10) &\n                                                \" · \" & Text(pledge.amount.value, \"0.00\") &\n                                                \" $ · balance \" & Text(pledge.balance.value, \"0.00\") & \" $\",\n                                            pledgeId: Text(pledge.id),\n                                            balance: pledge.balance.value\n                                        }\n                                    );\n                                    true\n                                );                                 Reset(ddPledge)                             )                         )                     ),                     UpdateContext({                         varPledgeLineError: \"Several donors match. Contact Gift Processing.\"                     })                 )             ),             UpdateContext({                 varPledgeLineError: \"Donor or pledge lookup unavailable. Try again in a moment.\"             })         )     ) )"
+                },
+                "children": []
+              },
+              {
+                "name": "lblPledge",
+                "type": "Label",
+                "properties": {
+                  "X": "402",
+                  "Y": "805",
+                  "Width": "530",
+                  "Height": "21",
+                  "Visible": "tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Open pledge\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "ddPledge",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "402",
+                  "Y": "826",
+                  "Width": "530",
+                  "Height": "40",
+                  "Visible": "tglPledgePayment.Value",
+                  "DisplayMode": "If(varPledgeEditLineId = 0, DisplayMode.Edit, DisplayMode.Disabled)",
+                  "Items": "colOpenPledges",
+                  "Default": "\"Choose an open pledge\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblPledgeAmount",
+                "type": "Label",
+                "properties": {
+                  "X": "950",
+                  "Y": "805",
+                  "Width": "150",
+                  "Height": "21",
+                  "Visible": "tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Amount paid ($)\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "btnAddPledgeLine",
+                "type": "Button",
+                "properties": {
+                  "X": "1118",
+                  "Y": "826",
+                  "Width": "200",
+                  "Height": "40",
+                  "Visible": "tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(varPledgeEditLineId = 0, \"Add pledge\", \"Update pledge\")",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With(     {         enteredAmount: Trim(txtPledgeAmount.Text),         paid: IfError(Value(Trim(txtPledgeAmount.Text)), 0),         existingLine: LookUp(colPledgeLines, lineId = varPledgeEditLineId)     },     With(         {             pledgeId: If(varPledgeEditLineId = 0, ddPledge.Selected.pledgeId, existingLine.pledgeId),             pledgeBalance: If(varPledgeEditLineId = 0, ddPledge.Selected.balance, existingLine.balance)         },         If(             IsBlank(pledgeId) ||                 (varPledgeEditLineId = 0 && varPledgeOwnerId <> Trim(txtPledgeConstituent.Text)),             UpdateContext({varPledgeLineError: \"Choose an open pledge.\"}),              !IsMatch(enteredAmount, \"^\\d+(\\.\\d{1,2})?$\") || paid <= 0,             UpdateContext({                 varPledgeLineError: \"Enter the amount paid on this pledge, for example 100.00.\"             }),              paid > pledgeBalance,             UpdateContext({                 varPledgeLineError: \"The amount is above this pledge's balance (\" &                     Text(pledgeBalance, \"0.00\") & \" $).\"             }),              varPledgeEditLineId = 0 &&                 !IsBlank(LookUp(colPledgeLines As line, line.pledgeId = ddPledge.Selected.pledgeId)),             UpdateContext({                 varPledgeLineError: \"This pledge is already in the list: edit its line.\"             }),              If(                 varPledgeEditLineId = 0,                 Collect(                     colPledgeLines,                     {                         lineId: Coalesce(Max(colPledgeLines, lineId), 0) + 1,                         pledgeId: pledgeId,                         pledgeLabel: ddPledge.Selected.Value,                         constituentId: varPledgeOwnerId,                         constituentName: varPledgeOwnerName,                         balance: pledgeBalance,                         amount: paid                     }                 ),                 Patch(colPledgeLines, existingLine, {amount: paid})             );             UpdateContext({varPledgeEditLineId: 0, varPledgeLineError: \"\"});             Reset(ddPledge);             Reset(txtPledgeAmount)         )     ) )"
+                },
+                "children": []
+              },
+              {
+                "name": "galPledgeLines",
+                "type": "Gallery",
+                "properties": {
+                  "X": "20",
+                  "Y": "902",
+                  "Width": "1298",
+                  "Height": "112",
+                  "Visible": "tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "colPledgeLines",
+                  "TemplateSize": "42",
+                  "TemplateFill": "RGBA(0, 0, 0, 0)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1"
+                },
+                "children": [
+                  {
+                    "name": "lblPledgeLineDetails",
+                    "type": "Label",
+                    "properties": {
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "11",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle",
+                      "X": "8",
+                      "Y": "6",
+                      "Width": "950",
+                      "Height": "30",
+                      "Visible": "true",
+                      "Text": "ThisItem.pledgeLabel"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblPledgeLineAmount",
+                    "type": "Label",
+                    "properties": {
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "11",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Right",
+                      "VerticalAlign": "VerticalAlign.Middle",
+                      "X": "966",
+                      "Y": "6",
+                      "Width": "170",
+                      "Height": "30",
+                      "Visible": "true",
+                      "Text": "Text(ThisItem.amount, \"$#,##0.00\")"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "icoEditPledgeLine",
+                    "type": "Icon",
+                    "properties": {
+                      "X": "1160",
+                      "Y": "7",
+                      "Width": "28",
+                      "Height": "28",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Icon": "Icon.Edit",
+                      "Color": "RGBA(15, 108, 101, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "OnSelect": "UpdateContext({varPledgeEditLineId: ThisItem.lineId, varPledgeLineError: \"\"}); Reset(txtPledgeAmount)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "icoDeletePledgeLine",
+                    "type": "Icon",
+                    "properties": {
+                      "X": "1200",
+                      "Y": "7",
+                      "Width": "28",
+                      "Height": "28",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Icon": "Icon.Trash",
+                      "Color": "RGBA(196, 43, 28, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "OnSelect": "If(     varPledgeEditLineId = ThisItem.lineId,     UpdateContext({varPledgeEditLineId: 0});     Reset(txtPledgeAmount) ); Remove(colPledgeLines, ThisItem); UpdateContext({varPledgeLineError: \"\"})"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "name": "lblPledgeLineError",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "870",
+                  "Width": "1000",
+                  "Height": "26",
+                  "Visible": "tglPledgePayment.Value && !IsBlank(varPledgeLineError)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "varPledgeLineError",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrPledgeGiftType",
+                "type": "Label",
+                "properties": {
+                  "X": "20",
+                  "Y": "785",
+                  "Width": "720",
+                  "Height": "20",
+                  "Visible": "tglPledgePayment.Value && ddGiftType.Selected.code <> \"Pledge Payment\"",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"A pledge payment needs the gift type Pledge Payment.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrPledgeTotal",
+                "type": "Label",
+                "properties": {
+                  "X": "235",
+                  "Y": "1024",
+                  "Width": "900",
+                  "Height": "40",
+                  "Visible": "varTried && tglPledgePayment.Value && ddGiftType.Selected.code = \"Pledge Payment\" && !(CountRows(colPledgeLines) > 0 && Abs(Sum(colPledgeLines, amount) - IfError(Value(txtGiftAmount.Text), 0)) < 0.005)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"The pledge lines must total the gift amount.\"",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
                 "name": "rectOverlay",
                 "type": "Rectangle",
                 "properties": {
@@ -1972,7 +2191,7 @@
                   "BorderThickness": "0",
                   "Size": "13",
                   "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(rdoNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount);\nReset(tglTaxReceipt); Reset(txtBenefitAmount); Reset(txtReceiptAmount)"
+                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(rdoNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount);\nReset(tglTaxReceipt); Reset(txtBenefitAmount); Reset(txtReceiptAmount);\nClear(colPledgeLines);\nClear(colOpenPledges);\nUpdateContext({\n    varPledgeEditLineId: 0,\n    varPledgeLineError: \"\",\n    varPledgeOwnerId: \"\",\n    varPledgeOwnerName: \"\"\n});\nReset(tglPledgePayment);\nReset(txtPledgeConstituent);\nReset(ddPledge);\nReset(txtPledgeAmount)"
                 },
                 "children": []
               },
@@ -2275,6 +2494,240 @@
           },
           {
             "kind": "list",
+            "name": "MCHF - Payment Log",
+            "id": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentID",
+                "displayName": "Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PaymentType",
+                "displayName": "Payment Type",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftDate",
+                "displayName": "Gift Date",
+                "type": "date",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftAmount",
+                "displayName": "Gift Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "GiftType",
+                "displayName": "Gift Type",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "AssignedSolicitor",
+                "displayName": "Assigned Solicitor",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Notes",
+                "displayName": "Notes",
+                "type": "note",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Reference",
+                "displayName": "Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Status",
+                "displayName": "Status",
+                "type": "choice",
+                "multiple": false,
+                "required": true,
+                "choices": [
+                  "Claimed",
+                  "Unclaimed",
+                  "Coded"
+                ],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedByName",
+                "displayName": "Claimed By Name",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "SubmissionReference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentName",
+                "displayName": "Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ConstituentSystemID",
+                "displayName": "Constituent System ID",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedByEmail",
+                "displayName": "Claimed By Email",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "ClaimedAt",
+                "displayName": "Claimed At",
+                "type": "datetime",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF - Pledge Payments",
+            "id": "ef1bc67f-c7e3-42a3-9bff-c4f5f7de177a",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PledgeID",
+                "displayName": "Pledge ID",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PledgeConstituentID",
+                "displayName": "Pledge Constituent ID",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PledgeConstituentName",
+                "displayName": "Pledge Constituent Name",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "PledgeBalance",
+                "displayName": "Pledge Balance",
+                "type": "currency",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Amount",
+                "displayName": "Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Submission_x0020_Reference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Submission",
+                "displayName": "Submission",
+                "type": "lookup",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": "1f9b894b-3402-400f-afd4-1c60af881676"
+              }
+            ]
+          },
+          {
+            "kind": "list",
             "name": "MCHF Submissions",
             "id": "1f9b894b-3402-400f-afd4-1c60af881676",
             "columns": [
@@ -2538,157 +2991,47 @@
                 "required": false,
                 "choices": [],
                 "lookupListId": null
-              }
-            ]
-          },
-          {
-            "kind": "list",
-            "name": "MCHF - Payment Log",
-            "id": "4ddca1f8-a802-410e-a4dd-13eac32e6c35",
-            "columns": [
+              },
               {
-                "name": "Title",
-                "displayName": "Titre",
-                "type": "text",
+                "name": "SoftCredit",
+                "displayName": "Soft Credit",
+                "type": "boolean",
                 "multiple": false,
-                "required": true,
+                "required": false,
                 "choices": [],
                 "lookupListId": null
               },
               {
-                "name": "ConstituentID",
-                "displayName": "Constituent ID",
-                "type": "text",
+                "name": "PledgePayment",
+                "displayName": "Pledge Payment",
+                "type": "boolean",
                 "multiple": false,
-                "required": true,
+                "required": false,
                 "choices": [],
                 "lookupListId": null
               },
               {
-                "name": "PaymentType",
-                "displayName": "Payment Type",
-                "type": "text",
+                "name": "InstallmentCount",
+                "displayName": "Installment Count",
+                "type": "number",
                 "multiple": false,
-                "required": true,
+                "required": false,
                 "choices": [],
                 "lookupListId": null
               },
               {
-                "name": "GiftDate",
-                "displayName": "Gift Date",
+                "name": "InstallmentFrequency",
+                "displayName": "Installment Frequency",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "FirstInstallmentDate",
+                "displayName": "First Installment Date",
                 "type": "date",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "GiftAmount",
-                "displayName": "Gift Amount",
-                "type": "currency",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "GiftType",
-                "displayName": "Gift Type",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "AssignedSolicitor",
-                "displayName": "Assigned Solicitor",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Notes",
-                "displayName": "Notes",
-                "type": "note",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Reference",
-                "displayName": "Reference",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "Status",
-                "displayName": "Status",
-                "type": "choice",
-                "multiple": false,
-                "required": true,
-                "choices": [
-                  "Claimed",
-                  "Unclaimed",
-                  "Coded"
-                ],
-                "lookupListId": null
-              },
-              {
-                "name": "ClaimedByName",
-                "displayName": "Claimed By Name",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "SubmissionReference",
-                "displayName": "Submission Reference",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "ConstituentName",
-                "displayName": "Constituent Name",
-                "type": "text",
-                "multiple": false,
-                "required": true,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "ConstituentSystemID",
-                "displayName": "Constituent System ID",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "ClaimedByEmail",
-                "displayName": "Claimed By Email",
-                "type": "text",
-                "multiple": false,
-                "required": false,
-                "choices": [],
-                "lookupListId": null
-              },
-              {
-                "name": "ClaimedAt",
-                "displayName": "Claimed At",
-                "type": "datetime",
                 "multiple": false,
                 "required": false,
                 "choices": [],
