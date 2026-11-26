@@ -1,7 +1,7 @@
 # Review App, Approval Flow and Simulated Transfer
 
-Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27), [#28](https://github.com/hack4impact/mchf-project/issues/28), [#34](https://github.com/hack4impact/mchf-project/issues/34), [#51](https://github.com/hack4impact/mchf-project/issues/51)
-Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`, `feature/28-review-correct`, `feature/34-audit-pdf-sprint3-fields`, `feature/51-review-history`
+Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27), [#28](https://github.com/hack4impact/mchf-project/issues/28), [#34](https://github.com/hack4impact/mchf-project/issues/34), [#51](https://github.com/hack4impact/mchf-project/issues/51), [#52](https://github.com/hack4impact/mchf-project/issues/52)
+Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`, `feature/28-review-correct`, `feature/34-audit-pdf-sprint3-fields`, `feature/51-review-history`, `feature/52-review-roles`
 Environment: Équipe
 
 Gift Processing reviews a submission in the app **MCHF - Review**: claim,
@@ -30,6 +30,7 @@ or the Foundation's permissions.
 | `'MCHF - Payment Log'` | The linked payment. Its `PAY-…` reference is in the column `Reference`, not `Title` |
 | `'MCHF-ApproveGift'` | The approval flow, called with `.Run` |
 | `'MCHF Payment Types'` | Choices of the Correct mode (#28) |
+| `'MCHF - Roles'` | Gift Processing membership for the review app (#52) |
 | `RENXT` | Campaigns, appeals and the donor lookup of the Correct mode (#28) |
 
 The app uses display names. The flow uses internal names
@@ -180,7 +181,7 @@ the real Power Apps yet: rebuild it from this section.
 | Control | Settings |
 |---|---|
 | Screen `scrReview` | |
-| Gallery `galSubs` | X 40, Y 40, Width 560, Height 690. Items `Sort('MCHF Submissions', ID, SortOrder.Descending)`. OnSelect `Set(varSel, galSubs.Selected); Set(varEditing, false)` (choosing another submission closes the Correct mode, #28) |
+| Gallery `galSubs` | X 40, Y 40, Width 560, Height 690. Items formula in Gift Processing access (#52) below. OnSelect `Set(varSel, galSubs.Selected); Set(varEditing, false)` (choosing another submission closes the Correct mode, #28) |
 | Label `Title1` (in galSubs) | Text `ThisItem.Title` |
 | Label `Subtitle1` (in galSubs) | Text `ThisItem.'Constituent Name' & " · " & Text(ThisItem.'Gift Amount') & " $ · " & ThisItem.'Processing status'.Value` |
 | Label `lblDetail` | X 640, Y 40, Width 680, Height 270, VerticalAlign `VerticalAlign.Top`. Text below |
@@ -219,8 +220,8 @@ If(IsBlank(varSel), "Select a submission.",
 
 ### Buttons
 
-Each button is visible only in its From statuses (`review-audit.md`,
-section 4). Each one reads the submission again just before writing
+The table shows the status conditions (`review-audit.md`, section 4).
+Apply the role check in Gift Processing access (#52) to the review buttons. Each one reads the submission again just before writing
 (`Refresh`, then `LookUp`), refuses if the status changed in the meantime,
 then writes one history row, updates the submission, and shows a
 notification (#27, Sprint 3 guide section 7).
@@ -582,6 +583,76 @@ Place `btnOpenPdf` beside the history heading. Use the selected submission's sav
 | Visible | `!IsBlank(LookUp('MCHF Submissions', ID = varSel.ID).'Audit PDF')` |
 | OnSelect | `Launch(LookUp('MCHF Submissions', ID = varSel.ID).'Audit PDF')` |
 
+### Gift Processing access (#52)
+
+Create the list `MCHF - Roles` and add it to the app through Données. Use
+the built-in `Titre` column (`Title` in Power Fx) for the Établi email.
+Add `Role` as a single line of text. Enter one row per reviewer with
+`Gift Processing` in `Role`. Email matching is case-insensitive.
+
+Prepend this to `scrReview.OnVisible` and keep the existing payment type,
+campaign and appeal loading:
+
+```powerfx
+Refresh('MCHF - Roles');
+Set(
+    varIsGP,
+    !IsBlank(
+        LookUp(
+            'MCHF - Roles',
+            Lower(Title) = Lower(User().Email) && Role = "Gift Processing"
+        )
+    )
+);
+If(
+    !varIsGP && !IsBlank(varSel.ID) && varSel.Author.Email <> User().Email,
+    Set(varSel, LookUp('MCHF Submissions', false))
+);
+```
+
+Set `galSubs.Items` so Gift Processing sees all submissions and other
+users see only submissions they created:
+
+```powerfx
+If(
+    varIsGP,
+    Sort('MCHF Submissions', ID, SortOrder.Descending),
+    Sort(
+        Filter('MCHF Submissions', Author.Email = User().Email),
+        ID,
+        SortOrder.Descending
+    )
+)
+```
+
+Put parentheses around the existing `Visible` formula and append
+`&& varIsGP` for `btnClaim`, `btnReturn`, `btnReject`, `btnApprove`,
+`btnCancel`, `btnCorrect`, `btnSaveCorrection`, `btnInNxt` and
+`btnRecordAgain`. In each button's `OnSelect`, replace the comment below
+with that button's existing formula:
+
+```powerfx
+Refresh('MCHF - Roles');
+If(
+    IsBlank(
+        LookUp(
+            'MCHF - Roles',
+            Lower(Title) = Lower(User().Email) && Role = "Gift Processing"
+        )
+    ),
+    Set(varIsGP, false);
+    Set(varEditing, false);
+    Set(varSel, LookUp('MCHF Submissions', false));
+    Notify("Only Gift Processing can do this.", NotificationType.Error),
+    /* Existing button formula */
+)
+```
+
+The empty lookup clears the selection while preserving the submission
+record type. If the role was removed while the app was open, the action
+shows the refusal before any submission or history write or flow call.
+The fundraiser screen `scrReturned` already filters on `Author.Email`.
+
 ### Fundraiser screen: scrReturned (T5)
 
 The fundraiser sees their own submissions in Needs Information, reads the
@@ -713,7 +784,7 @@ fund line of $100 with the same Submission Reference.
 - Resubmit can change only the amount, the campaign and the appeal. Its
   history comment lists the three fields even when one didn't change.
 - The fundraiser screen shows the submissions created by the person using
-  the app (`Author`). Security by role comes in Sprint 4.
+  the app (`Author`).
 - An app keeps the columns of a list as they were when the list was added.
   After `Constituent ID` became optional (#8), `MCHF Submissions` had to be
   removed and added again in Données, otherwise a submission without
@@ -729,8 +800,6 @@ fund line of $100 with the same Submission Reference.
 - Once, after Approve, the lab showed "La session de l'application est
   fermée (service Power Fx injoignable ?)". The flow still finished. To
   report to Jérémie.
-- Security by role (who is Gift Processing) is not handled. Planned for
-  Sprint 4.
 - #28: after `MCHF Submissions` was added again for the columns of #21, the
   list knew `'New Donor'` but `varSel.'New Donor'` stayed "isn't recognized":
   the editor keeps the old type of a variable. The new code reads the
@@ -762,6 +831,7 @@ fund line of $100 with the same Submission Reference.
 - #28: `lab/solutions/mchf-review-correct.solution.json` (the app, the flow
   and the lists it uses). The flow did not change.
 - #51: `lab/solutions/mchf-review-history.solution.json` (the review app).
+- #52: `lab/solutions/mchf-review-roles.solution.json` (the review app and roles list).
 
 ## Remaining work
 
