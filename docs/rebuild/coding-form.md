@@ -1,15 +1,15 @@
 # Coding Form: Simple Gift
 
-Related issues: [#8](https://github.com/hack4impact/mchf-project/issues/8) (with follow-ups from PR #38), [#22](https://github.com/hack4impact/mchf-project/issues/22) (Package, Assigned Solicitor and Notes), [#23](https://github.com/hack4impact/mchf-project/issues/23) (Tax receipt section and receipt amount), [#25](https://github.com/hack4impact/mchf-project/issues/25) (New donor question), [#26](https://github.com/hack4impact/mchf-project/issues/26) (Same-donor check)
+Related issues: [#8](https://github.com/hack4impact/mchf-project/issues/8) (with follow-ups from PR #38), [#22](https://github.com/hack4impact/mchf-project/issues/22) (Package, Assigned Solicitor and Notes), [#23](https://github.com/hack4impact/mchf-project/issues/23) (Tax receipt section and receipt amount), [#25](https://github.com/hack4impact/mchf-project/issues/25) (New donor question), [#26](https://github.com/hack4impact/mchf-project/issues/26) (Same-donor check), [#53](https://github.com/hack4impact/mchf-project/issues/53) (Pledge payment)
 App: **MCHF - Coding Form** (Équipe)
-Lab export: `lab/solutions/mchf-coding-form.solution.json` (the app and the five lists it uses, no items)
+Lab export: `lab/solutions/mchf-coding-form.solution.json` (the app and manual test flow, with no list items)
 
 A fundraiser enters one simple gift: the donor (or a new donor), the gift, its
 coding (campaign, appeal, one fund or a split across several funds, optional package,
 assigned solicitor and notes), and whether a tax receipt should be issued (with
 optional benefit amount and calculated/editable receipt amount). The form saves it as
 a submission with the status `Submitted`, gives it a reference `SUB-00001`, writes
-its fund lines, and links it to the payment it codes when opened from the Payment Log or when the fundraiser claims a payment in the form.
+its fund lines, and links it to the payment it codes when opened from the Payment Log or when the fundraiser claims a payment in the form. For a pledge payment, it also writes one linked line per pledge paid.
 
 Lab only. Saving uses `Patch` on lab lists; the real Power Apps and SharePoint
 version is rebuilt and tested in Sprint 4 (see section 7).
@@ -28,7 +28,8 @@ which one (section 4, `btnSubmit.OnSelect`):
 | 1 | `MCHF Submissions` | New item, `Title` = `"NEW"`, every field below, `Processing status` = `Submitted` |
 | 2 | `MCHF Submissions` | Same item, `Title` = `"SUB-" & Text(ID, "00000")` (data dictionary, #1) |
 | 3 | `MCHF Fund Lines` | One line per fund: `Title` = fund code, `Submission` = lookup to the new item, `Submission Reference` = its SUB number, `Amount`. Without a split: one line, the chosen fund, the whole gift amount |
-| 4 | `MCHF - Payment Log` | When a payment was loaded through `paymentId` or claimed in the same-donor panel: `Submission Reference` = the SUB number |
+| 4 | `MCHF - Pledge Payments` | On Yes: one line per pledge with its ID, owner, balance, payment amount, and submission lookup and reference. |
+| 5 | `MCHF - Payment Log` | When a payment was loaded through `paymentId` or claimed in the same-donor panel: `Submission Reference` = the SUB number |
 
 Then a popup shows the SUB number.
 
@@ -53,11 +54,12 @@ Then a popup shows the SUB number.
 | `TaxReceipt` | Boolean (`tglTaxReceipt.Value`): `true` if a tax receipt is to be issued, `false` otherwise |
 | `BenefitAmount` | Benefit amount (`Value(txtBenefitAmount.Text)`) when `TaxReceipt` is `true` and the input is non-empty; `Blank()` otherwise |
 | `ReceiptAmount` | Receipt amount (`Value(txtReceiptAmount.Text)`), defaulting to `Gift Amount - Benefit Amount` and editable when `TaxReceipt` is `true`; `Blank()` when `false` |
+| `Pledge Payment` | Boolean from `tglPledgePayment.Value`, default No |
 | `Payment Reference` | The payment's `Reference` (e.g. `PAY-00012`), when there is one |
 
 ## 2. Screen
 
-`Screen1`, tablet 1366 × 768. Most labels are in French. The new-donor question and controls are in English; the donor and
+`Screen1`, tablet 1366 × 1080. Most labels are in French. The new-donor question and controls are in English; the donor and
 solicitor lookup messages are the English ones of the #2 and #22 contracts.
 
 - **Left column:** `txtConstituentId` + `btnSearchDonor` ("Lookup"); under them one
@@ -68,7 +70,7 @@ solicitor lookup messages are the English ones of the #2 and #22 contracts.
   toggle `tglTaxReceipt` + `lblTaxReceiptQuestion` ("Reçu fiscal à émettre ?"),
   `lblBenefitAmount` + `txtBenefitAmount` ("Avantage ($)") and `lblReceiptAmount` +
   `txtReceiptAmount` ("Montant du reçu ($)") (visible only when
-  `tglTaxReceipt.Value` is `true`), `lblErrTaxReceipt`; `btnSubmit`.
+  `tglTaxReceipt.Value` is `true`), `lblErrTaxReceipt`.
 - **Middle column:** `dpGiftDate`, `ddGiftType`, `ddPaymentType`, `ddCampaign`,
   `ddAppeal`, `ddFund` (hidden when the gift is split), and `txtPackage`
   ("Package (facultatif)").
@@ -79,6 +81,7 @@ solicitor lookup messages are the English ones of the #2 and #22 contracts.
   ("Ajouter la ligne" / "Mettre à jour la ligne"), `btnCancelLine`, the gallery
   `galFundLines` (fund, amount, edit and delete icons), `lblFundTotal` and
   `lblErrFundLines`; at the bottom, `txtNotes` ("Notes (facultatif)", multiline).
+- **Below the main columns:** the pledge payment toggle and conditional line editor (#53, section 4). Submit sits below that section.
 - **Under every required field:** a red label `lblErr…`, visible only after a
   Submit attempt (`varTried`) while that field is invalid.
 - **Success popup:** `rectOverlay`, `rectModalCard`, `lblSuccessTitle`,
@@ -405,6 +408,262 @@ If(
 )
 ```
 
+### Pledge payment (#53)
+
+Add `MCHF - Pledge Payments` as an app data source. Re-add `MCHF Submissions`
+in Données if Studio still uses a schema without the `Pledge Payment`
+Yes/No column. The pledge payment list’s `Submission` column is a lookup
+to `MCHF Submissions`.
+
+Place the toggle below the existing Yes/No sections. The pledge group is
+visible when `tglPledgePayment.Value` is true. Put Submit below the group
+when it is open.
+
+| Control | Settings |
+|---|---|
+| `tglPledgePayment` / `lblPledgePayment` | Default `false`. Label: Is this a pledge payment? |
+| `txtPledgeConstituent` | Default `Coalesce(varDonor.lookupId, "")`. Accepts a different seven-digit constituent ID for a third-party pledge. |
+| `btnFindPledges` | Find open pledges. Uses a separate constituent lookup and leaves the gift's donor unchanged. |
+| `ddPledge` | Items `colOpenPledges`. Default `"Choose an open pledge"`. Its `Value` field displays the pledge ID, date, original amount and remaining balance. |
+| `txtPledgeAmount` | Amount paid on the pledge. In Edit mode it defaults to the amount on the selected line. |
+| `btnAddPledgeLine` | Add pledge / Update pledge, depending on `varPledgeEditLineId`. |
+| `galPledgeLines` | Items `colPledgeLines`. Show `ThisItem.pledgeLabel` and `Text(ThisItem.amount, "$#,##0.00")`, with edit and delete icons. |
+
+While editing an amount, set the constituent input, lookup button and
+dropdown to `DisplayMode.Disabled` using
+`If(varPledgeEditLineId = 0, DisplayMode.Edit, DisplayMode.Disabled)`.
+To change the pledge on a line, delete the line and add the replacement.
+
+Initialize the pledge collections and state in `Screen1.OnVisible`
+immediately after `Clear(colFundLines);`:
+
+```powerfx
+ClearCollect(colOpenPledges, {Value: "", pledgeId: "", balance: 0});
+Clear(colOpenPledges);
+ClearCollect(colPledgeLines, {lineId: 0, pledgeId: "", pledgeLabel: "", constituentId: "", constituentName: "", balance: 0, amount: 0});
+Clear(colPledgeLines);
+UpdateContext({
+    varPledgeEditLineId: 0,
+    varPledgeLineError: "",
+    varPledgeOwnerId: "",
+    varPledgeOwnerName: ""
+});
+```
+
+`txtPledgeConstituent.OnChange`
+
+```powerfx
+Clear(colOpenPledges);
+Reset(ddPledge);
+UpdateContext({varPledgeOwnerId: "", varPledgeOwnerName: "", varPledgeLineError: ""})
+```
+
+`tglPledgePayment.OnChange`
+
+```powerfx
+If(
+    !Self.Value,
+    Clear(colOpenPledges);
+    Clear(colPledgeLines);
+    UpdateContext({
+        varPledgeEditLineId: 0,
+        varPledgeLineError: "",
+        varPledgeOwnerId: "",
+        varPledgeOwnerName: ""
+    });
+    Reset(txtPledgeConstituent);
+    Reset(ddPledge);
+    Reset(txtPledgeAmount)
+)
+```
+
+`btnFindPledges.OnSelect`
+
+```powerfx
+Clear(colOpenPledges); Reset(ddPledge); UpdateContext({varPledgeOwnerId: "", varPledgeOwnerName: "", varPledgeLineError: ""});  With(
+    {typedId: Trim(txtPledgeConstituent.Text)},
+    If(
+        !IsMatch(typedId, "\d{7}"),
+        UpdateContext({varPledgeLineError: "Enter the 7-digit Constituent ID."}),
+        IfError(
+            With(
+                {
+                    matches: Filter(
+                        RENXT.SearchConstituents(typedId, {search_field: "lookup_id"}).value,
+                        lookup_id = typedId
+                    )
+                },
+                Switch(
+                    CountRows(matches),
+                    0, UpdateContext({
+                        varPledgeLineError: "No donor with this Constituent ID. Check the number."
+                    }),
+                    1,
+                    With(
+                        {owner: First(matches)},
+                        With(
+                            {
+                                openPledges: Filter(
+                                    RENXT.ListGifts({
+                                        constituent_id: Text(owner.id),
+                                        gift_type: "Pledge"
+                                    }).value,
+                                    balance.value > 0
+                                )
+                            },
+                            If(
+                                IsEmpty(openPledges),
+                                UpdateContext({
+                                    varPledgeLineError: "No open pledge for this constituent."
+                                }),
+                                UpdateContext({
+                                    varPledgeOwnerId: owner.lookup_id,
+                                    varPledgeOwnerName: owner.name
+                                });
+                                ClearCollect(
+                                    colOpenPledges,
+                                    {Value: "Choose an open pledge", pledgeId: "", balance: 0}
+                                );
+                                ForAll(
+
+                                   openPledges As pledge,
+
+                                   Collect(
+
+                                       colOpenPledges,
+
+                                       {
+
+                                           Value: "#" & Text(pledge.id) & " · " & Left(Text(pledge.date), 10) &
+
+                                               " · " & Text(pledge.amount.value, "0.00") &
+
+                                               " $ · balance " & Text(pledge.balance.value, "0.00") & " $",
+
+                                           pledgeId: Text(pledge.id),
+
+                                           balance: pledge.balance.value
+
+                                       }
+
+                                   );
+
+                                   true
+
+                               );
+                                Reset(ddPledge)
+                            )
+                        )
+                    ),
+                    UpdateContext({
+                        varPledgeLineError: "Several donors match. Contact Gift Processing."
+                    })
+                )
+            ),
+            UpdateContext({
+                varPledgeLineError: "Donor or pledge lookup unavailable. Try again in a moment."
+            })
+        )
+    ) )
+```
+
+`txtPledgeAmount.Default`:
+
+```powerfx
+If(varPledgeEditLineId = 0, "", Text(LookUp(colPledgeLines, lineId = varPledgeEditLineId).amount, "0.00"))
+```
+
+`btnAddPledgeLine.OnSelect`
+
+```powerfx
+With(
+    {
+        enteredAmount: Trim(txtPledgeAmount.Text),
+        paid: IfError(Value(Trim(txtPledgeAmount.Text)), 0),
+        existingLine: LookUp(colPledgeLines, lineId = varPledgeEditLineId)
+    },
+    With(
+        {
+            pledgeId: If(varPledgeEditLineId = 0, ddPledge.Selected.pledgeId, existingLine.pledgeId),
+            pledgeBalance: If(varPledgeEditLineId = 0, ddPledge.Selected.balance, existingLine.balance)
+        },
+        If(
+            IsBlank(pledgeId) ||
+                (varPledgeEditLineId = 0 && varPledgeOwnerId <> Trim(txtPledgeConstituent.Text)),
+            UpdateContext({varPledgeLineError: "Choose an open pledge."}),
+             !IsMatch(enteredAmount, "^\d+(\.\d{1,2})?$") || paid <= 0,
+            UpdateContext({
+                varPledgeLineError: "Enter the amount paid on this pledge, for example 100.00."
+            }),
+             paid > pledgeBalance,
+            UpdateContext({
+                varPledgeLineError: "The amount is above this pledge's balance (" &
+                    Text(pledgeBalance, "0.00") & " $)."
+            }),
+             varPledgeEditLineId = 0 &&
+                !IsBlank(LookUp(colPledgeLines As line, line.pledgeId = ddPledge.Selected.pledgeId)),
+            UpdateContext({
+                varPledgeLineError: "This pledge is already in the list: edit its line."
+            }),
+             If(
+                varPledgeEditLineId = 0,
+                Collect(
+                    colPledgeLines,
+                    {
+                        lineId: Coalesce(Max(colPledgeLines, lineId), 0) + 1,
+                        pledgeId: pledgeId,
+                        pledgeLabel: ddPledge.Selected.Value,
+                        constituentId: varPledgeOwnerId,
+                        constituentName: varPledgeOwnerName,
+                        balance: pledgeBalance,
+                        amount: paid
+                    }
+                ),
+                Patch(colPledgeLines, existingLine, {amount: paid})
+            );
+            UpdateContext({varPledgeEditLineId: 0, varPledgeLineError: ""});
+            Reset(ddPledge);
+            Reset(txtPledgeAmount)
+        )
+    ) )
+```
+
+`icoEditPledgeLine.OnSelect`
+
+```powerfx
+UpdateContext({varPledgeEditLineId: ThisItem.lineId, varPledgeLineError: ""}); Reset(txtPledgeAmount)
+```
+
+`icoDeletePledgeLine.OnSelect`
+
+```powerfx
+If(
+    varPledgeEditLineId = ThisItem.lineId,
+    UpdateContext({varPledgeEditLineId: 0});
+    Reset(txtPledgeAmount) ); Remove(colPledgeLines, ThisItem); UpdateContext({varPledgeLineError: ""})
+```
+
+Add these red validation labels:
+
+| Label | Text | Visible |
+|---|---|---|
+| `lblPledgeLineError` | `varPledgeLineError` | `tglPledgePayment.Value && !IsBlank(varPledgeLineError)` |
+| `lblErrPledgeGiftType` | `"A pledge payment needs the gift type Pledge Payment."` | `tglPledgePayment.Value && ddGiftType.Selected.code <> "Pledge Payment"` |
+| `lblErrPledgeTotal` | `"The pledge lines must total the gift amount."` | `varTried && tglPledgePayment.Value && ddGiftType.Selected.code = "Pledge Payment" && !(CountRows(colPledgeLines) > 0 && Abs(Sum(colPledgeLines, amount) - IfError(Value(txtGiftAmount.Text), 0)) < 0.005)` |
+
+The Submit and reset formulas are below. The form stores the pledge links
+in the lab lists. This feature leaves the simulated NXT balances as
+recorded, and Gift Processing applies the payment in NXT.
+
+**Test data flow.** In Établi, run the manual flow
+`MCHF - Create test pledges` using the flow owner's RE NXT connection.
+It selects the first fund by its system ID, creates $300 and $200 pledges
+for system ID `11001` (lookup ID `1234567`), a $500 pledge for system ID
+`11003` (lookup ID `9999002`), and a $100 pledge for `11001`.
+A final cash pledge payment links to the $100 pledge and fully pays it.
+Each run creates a fresh set of test data in the shared simulator.
+Enable the manual flow in Équipe after merging the change request.
+
 ### `btnSubmit.OnSelect`
 
 ```powerfx
@@ -422,12 +681,13 @@ If(
     (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), "^\d+(\.\d{1,2})?$") && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&
     (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&
     (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = "found") &&
+    (!tglPledgePayment.Value || (ddGiftType.Selected.code = "Pledge Payment" && CountRows(colPledgeLines) > 0 && Abs(Sum(colPledgeLines, amount) - IfError(Value(txtGiftAmount.Text), 0)) < 0.005)) &&
     (!tglTaxReceipt.Value || (
         (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtBenefitAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text)))) &&
         (IsMatch(Trim(txtReceiptAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtReceiptAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text)))
     )),
     // 1. Save with a temporary Title, 2. set the reference SUB-00001 from the new ID (#1 data dictionary),
-    // 3. the fund lines (the split, or the fund chosen with the whole amount), 4. link the payment.
+    // 3. save fund lines, 4. save pledge lines if applicable, 5. link the payment.
     // Stops at the first failure. The submission's Fund is the primary fund: the largest line.
     With({lines: If(tglSplitFunds.Value, colFundLines,
             Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},
@@ -440,6 +700,7 @@ If(
             'Payment Type': ddPaymentType.Selected.code,
             'Gift Date': dpGiftDate.SelectedDate,
             'Gift Type': ddGiftType.Selected.code,
+            'Pledge Payment': tglPledgePayment.Value,
             'Gift Amount': Value(txtGiftAmount.Text),
             Fees: Coalesce(Value(txtFees.Text), 0),
             'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),
@@ -463,6 +724,27 @@ If(
                     Notify("Item " & created.ID & " was saved, but its reference could not be set: " & FirstError.Message, NotificationType.Error),
                 ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),
                     Notify(ref & " was saved, but its fund lines were not: " & FirstError.Message, NotificationType.Error),
+                If(
+                    tglPledgePayment.Value,
+                    ForAll(
+                        colPledgeLines As pledgeLine,
+                        Patch(
+                            'MCHF - Pledge Payments',
+                            Defaults('MCHF - Pledge Payments'),
+                            {
+                                Title: pledgeLine.pledgeId,
+                                'Pledge ID': pledgeLine.pledgeId,
+                                'Pledge Constituent ID': pledgeLine.constituentId,
+                                'Pledge Constituent Name': pledgeLine.constituentName,
+                                'Pledge Balance': pledgeLine.balance,
+                                Amount: pledgeLine.amount,
+                                Submission: {Id: created.ID, Value: ref},
+                                'Submission Reference': ref
+                            }
+                        )
+                    )
+                ),
+                    Notify(ref & " was saved, but its pledge lines were not: " & FirstError.Message, NotificationType.Error),
                 If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),
                     Notify(ref & " was saved, but the payment could not be linked to it: " & FirstError.Message, NotificationType.Error),
                 UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});
@@ -520,7 +802,19 @@ Reset(txtConstituentId); Reset(rdoNewDonor); Reset(txtNewDonorName); Reset(txtGi
 Reset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);
 Reset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);
 Reset(tglTaxReceipt); Reset(txtBenefitAmount); Reset(txtReceiptAmount);
-Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount)
+Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount);
+Clear(colPledgeLines);
+Clear(colOpenPledges);
+UpdateContext({
+    varPledgeEditLineId: 0,
+    varPledgeLineError: "",
+    varPledgeOwnerId: "",
+    varPledgeOwnerName: ""
+});
+Reset(tglPledgePayment);
+Reset(txtPledgeConstituent);
+Reset(ddPledge);
+Reset(txtPledgeAmount)
 ```
 
 ### Defaults
@@ -655,19 +949,34 @@ Not run: `9999504` (timeout; same `IfError` branch as tests 3 and 27, after a 10
 wait). Tests 26 (Check + Submit), 28 (`2012066`) and 29 (`2012008`) are ready and
 waiting for Jérémie's 7-digit NXT constituent migration. App checker: no errors.
 
+### Pledge payment tests (#53)
+
+In Alexandre’s personal environment:
+
+| Test | Result |
+|---|---|
+| Look up donor `1234567` | Open pledges `51308` ($300) and `51309` ($200) show their balances. Fully paid pledge `51311` is absent. |
+| Search for pledge owner `9999002` | Third-party pledge `51310` ($500) appears and the gift’s donor stays `1234567`. |
+| Add an amount above the balance or add a duplicate pledge | The form refuses the line and shows the corresponding message. |
+| Edit and delete a pledge line | Editing updates the existing payment amount. Deleting removes the line. |
+| Choose Yes with gift type One-time gift, or submit lines that do not total the Gift Amount | Submit is blocked with the corresponding message. |
+| Submit a $150 pledge payment split between two pledges | `SUB-00038` has two linked rows, $100 on `51308` and $50 on `51309`. Closing the success popup clears the pledge section and restores No. |
+| Add a line, switch to No, then submit a valid one-time gift | `SUB-00039` has `Pledge Payment` set to No and zero linked pledge rows. |
+
 ## 6. Where it lives
 
 | What | Where |
 |---|---|
 | App | **MCHF - Coding Form**, Équipe (play: Applications › MCHF - Coding Form) |
-| Lists | `MCHF Submissions`, `MCHF Fund Lines`, `MCHF Payment Types`, `MCHF Gift Types`, `MCHF - Payment Log` |
+| Lists | `MCHF Submissions`, `MCHF Fund Lines`, `MCHF Payment Types`, `MCHF Gift Types`, `MCHF - Payment Log`, `MCHF - Pledge Payments` |
+| Test flow | `MCHF - Create test pledges`, manual flow for simulated RE NXT |
 | Connector | RE NXT (simulated), `RENXT`, with the connection of the person using the app |
 | Export | `lab/solutions/mchf-coding-form.solution.json` |
 
 ## 7. Limits and remaining work
 
 - **Abandoned claims (#26).** A payment claimed from the panel stays Claimed if the fundraiser leaves before submitting. Gift Processing can release it manually. Automatic release is an open question for Marc.
-- **Fresh environment.** The export includes the app and five list definitions without items. Populate the active gift types and payment types before testing Submit. To test the panel, add an Unclaimed payment for a donor the lookup can find.
+- **Fresh environment.** In a fresh environment, make the required lists available, including `MCHF - Pledge Payments` and the `Pledge Payment` field on `MCHF Submissions`. Populate the active gift types and payment types before testing Submit. To test the panel, add an Unclaimed payment for a donor the lookup can find.
 
 - **New donor form URLs (#25).** Both buttons use placeholder addresses. When
   Marc provides the Foundation URLs, update `varNewIndividualUrl` and
@@ -686,7 +995,7 @@ waiting for Jérémie's 7-digit NXT constituent migration. App checker: no error
   defaults to `false` (No). Should the form force an explicit choice (no default
   selected) before Submit?
 - **Coding a payment twice** is warned about, not blocked.
-- **No transaction.** If step 2, 3 or 4 fails, the submission already exists; the
+- **No transaction.** If a write after step 1 fails, the submission already exists; the
   message names it and the rest is fixed by hand. SharePoint has no transactions
   either.
 - **Rebuild in Power Apps (Sprint 4).** The formulas use standard functions only.
