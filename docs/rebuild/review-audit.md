@@ -259,8 +259,6 @@ nothing.
 
 ## Limits
 
-- Security by role (who is Gift Processing) is not handled in the lab.
-  It is planned for Sprint 4.
 - If a step of the PDF chain fails, the flow stops and the submission
   stays in Recording in Progress. The error is fixed, then the run is
   replayed with Resoumettre in Historique.
