@@ -2,9 +2,259 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "Ma solution",
-  "exportedAt": "2026-11-27T18:26:33Z",
+  "exportedAt": "2026-11-27T19:01:57Z",
   "lists": [],
-  "flows": [],
+  "flows": [
+    {
+      "key": "82139ca9-377e-417e-8748-f565c48be229",
+      "name": "MCHF - Create test pledges",
+      "description": "Sprint 4 issue #53. Manually creates three open test pledges and a fourth pledge paid in full in the shared simulated RE NXT.",
+      "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+          "manual": {
+            "type": "Request",
+            "kind": "Button",
+            "inputs": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "actions": {
+          "List_funds": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "ListFunds"
+              },
+              "parameters": {
+                "limit": 1
+              }
+            },
+            "runAfter": {}
+          },
+          "Create_300_pledge": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11001",
+                "gift/type": "Pledge",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 300,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 300
+                    }
+                  }
+                ],
+                "gift/installments": [
+                  {
+                    "date": "2026-12-01",
+                    "amount": {
+                      "value": 100
+                    }
+                  },
+                  {
+                    "date": "2027-12-01",
+                    "amount": {
+                      "value": 100
+                    }
+                  },
+                  {
+                    "date": "2028-12-01",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ]
+              }
+            },
+            "runAfter": {
+              "List_funds": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Create_200_pledge": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11001",
+                "gift/type": "Pledge",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 200,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 200
+                    }
+                  }
+                ],
+                "gift/installments": [
+                  {
+                    "date": "2026-12-15",
+                    "amount": {
+                      "value": 100
+                    }
+                  },
+                  {
+                    "date": "2027-12-15",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ]
+              }
+            },
+            "runAfter": {
+              "Create_300_pledge": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Create_500_third_party_pledge": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11003",
+                "gift/type": "Pledge",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 500,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 500
+                    }
+                  }
+                ],
+                "gift/installments": [
+                  {
+                    "date": "2027-01-15",
+                    "amount": {
+                      "value": 250
+                    }
+                  },
+                  {
+                    "date": "2028-01-15",
+                    "amount": {
+                      "value": 250
+                    }
+                  }
+                ]
+              }
+            },
+            "runAfter": {
+              "Create_200_pledge": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Create_100_pledge": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11001",
+                "gift/type": "Pledge",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 100,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ],
+                "gift/installments": [
+                  {
+                    "date": "2026-12-01",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ]
+              }
+            },
+            "runAfter": {
+              "Create_500_third_party_pledge": [
+                "Succeeded"
+              ]
+            }
+          },
+          "Pay_100_pledge_in_full": {
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "apiId": "/providers/lab/apis/shared_renxt",
+                "connectionName": "shared_renxt",
+                "operationId": "CreateGift"
+              },
+              "parameters": {
+                "gift/constituent_id": "11001",
+                "gift/type": "PledgePayment",
+                "gift/date": "@formatDateTime(utcNow(), 'yyyy-MM-dd')",
+                "gift/amount/value": 100,
+                "gift/gift_splits": [
+                  {
+                    "fund_id": "@first(body('List_funds')?['value'])?['id']",
+                    "amount": {
+                      "value": 100
+                    }
+                  }
+                ],
+                "gift/payments": [
+                  {
+                    "payment_method": "Cash"
+                  }
+                ],
+                "gift/linked_gifts": [
+                  "@body('Create_100_pledge')?['id']"
+                ]
+              }
+            },
+            "runAfter": {
+              "Create_100_pledge": [
+                "Succeeded"
+              ]
+            }
+          }
+        },
+        "outputs": {}
+      }
+    }
+  ],
   "apps": [
     {
       "key": "3c3d7166-e394-48e1-87b8-39b7fc4b1f59",
