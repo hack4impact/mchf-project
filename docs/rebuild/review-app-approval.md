@@ -1,7 +1,7 @@
 # Review App, Approval Flow and Simulated Transfer
 
-Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27), [#28](https://github.com/hack4impact/mchf-project/issues/28), [#34](https://github.com/hack4impact/mchf-project/issues/34), [#51](https://github.com/hack4impact/mchf-project/issues/51), [#52](https://github.com/hack4impact/mchf-project/issues/52)
-Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`, `feature/28-review-correct`, `feature/34-audit-pdf-sprint3-fields`, `feature/51-review-history`, `feature/52-review-roles`
+Related issues: [#15](https://github.com/hack4impact/mchf-project/issues/15), [#27](https://github.com/hack4impact/mchf-project/issues/27), [#28](https://github.com/hack4impact/mchf-project/issues/28), [#34](https://github.com/hack4impact/mchf-project/issues/34), [#51](https://github.com/hack4impact/mchf-project/issues/51), [#52](https://github.com/hack4impact/mchf-project/issues/52), [#56](https://github.com/hack4impact/mchf-project/issues/56)
+Branches: `feature/15-correction-loop-and-transfer`, `feature/27-review-screen-actions`, `feature/28-review-correct`, `feature/34-audit-pdf-sprint3-fields`, `feature/51-review-history`, `feature/52-review-roles`, `feature/56-review-sprint4-sections`
 Environment: Équipe
 
 Gift Processing reviews a submission in the app **MCHF - Review**: claim,
@@ -653,6 +653,50 @@ record type. If the role was removed while the app was open, the action
 shows the refusal before any submission or history write or flow call.
 The fundraiser screen `scrReturned` already filters on `Author.Email`.
 
+### Soft credits, pledge payments and installments (#56)
+
+The batch doesn't carry these sections, so Gift Processing checks them
+before approving. They are on `scrSubmission` ("History and details"),
+below the activity history, in three columns.
+
+Add `MCHF - Soft Credits`, `MCHF - Pledge Payments` and
+`MCHF - Pledge Installments` through Données. Add them to
+`scrSubmission.OnVisible`:
+
+```powerfx
+Refresh('MCHF - Submission History'); Refresh('MCHF Submissions');
+Refresh('MCHF - Soft Credits'); Refresh('MCHF - Pledge Payments'); Refresh('MCHF - Pledge Installments')
+```
+
+Each column has a heading, a gallery and a `None` label. Headings are at
+Y 384, galleries and `None` labels at Y 416, width 426. The columns start
+at X 30, 470 and 910.
+
+| Gallery | Items | TemplateSize | Labels in the row |
+|---|---|---|---|
+| `galSoftCredits` | `Filter('MCHF - Soft Credits', 'Submission Reference' = varSel.Title)` | 54 | Name and amount, Constituent ID |
+| `galPledgePayments` | `Filter('MCHF - Pledge Payments', 'Submission Reference' = varSel.Title)` | 76 | Pledge constituent name and ID, Pledge ID, balance seen at coding and amount paid |
+| `galInstallments` | `Sort(Filter('MCHF - Pledge Installments', 'Submission Reference' = varSel.Title), 'Installment Number')` | 32 | Number, due date and amount |
+
+Each gallery is visible when its filter is not empty, and its `None` label
+when it is empty, for example:
+
+```powerfx
+!IsBlank(varSel.ID) && IsEmpty(Filter('MCHF - Soft Credits', 'Submission Reference' = varSel.Title))
+```
+
+Under the installments, `lblInstallTotal` (X 910, Y 678), visible with the
+gallery:
+
+```powerfx
+"Total: " & Text(Sum(Filter('MCHF - Pledge Installments', 'Submission Reference' = varSel.Title), Amount), "0.00") & " $"
+```
+
+The three blocks are read only. Correct doesn't change them: a wrong line
+is returned to the fundraiser (lab assumption).
+
+![Soft credits of a test submission](review-screenshots/soft-credits.png)
+
 ### Fundraiser screen: scrReturned (T5)
 
 The fundraiser sees their own submissions in Needs Information, reads the
@@ -772,6 +816,14 @@ fund line of $100 with the same Submission Reference.
 | 26 | #28: Look up (`Found: Camille Exemple (1234567)`), Save correction | Passed: Constituent ID `1234567`, name and System ID `11001` saved, status Under Review, one history row "Constituent ID: (empty) → 1234567", Approve enabled, `lblNeedsId` hidden, fund lines still total $100. Approve not clicked |
 | 27 | #28: `SUB-TEST28A`, Correct, Package `XXX`, Discard, Correct again | Passed: Package shows `GALA-2026` again, nothing saved |
 | 28 | #28: Correct with an expired RE NXT connection | Campaign and Appeal empty and Look up fails (401). Connexions › Reconnecter fixes it (section 7) |
+| 29 | #56: `SUB-TEST56S`, two soft credits, History and details | Passed: Alex Essai 60.00 $ and Dominique Essai 40.00 $ with their Constituent ID; the two other blocks show None |
+| 30 | #56: `SUB-TEST56P`, three installments created out of order | Passed: shown as 1, 2, 3 with date and amount, Total: 300.00 $ |
+| 31 | #56: `SUB-TEST56Y`, one pledge payment | Passed: Alex Essai (9999002), TEST-PLEDGE-1, balance 500.00 $, paid 100.00 $ |
+| 32 | #56: `SUB-TEST56N`, none of the three sections | Passed: None in each block, no total |
+| 33 | #56: Correct on `SUB-TEST56S` | Passed: no field for the three blocks |
+
+Tests 29 to 33 were run in a personal environment, with the submissions
+and their lines created directly in the lists.
 
 ## 7. Limits
 
@@ -832,6 +884,7 @@ fund line of $100 with the same Submission Reference.
   and the lists it uses). The flow did not change.
 - #51: `lab/solutions/mchf-review-history.solution.json` (the review app).
 - #52: `lab/solutions/mchf-review-roles.solution.json` (the review app and roles list).
+- #56: `lab/solutions/mchf-review-sprint4.solution.json` (the review app).
 
 ## Remaining work
 
