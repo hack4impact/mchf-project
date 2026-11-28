@@ -2,7 +2,7 @@
   "format": "lowcode-lab-solution",
   "version": 1,
   "name": "Ma solution",
-  "exportedAt": "2026-11-27T19:01:57Z",
+  "exportedAt": "2026-11-28T01:40:27Z",
   "lists": [],
   "flows": [
     {
@@ -272,7 +272,7 @@
             "name": "Screen1",
             "properties": {
               "Fill": "RGBA(255, 255, 255, 1)",
-              "OnVisible": "// 1. The payment being coded, when the form is opened from the Payment Log with ?paymentId=<item ID> (#14)\nSet(varPaymentIdParam, Trim(Param(\"paymentId\")));\nSet(varPaymentRecord, If(IsBlank(varPaymentIdParam), Blank(), LookUp('MCHF - Payment Log', ID = IfError(Value(varPaymentIdParam), -1))));\nIf(!IsBlank(varPaymentIdParam) && IsBlank(varPaymentRecord),\n    Notify(\"Payment \" & varPaymentIdParam & \" is not in the Payment Log. Fill in the form by hand.\", NotificationType.Warning));\nIf(!IsBlank(varPaymentRecord.'Submission Reference'),\n    Notify(\"This payment is already coded as \" & varPaymentRecord.'Submission Reference' & \". Submitting again creates a second submission.\", NotificationType.Warning));\n\n// 2. Payment types and gift types from the #1 lists, with an empty first choice (code \"\")\nClearCollect(colPaymentTypes, {Value: \"Sélectionner un mode de paiement...\", code: \"\"});\nCollect(colPaymentTypes, ForAll(Sort(Filter('MCHF Payment Types', Active), 'Sort Order'), {Value: Title, code: Title}));\nClearCollect(colGiftTypes, {Value: \"Sélectionner un type de don...\", code: \"\"});\nCollect(colGiftTypes, ForAll(Sort(Filter('MCHF Gift Types', Active), 'Sort Order'), {Value: Title, code: Title}));\n\n// 3. Campaigns, appeals and funds from RE NXT, with an empty first choice (code \"\")\nIfError(\n    ClearCollect(colCampaigns, {Value: \"Sélectionner une campagne...\", code: \"\"});\n    Collect(colCampaigns, ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colAppeals, {Value: \"Sélectionner un appel...\", code: \"\"});\n    Collect(colAppeals, ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colFunds, {Value: \"Sélectionner un fonds...\", code: \"\"});\n    Collect(colFunds, ForAll(RENXT.ListFunds().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id})),\n    Notify(\"NXT lists are unavailable. Reopen the form to retry.\", NotificationType.Error)\n);\n\n// 4. Screen state; colFundLines holds the lines of a gift split across several funds\nSet(varDonor, {state: \"\", systemId: \"\", lookupId: \"\", name: \"\", message: \"\"});\nSet(varSolicitor, Blank());\nSet(varSoftDonor, Blank());\nUpdateContext({\n    varTried: false,\n    varSubmissionRef: \"\",\n    varShowSuccessPopup: false,\n    varEditLineId: 0,\n    varLineError: \"\",\n    varPledgeEditLineId: 0,\n    varPledgeLineError: \"\",\n    varPledgeOwnerId: \"\",\n    varPledgeOwnerName: \"\",\n    varEditSoftId: 0,\n    varSoftLineError: \"\"\n});\nClearCollect(colFundLines, {lineId: 0, fund: \"\", fundLabel: \"\", amount: 0});\nClear(colFundLines);\nClearCollect(colOpenPledges, {Value: \"\", pledgeId: \"\", balance: 0});\nClear(colOpenPledges);\nClearCollect(colPledgeLines, {lineId: 0, pledgeId: \"\", pledgeLabel: \"\", constituentId: \"\", constituentName: \"\", balance: 0, amount: 0});\nClear(colPledgeLines);\nClearCollect(colSoftCredits, {lineId: 0, constituentId: \"\", constituentName: \"\", amount: 0});\nClear(colSoftCredits);\n\n// 5. A prefilled donor is looked up right away (same lookup as the Lookup button, #2 contract)\nIf(!IsBlank(varPaymentRecord),\n    With({typedId: Trim(varPaymentRecord.'Constituent ID')},\n        If(IsMatch(typedId, \"\\d{7}\"),\n            Set(varDonor, IfError(\n                With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                    Switch(CountRows(r),\n                        0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                        1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                        {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n                {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"})))));\nSet(varNewIndividualUrl, \"https://example.org/new-individual\");\nSet(varNewOrganizationUrl, \"https://example.org/new-organization\")"
+              "OnVisible": "// 1. The payment being coded, when the form is opened from the Payment Log with ?paymentId=<item ID> (#14)\nSet(varPaymentIdParam, Trim(Param(\"paymentId\")));\nSet(varPaymentRecord, If(IsBlank(varPaymentIdParam), Blank(), LookUp('MCHF - Payment Log', ID = IfError(Value(varPaymentIdParam), -1))));\nIf(!IsBlank(varPaymentIdParam) && IsBlank(varPaymentRecord),\n    Notify(\"Payment \" & varPaymentIdParam & \" is not in the Payment Log. Fill in the form by hand.\", NotificationType.Warning));\nIf(!IsBlank(varPaymentRecord.'Submission Reference'),\n    Notify(\"This payment is already coded as \" & varPaymentRecord.'Submission Reference' & \". Submitting again creates a second submission.\", NotificationType.Warning));\n\n// 2. Payment types and gift types from the #1 lists, with an empty first choice (code \"\")\nClearCollect(colPaymentTypes, {Value: \"Sélectionner un mode de paiement...\", code: \"\"});\nCollect(colPaymentTypes, ForAll(Sort(Filter('MCHF Payment Types', Active), 'Sort Order'), {Value: Title, code: Title}));\nClearCollect(colGiftTypes, {Value: \"Sélectionner un type de don...\", code: \"\"});\nCollect(colGiftTypes, ForAll(Sort(Filter('MCHF Gift Types', Active), 'Sort Order'), {Value: Title, code: Title}));\n\n// 3. Campaigns, appeals and funds from RE NXT, with an empty first choice (code \"\")\nIfError(\n    ClearCollect(colCampaigns, {Value: \"Sélectionner une campagne...\", code: \"\"});\n    Collect(colCampaigns, ForAll(RENXT.ListCampaigns().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colAppeals, {Value: \"Sélectionner un appel...\", code: \"\"});\n    Collect(colAppeals, ForAll(RENXT.ListAppeals().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id}));\n    ClearCollect(colFunds, {Value: \"Sélectionner un fonds...\", code: \"\"});\n    Collect(colFunds, ForAll(RENXT.ListFunds().value, {Value: ThisRecord.lookup_id & \" - \" & ThisRecord.description, code: ThisRecord.lookup_id})),\n    Notify(\"NXT lists are unavailable. Reopen the form to retry.\", NotificationType.Error)\n);\n\n// 4. Screen state; colFundLines holds the lines of a gift split across several funds\nSet(varDonor, {state: \"\", systemId: \"\", lookupId: \"\", name: \"\", message: \"\"});\nSet(varSolicitor, Blank());\nSet(varSoftDonor, Blank());\nUpdateContext({\n    varTried: false,\n    varSubmissionRef: \"\",\n    varShowSuccessPopup: false,\n    varEditLineId: 0,\n    varLineError: \"\",\n    varPledgeEditLineId: 0,\n    varPledgeLineError: \"\",\n    varPledgeOwnerId: \"\",\n    varPledgeOwnerName: \"\",\n    varEditSoftId: 0,\n    varSoftLineError: \"\"\n});\nClearCollect(colFundLines, {lineId: 0, fund: \"\", fundLabel: \"\", amount: 0});\nClear(colFundLines);\nClearCollect(colOpenPledges, {Value: \"\", pledgeId: \"\", balance: 0});\nClear(colOpenPledges);\nClearCollect(colPledgeLines, {lineId: 0, pledgeId: \"\", pledgeLabel: \"\", constituentId: \"\", constituentName: \"\", balance: 0, amount: 0});\nClear(colPledgeLines);\nClearCollect(colSoftCredits, {lineId: 0, constituentId: \"\", constituentName: \"\", amount: 0});\nClear(colSoftCredits);\nClearCollect(colInstallments, {seq: 0, due: Today(), amount: 0});\nClear(colInstallments);\nUpdateContext({varScheduleError: \"\", varScheduledCount: 0});\n\n// 5. A prefilled donor is looked up right away (same lookup as the Lookup button, #2 contract)\nIf(!IsBlank(varPaymentRecord),\n    With({typedId: Trim(varPaymentRecord.'Constituent ID')},\n        If(IsMatch(typedId, \"\\d{7}\"),\n            Set(varDonor, IfError(\n                With({r: Filter(RENXT.SearchConstituents(typedId, {search_field: \"lookup_id\"}).value, lookup_id = typedId)},\n                    Switch(CountRows(r),\n                        0, {state: \"notfound\", systemId: \"\", lookupId: \"\", name: \"\", message: \"No donor with this Constituent ID. Check the number.\"},\n                        1, {state: \"found\", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: \"\"},\n                        {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Several donors match. Contact Gift Processing.\"})),\n                {state: \"error\", systemId: \"\", lookupId: \"\", name: \"\", message: \"Donor lookup unavailable. Try again in a moment.\"})))));\nSet(varNewIndividualUrl, \"https://example.org/new-individual\");\nSet(varNewOrganizationUrl, \"https://example.org/new-organization\")"
             },
             "controls": [
               {
@@ -476,7 +476,7 @@
                   "BorderThickness": "0",
                   "Size": "13",
                   "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "UpdateContext({varTried: true});\nIf(\n    ((rdoNewDonor.Selected.Value = \"Yes\") || (varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text))) &&\n    ((rdoNewDonor.Selected.Value = \"No\") || !IsBlank(Trim(txtNewDonorName.Text))) &&\n    !IsBlank(dpGiftDate.SelectedDate) &&\n    !IsBlank(ddGiftType.Selected.code) &&\n    !IsBlank(ddPaymentType.Selected.code) &&\n    !IsBlank(ddCampaign.Selected.code) &&\n    !IsBlank(ddAppeal.Selected.code) &&\n    (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&\n    (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) &&\n    (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&\n    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&\n    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = \"found\") &&\n    (!tglPledgePayment.Value || (ddGiftType.Selected.code = \"Pledge Payment\" && CountRows(colPledgeLines) > 0 && Abs(Sum(colPledgeLines, amount) - IfError(Value(txtGiftAmount.Text), 0)) < 0.005)) &&\n    (!tglTaxReceipt.Value || (\n        (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtBenefitAmount.Text) >= 0 && Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text))) &&\n        (IsMatch(Trim(txtReceiptAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtReceiptAmount.Text) >= 0 && Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text))\n    )) &&\n    (!tglSoftCredit.Value || CountRows(colSoftCredits) > 0),\n    With({lines: If(tglSplitFunds.Value, colFundLines,\n            Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},\n    With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {\n            Title: \"NEW\",\n            'New Donor': (rdoNewDonor.Selected.Value = \"Yes\"),\n            'Constituent ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.lookupId),\n            'Constituent Name': If((rdoNewDonor.Selected.Value = \"Yes\"), Trim(txtNewDonorName.Text), varDonor.name),\n            'Constituent System ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.systemId),\n            'Payment Type': ddPaymentType.Selected.code,\n            'Gift Date': dpGiftDate.SelectedDate,\n            'Gift Type': ddGiftType.Selected.code,\n            'Pledge Payment': tglPledgePayment.Value,\n            'Soft Credit': tglSoftCredit.Value,\n            'Gift Amount': Value(txtGiftAmount.Text),\n            Fees: Coalesce(Value(txtFees.Text), 0),\n            'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),\n            Campaign: ddCampaign.Selected.code,\n            Appeal: ddAppeal.Selected.code,\n            Fund: First(SortByColumns(lines, \"amount\", SortOrder.Descending)).fund,\n            Package: Trim(txtPackage.Text),\n            'Assigned Solicitor': Trim(txtSolicitor.Text),\n            Notes: txtNotes.Text,\n            'Tax Receipt': tglTaxReceipt.Value,\n            'Receipt Amount': If(tglTaxReceipt.Value, Value(txtReceiptAmount.Text), Blank()),\n            'Benefit Amount': If(tglTaxReceipt.Value && !IsBlank(Trim(txtBenefitAmount.Text)), Value(txtBenefitAmount.Text), Blank()),\n            'Payment Reference': varPaymentRecord.Reference,\n            'Processing status': {Value: \"Submitted\"}\n        })},\n        With({ref: \"SUB-\" & Text(created.ID, \"00000\")},\n            IfError(\n                created,\n                    Notify(\"The submission was not saved: \" & FirstError.Message, NotificationType.Error),\n                Patch('MCHF Submissions', created, {Title: ref}),\n                    Notify(\"Item \" & created.ID & \" was saved, but its reference could not be set: \" & FirstError.Message, NotificationType.Error),\n                ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),\n                    Notify(ref & \" was saved, but its fund lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(\n                    tglSoftCredit.Value,\n                    ForAll(\n                        colSoftCredits As sc,\n                        Patch(\n                            'MCHF - Soft Credits',\n                            Defaults('MCHF - Soft Credits'),\n                            {\n                                Title: sc.constituentId,\n                                'Constituent ID': sc.constituentId,\n                                'Constituent Name': sc.constituentName,\n                                Amount: sc.amount,\n                                Submission: {Id: created.ID, Value: ref},\n                                'Submission Reference': ref\n                            }\n                        )\n                    )\n                ),\n                    Notify(ref & \" was saved, but its soft credits were not: \" & FirstError.Message, NotificationType.Error),\n                If(\n                    tglPledgePayment.Value,\n                    ForAll(\n                        colPledgeLines As pledgeLine,\n                        Patch(\n                            'MCHF - Pledge Payments',\n                            Defaults('MCHF - Pledge Payments'),\n                            {\n                                Title: pledgeLine.pledgeId,\n                                'Pledge ID': pledgeLine.pledgeId,\n                                'Pledge Constituent ID': pledgeLine.constituentId,\n                                'Pledge Constituent Name': pledgeLine.constituentName,\n                                'Pledge Balance': pledgeLine.balance,\n                                Amount: pledgeLine.amount,\n                                Submission: {Id: created.ID, Value: ref},\n                                'Submission Reference': ref\n                            }\n                        )\n                    )\n                ),\n                    Notify(ref & \" was saved, but its pledge lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),\n                    Notify(ref & \" was saved, but the payment could not be linked to it: \" & FirstError.Message, NotificationType.Error),\n                UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});\n                Notify(\"Soumission réussie. Référence : \" & ref, NotificationType.Success))))),\n    Notify(\"Some fields need your attention.\", NotificationType.Error)\n)"
+                  "OnSelect": "UpdateContext({varTried: true});\nIf(\n    ((rdoNewDonor.Selected.Value = \"Yes\") || (varDonor.state = \"found\" && varDonor.lookupId = Trim(txtConstituentId.Text))) &&\n    ((rdoNewDonor.Selected.Value = \"No\") || !IsBlank(Trim(txtNewDonorName.Text))) &&\n    !IsBlank(dpGiftDate.SelectedDate) &&\n    !IsBlank(ddGiftType.Selected.code) &&\n    !IsBlank(ddPaymentType.Selected.code) &&\n    !IsBlank(ddCampaign.Selected.code) &&\n    !IsBlank(ddAppeal.Selected.code) &&\n    (tglSplitFunds.Value || !IsBlank(ddFund.Selected.code)) &&\n    (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) &&\n    (IsBlank(Trim(txtFees.Text)) || (IsMatch(Trim(txtFees.Text), \"^\\d+(\\.\\d{1,2})?$\") && (!(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) || Value(txtFees.Text) <= Value(txtGiftAmount.Text)))) &&\n    (!tglSplitFunds.Value || (CountRows(colFundLines) > 0 && (IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0) && Abs(Sum(colFundLines, amount) - Value(txtGiftAmount.Text)) < 0.005)) &&\n    (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = \"found\") &&\n    (!tglPledgePayment.Value || (ddGiftType.Selected.code = \"Pledge Payment\" && CountRows(colPledgeLines) > 0 && Abs(Sum(colPledgeLines, amount) - IfError(Value(txtGiftAmount.Text), 0)) < 0.005)) &&\n    (!tglTaxReceipt.Value || (\n        (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtBenefitAmount.Text) >= 0 && Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text))) &&\n        (IsMatch(Trim(txtReceiptAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtReceiptAmount.Text) >= 0 && Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text))\n    )) &&\n    (!tglSoftCredit.Value || CountRows(colSoftCredits) > 0) &&\n    (ddGiftType.Selected.code <> \"Pledge\" || (\n        IsMatch(Trim(txtInstallmentCount.Text), \"^[1-5]$\") &&\n        !IsBlank(dpFirstInstallment.SelectedDate) &&\n        CountRows(colInstallments) = Value(Trim(txtInstallmentCount.Text)) &&\n        CountRows(Filter(colInstallments, amount <= 0)) = 0 &&\n        Abs(Sum(colInstallments, amount) - IfError(Value(Trim(txtGiftAmount.Text)), 0)) < 0.005\n    )),\n    With({lines: If(tglSplitFunds.Value, colFundLines,\n            Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},\n    With({created: Patch('MCHF Submissions', Defaults('MCHF Submissions'), {\n            Title: \"NEW\",\n            'New Donor': (rdoNewDonor.Selected.Value = \"Yes\"),\n            'Constituent ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.lookupId),\n            'Constituent Name': If((rdoNewDonor.Selected.Value = \"Yes\"), Trim(txtNewDonorName.Text), varDonor.name),\n            'Constituent System ID': If((rdoNewDonor.Selected.Value = \"Yes\"), Blank(), varDonor.systemId),\n            'Payment Type': ddPaymentType.Selected.code,\n            'Gift Date': dpGiftDate.SelectedDate,\n            'Gift Type': ddGiftType.Selected.code,\n            'Pledge Payment': tglPledgePayment.Value,\n            'Soft Credit': tglSoftCredit.Value,\n            'Installment Count': If(ddGiftType.Selected.code = \"Pledge\", Value(Trim(txtInstallmentCount.Text)), Blank()),\n            'Installment Frequency': If(ddGiftType.Selected.code = \"Pledge\", \"Annual\", Blank()),\n            'First Installment Date': If(ddGiftType.Selected.code = \"Pledge\", dpFirstInstallment.SelectedDate, Blank()),\n            'Gift Amount': Value(txtGiftAmount.Text),\n            Fees: Coalesce(Value(txtFees.Text), 0),\n            'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),\n            Campaign: ddCampaign.Selected.code,\n            Appeal: ddAppeal.Selected.code,\n            Fund: First(SortByColumns(lines, \"amount\", SortOrder.Descending)).fund,\n            Package: Trim(txtPackage.Text),\n            'Assigned Solicitor': Trim(txtSolicitor.Text),\n            Notes: txtNotes.Text,\n            'Tax Receipt': tglTaxReceipt.Value,\n            'Receipt Amount': If(tglTaxReceipt.Value, Value(txtReceiptAmount.Text), Blank()),\n            'Benefit Amount': If(tglTaxReceipt.Value && !IsBlank(Trim(txtBenefitAmount.Text)), Value(txtBenefitAmount.Text), Blank()),\n            'Payment Reference': varPaymentRecord.Reference,\n            'Processing status': {Value: \"Submitted\"}\n        })},\n        With({ref: \"SUB-\" & Text(created.ID, \"00000\")},\n            IfError(\n                created,\n                    Notify(\"The submission was not saved: \" & FirstError.Message, NotificationType.Error),\n                Patch('MCHF Submissions', created, {Title: ref}),\n                    Notify(\"Item \" & created.ID & \" was saved, but its reference could not be set: \" & FirstError.Message, NotificationType.Error),\n                ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),\n                    Notify(ref & \" was saved, but its fund lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(\n                    tglSoftCredit.Value,\n                    ForAll(\n                        colSoftCredits As sc,\n                        Patch(\n                            'MCHF - Soft Credits',\n                            Defaults('MCHF - Soft Credits'),\n                            {\n                                Title: sc.constituentId,\n                                'Constituent ID': sc.constituentId,\n                                'Constituent Name': sc.constituentName,\n                                Amount: sc.amount,\n                                Submission: {Id: created.ID, Value: ref},\n                                'Submission Reference': ref\n                            }\n                        )\n                    )\n                ),\n                    Notify(ref & \" was saved, but its soft credits were not: \" & FirstError.Message, NotificationType.Error),\n                If(\n                    tglPledgePayment.Value,\n                    ForAll(\n                        colPledgeLines As pledgeLine,\n                        Patch(\n                            'MCHF - Pledge Payments',\n                            Defaults('MCHF - Pledge Payments'),\n                            {\n                                Title: pledgeLine.pledgeId,\n                                'Pledge ID': pledgeLine.pledgeId,\n                                'Pledge Constituent ID': pledgeLine.constituentId,\n                                'Pledge Constituent Name': pledgeLine.constituentName,\n                                'Pledge Balance': pledgeLine.balance,\n                                Amount: pledgeLine.amount,\n                                Submission: {Id: created.ID, Value: ref},\n                                'Submission Reference': ref\n                            }\n                        )\n                    )\n                ),\n                    Notify(ref & \" was saved, but its pledge lines were not: \" & FirstError.Message, NotificationType.Error),\n                If(\n                    ddGiftType.Selected.code = \"Pledge\",\n                    ForAll(\n                        colInstallments As inst,\n                        Patch(\n                            'MCHF - Pledge Installments',\n                            Defaults('MCHF - Pledge Installments'),\n                            {\n                                Title: Text(inst.seq),\n                                'Installment Number': inst.seq,\n                                'Due Date': inst.due,\n                                Amount: inst.amount,\n                                Submission: {Id: created.ID, Value: ref},\n                                'Submission Reference': ref\n                            }\n                        )\n                    )\n                ),\n                    Notify(ref & \" was saved, but its pledge installments were not: \" & FirstError.Message, NotificationType.Error),\n                If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),\n                    Notify(ref & \" was saved, but the payment could not be linked to it: \" & FirstError.Message, NotificationType.Error),\n                UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});\n                Notify(\"Soumission réussie. Référence : \" & ref, NotificationType.Success))))),\n    Notify(\"Some fields need your attention.\", NotificationType.Error)\n)"
                 },
                 "children": []
               },
@@ -513,7 +513,8 @@
                   "Color": "RGBA(33, 37, 41, 1)",
                   "Fill": "RGBA(255, 255, 255, 1)",
                   "BorderColor": "RGBA(134, 142, 150, 1)",
-                  "Size": "13"
+                  "Size": "13",
+                  "OnChange": "Clear(colInstallments);\r\nUpdateContext({varScheduleError: \"\", varScheduledCount: 0});\r\nReset(txtInstallmentCount);\r\nReset(dpFirstInstallment);\r\nIf(ddGiftType.Selected.code = \"Pledge\", Reset(tglPledgePayment);\r\nClear(colOpenPledges); \r\nClear(colPledgeLines));"
                 },
                 "children": []
               },
@@ -2607,6 +2608,304 @@
                 "children": []
               },
               {
+                "name": "lblInstallmentCount",
+                "type": "Label",
+                "properties": {
+                  "X": "444",
+                  "Y": "726",
+                  "Width": "155",
+                  "Height": "32",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && !tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Number of installments\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "txtInstallmentCount",
+                "type": "TextInput",
+                "properties": {
+                  "X": "444",
+                  "Y": "760",
+                  "Width": "140",
+                  "Height": "36",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && !tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Default": "\"\"",
+                  "HintText": "\"1 to 5\"",
+                  "Mode": "TextMode.SingleLine",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblFrequency",
+                "type": "Label",
+                "properties": {
+                  "X": "594",
+                  "Y": "726",
+                  "Width": "110",
+                  "Height": "32",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && !tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Frequency\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "ddFrequency",
+                "type": "Dropdown",
+                "properties": {
+                  "X": "594",
+                  "Y": "760",
+                  "Width": "115",
+                  "Height": "36",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && !tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "[\"Annual\"]",
+                  "Default": "\"Annual\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13"
+                },
+                "children": []
+              },
+              {
+                "name": "lblFirstInstallment",
+                "type": "Label",
+                "properties": {
+                  "X": "719",
+                  "Y": "726",
+                  "Width": "145",
+                  "Height": "32",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && !tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"First installment date\"",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "dpFirstInstallment",
+                "type": "DatePicker",
+                "properties": {
+                  "X": "719",
+                  "Y": "760",
+                  "Width": "140",
+                  "Height": "36",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && !tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "DefaultDate": "Blank()",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(255, 255, 255, 1)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "Size": "13",
+                  "OnChange": "Clear(colInstallments)"
+                },
+                "children": []
+              },
+              {
+                "name": "btnBuildSchedule",
+                "type": "Button",
+                "properties": {
+                  "X": "444",
+                  "Y": "802",
+                  "Width": "165",
+                  "Height": "34",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && !tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Build schedule\"",
+                  "Color": "RGBA(255, 255, 255, 1)",
+                  "Fill": "RGBA(15, 108, 101, 1)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "13",
+                  "FontWeight": "FontWeight.Semibold",
+                  "OnSelect": "With(\r\n    {\r\n        rawN: Trim(txtInstallmentCount.Text),\r\n        n: IfError(Value(Trim(txtInstallmentCount.Text)), 0),\r\n        total: IfError(Value(Trim(txtGiftAmount.Text)), 0),\r\n        first: dpFirstInstallment.SelectedDate\r\n    },\r\n    If(\r\n        !IsMatch(rawN, \"^[1-5]$\"),\r\n            UpdateContext({varScheduleError: \"Enter a number of installments from 1 to 5.\"}),\r\n        IsBlank(first),\r\n            UpdateContext({varScheduleError: \"Choose the first installment date.\"}),\r\n        !IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") || total <= 0,\r\n            UpdateContext({varScheduleError: \"Enter a valid gift amount first.\"}),\r\n        ClearCollect(\r\n            colInstallments,\r\n            ForAll(\r\n                Sequence(n),\r\n                {\r\n                    seq: Value,\r\n                    due: DateAdd(first, Value - 1, TimeUnit.Years),\r\n                    amount: If(\r\n                        Value < n,\r\n                        RoundDown(total / n, 2),\r\n                        Round(total - RoundDown(total / n, 2) * (n - 1), 2)\r\n                    )\r\n                }\r\n            )\r\n        );\r\n        UpdateContext({varScheduleError: \"\", varScheduledCount: n})\r\n    )\r\n)"
+                },
+                "children": []
+              },
+              {
+                "name": "lblScheduleError",
+                "type": "Label",
+                "properties": {
+                  "X": "615",
+                  "Y": "802",
+                  "Width": "245",
+                  "Height": "34",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && !IsBlank(varScheduleError)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "varScheduleError",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "galInstallments",
+                "type": "Gallery",
+                "properties": {
+                  "X": "444",
+                  "Y": "842",
+                  "Width": "415",
+                  "Height": "118",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && !tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Items": "colInstallments",
+                  "TemplateSize": "38",
+                  "TemplateFill": "RGBA(0, 0, 0, 0)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(134, 142, 150, 1)",
+                  "BorderThickness": "1"
+                },
+                "children": [
+                  {
+                    "name": "lblInstSeq",
+                    "type": "Label",
+                    "properties": {
+                      "X": "8",
+                      "Y": "4",
+                      "Width": "45",
+                      "Height": "30",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "\"#\" & Text(ThisItem.seq)",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "lblInstDate",
+                    "type": "Label",
+                    "properties": {
+                      "X": "60",
+                      "Y": "4",
+                      "Width": "140",
+                      "Height": "30",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Text": "Text(ThisItem.due, \"yyyy-mm-dd\")",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(0, 0, 0, 0)",
+                      "BorderColor": "RGBA(0, 0, 0, 0)",
+                      "BorderThickness": "0",
+                      "Size": "13",
+                      "FontWeight": "FontWeight.Normal",
+                      "Align": "Align.Left",
+                      "VerticalAlign": "VerticalAlign.Middle"
+                    },
+                    "children": []
+                  },
+                  {
+                    "name": "txtInstAmount",
+                    "type": "TextInput",
+                    "properties": {
+                      "X": "210",
+                      "Y": "4",
+                      "Width": "135",
+                      "Height": "30",
+                      "Visible": "true",
+                      "DisplayMode": "DisplayMode.Edit",
+                      "Default": "Text(ThisItem.amount, \"0.00\")",
+                      "HintText": "\"\"",
+                      "Mode": "TextMode.SingleLine",
+                      "Color": "RGBA(33, 37, 41, 1)",
+                      "Fill": "RGBA(255, 255, 255, 1)",
+                      "BorderColor": "RGBA(134, 142, 150, 1)",
+                      "BorderThickness": "1",
+                      "Size": "13",
+                      "OnChange": "Patch(\r\n    colInstallments,\r\n    ThisItem,\r\n    {\r\n        amount: If(\r\n            IsMatch(Trim(Self.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(Trim(Self.Text)) > 0,\r\n            Value(Trim(Self.Text)),\r\n            0\r\n        )\r\n    }\r\n)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "name": "lblInstallmentsTotal",
+                "type": "Label",
+                "properties": {
+                  "X": "444",
+                  "Y": "963",
+                  "Width": "415",
+                  "Height": "22",
+                  "Visible": "ddGiftType.Selected.code = \"Pledge\" && CountRows(colInstallments) > 0 && !tglPledgePayment.Value",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "\"Total scheduled: \" & Text(Sum(colInstallments, amount), \"$#,##0.00\") & If(IsMatch(Trim(txtGiftAmount.Text), \"^\\d+(\\.\\d{1,2})?$\") && Value(txtGiftAmount.Text) > 0, \" / \" & Text(Value(txtGiftAmount.Text), \"$#,##0.00\"), \"\")",
+                  "Color": "RGBA(33, 37, 41, 1)",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "12",
+                  "FontWeight": "FontWeight.Semibold",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
+                "name": "lblErrInstallments",
+                "type": "Label",
+                "properties": {
+                  "X": "444",
+                  "Y": "986",
+                  "Width": "420",
+                  "Height": "26",
+                  "Visible": "varTried && ddGiftType.Selected.code = \"Pledge\" && !(\r\n    IsMatch(Trim(txtInstallmentCount.Text), \"^[1-5]$\") &&\r\n    !IsBlank(dpFirstInstallment.SelectedDate) &&\r\n    CountRows(colInstallments) = Value(Trim(txtInstallmentCount.Text)) &&\r\n    CountRows(Filter(colInstallments, amount <= 0)) = 0 &&\r\n    Abs(Sum(colInstallments, amount) - IfError(Value(Trim(txtGiftAmount.Text)), 0)) < 0.005\r\n)",
+                  "DisplayMode": "DisplayMode.Edit",
+                  "Text": "If(\r\n    !IsMatch(Trim(txtInstallmentCount.Text), \"^[1-5]$\"),\r\n        \"Enter a number of installments from 1 to 5.\",\r\n    IsBlank(dpFirstInstallment.SelectedDate),\r\n        \"Choose the first installment date.\",\r\n    CountRows(colInstallments) = 0 || CountRows(colInstallments) <> Value(Trim(txtInstallmentCount.Text)),\r\n        \"Build the schedule.\",\r\n    CountRows(Filter(colInstallments, amount <= 0)) > 0,\r\n        \"Each installment needs an amount above 0.\",\r\n    \"The installments must total the gift amount (\" & Text(IfError(Value(Trim(txtGiftAmount.Text)), 0), \"0.00\") & \" $).\"\r\n)",
+                  "Color": "Color.Red",
+                  "Fill": "RGBA(0, 0, 0, 0)",
+                  "BorderColor": "RGBA(0, 0, 0, 0)",
+                  "BorderThickness": "0",
+                  "Size": "11",
+                  "FontWeight": "FontWeight.Normal",
+                  "Align": "Align.Left",
+                  "VerticalAlign": "VerticalAlign.Middle"
+                },
+                "children": []
+              },
+              {
                 "name": "rectOverlay",
                 "type": "Rectangle",
                 "properties": {
@@ -2699,7 +2998,7 @@
                   "BorderThickness": "0",
                   "Size": "13",
                   "FontWeight": "FontWeight.Semibold",
-                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nSet(varSoftDonor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(rdoNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount);\nReset(tglTaxReceipt); Reset(txtBenefitAmount); Reset(txtReceiptAmount);\nClear(colPledgeLines);\nClear(colOpenPledges);\nClear(colSoftCredits);\nUpdateContext({varEditSoftId: 0, varSoftLineError: \"\"});\nUpdateContext({\n    varPledgeEditLineId: 0,\n    varPledgeLineError: \"\",\n    varPledgeOwnerId: \"\",\n    varPledgeOwnerName: \"\"\n});\nReset(tglPledgePayment);\nReset(txtPledgeConstituent);\nReset(ddPledge);\nReset(txtPledgeAmount);\nReset(tglSoftCredit);\nReset(txtSoftId); \nReset(txtSoftAmount)"
+                  "OnSelect": "UpdateContext({varShowSuccessPopup: false, varSubmissionRef: \"\", varTried: false, varEditLineId: 0, varLineError: \"\"});\n// The next gift is entered by hand: forget the payment, donor and solicitor that were just coded\nSet(varPaymentRecord, Blank());\nSet(varDonor, Blank());\nSet(varSolicitor, Blank());\nSet(varSoftDonor, Blank());\nClear(colFundLines);\nReset(txtConstituentId); Reset(rdoNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);\nReset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);\nReset(txtPackage); Reset(txtSolicitor); Reset(txtNotes);\nReset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount);\nReset(tglTaxReceipt); Reset(txtBenefitAmount); Reset(txtReceiptAmount);\nClear(colPledgeLines);\nClear(colOpenPledges);\nClear(colSoftCredits);\nClear(colInstallments);\nUpdateContext({varScheduleError: \"\", varScheduledCount: 0});\nUpdateContext({varEditSoftId: 0, varSoftLineError: \"\"});\nUpdateContext({\n    varPledgeEditLineId: 0,\n    varPledgeLineError: \"\",\n    varPledgeOwnerId: \"\",\n    varPledgeOwnerName: \"\"\n});\nReset(tglPledgePayment);\nReset(txtPledgeConstituent);\nReset(ddPledge);\nReset(txtPledgeAmount);\nReset(tglSoftCredit);\nReset(txtSoftId); \nReset(txtSoftAmount);\nReset(txtInstallmentCount);\nReset(ddFrequency);\nReset(dpFirstInstallment);"
                 },
                 "children": []
               }
@@ -3415,6 +3714,67 @@
                 "name": "ConstituentName",
                 "displayName": "Constituent Name",
                 "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Amount",
+                "displayName": "Amount",
+                "type": "currency",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              }
+            ]
+          },
+          {
+            "kind": "list",
+            "name": "MCHF - Pledge Installments",
+            "id": "3d207ee1-2b06-4944-9f98-06d8c3b3a513",
+            "columns": [
+              {
+                "name": "Title",
+                "displayName": "Titre",
+                "type": "text",
+                "multiple": false,
+                "required": true,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "Submission",
+                "displayName": "Submission",
+                "type": "lookup",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": "d92675c6-cec4-453c-8b5a-9dbb7196ba87"
+              },
+              {
+                "name": "Submission_x0020_Reference",
+                "displayName": "Submission Reference",
+                "type": "text",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "InstallmentNumber",
+                "displayName": "Installment Number",
+                "type": "number",
+                "multiple": false,
+                "required": false,
+                "choices": [],
+                "lookupListId": null
+              },
+              {
+                "name": "DueDate",
+                "displayName": "Due Date",
+                "type": "date",
                 "multiple": false,
                 "required": false,
                 "choices": [],

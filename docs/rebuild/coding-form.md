@@ -1,15 +1,19 @@
 # Coding Form: Simple Gift
 
-Related issues: [#8](https://github.com/hack4impact/mchf-project/issues/8) (with follow-ups from PR #38), [#22](https://github.com/hack4impact/mchf-project/issues/22) (Package, Assigned Solicitor and Notes), [#23](https://github.com/hack4impact/mchf-project/issues/23) (Tax receipt section and receipt amount), [#25](https://github.com/hack4impact/mchf-project/issues/25) (New donor question), [#26](https://github.com/hack4impact/mchf-project/issues/26) (Same-donor check), [#53](https://github.com/hack4impact/mchf-project/issues/53) (Pledge payment)
+Related issues: [#8](https://github.com/hack4impact/mchf-project/issues/8) (with follow-ups from PR #38), [#22](https://github.com/hack4impact/mchf-project/issues/22) (Package, Assigned Solicitor and Notes), [#23](https://github.com/hack4impact/mchf-project/issues/23) (Tax receipt section and receipt amount), [#25](https://github.com/hack4impact/mchf-project/issues/25) (New donor question), [#26](https://github.com/hack4impact/mchf-project/issues/26) (Same-donor check), [#53](https://github.com/hack4impact/mchf-project/issues/53) (Pledge payment), [#54](https://github.com/hack4impact/mchf-project/issues/54) (Soft credits), [#55](https://github.com/hack4impact/mchf-project/issues/55) (Pledge installment schedule)
 App: **MCHF - Coding Form** (Équipe)
 Lab export: `lab/solutions/mchf-coding-form.solution.json` (the app and manual test flow, with no list items)
 
 A fundraiser enters one simple gift: the donor (or a new donor), the gift, its
 coding (campaign, appeal, one fund or a split across several funds, optional package,
-assigned solicitor and notes), and whether a tax receipt should be issued (with
-optional benefit amount and calculated/editable receipt amount). The form saves it as
-a submission with the status `Submitted`, gives it a reference `SUB-00001`, writes
-its fund lines, and links it to the payment it codes when opened from the Payment Log or when the fundraiser claims a payment in the form. For a pledge payment, it also writes one linked line per pledge paid.
+assigned solicitor and notes), whether a tax receipt should be issued (with
+optional benefit amount and calculated/editable receipt amount), optional soft credits,
+and pledge-specific details (linked open pledges for a pledge payment, or an annual
+installment schedule for a new pledge). The form saves it as a submission with the
+status `Submitted`, gives it a reference `SUB-00001`, writes its fund lines, child
+records (`MCHF - Soft Credits`, `MCHF - Pledge Payments`, `MCHF - Pledge Installments`),
+and links it to the payment it codes when opened from the Payment Log or when the
+fundraiser claims a payment in the form.
 
 Lab only. Saving uses `Patch` on lab lists; the real Power Apps and SharePoint
 version is rebuilt and tested in Sprint 4 (see section 7).
@@ -28,8 +32,10 @@ which one (section 4, `btnSubmit.OnSelect`):
 | 1 | `MCHF Submissions` | New item, `Title` = `"NEW"`, every field below, `Processing status` = `Submitted` |
 | 2 | `MCHF Submissions` | Same item, `Title` = `"SUB-" & Text(ID, "00000")` (data dictionary, #1) |
 | 3 | `MCHF Fund Lines` | One line per fund: `Title` = fund code, `Submission` = lookup to the new item, `Submission Reference` = its SUB number, `Amount`. Without a split: one line, the chosen fund, the whole gift amount |
-| 4 | `MCHF - Pledge Payments` | On Yes: one line per pledge with its ID, owner, balance, payment amount, and submission lookup and reference. |
-| 5 | `MCHF - Payment Log` | When a payment was loaded through `paymentId` or claimed in the same-donor panel: `Submission Reference` = the SUB number |
+| 4 | `MCHF - Soft Credits` | On Yes (`tglSoftCredit.Value`): one line per credited constituent (`Title` = `Constituent ID`, `Constituent ID`, `Constituent Name`, `Amount`, `Submission`, `Submission Reference`) |
+| 5 | `MCHF - Pledge Payments` | On Yes (`tglPledgePayment.Value`): one line per pledge with its ID, owner, balance, payment amount, and submission lookup and reference |
+| 6 | `MCHF - Pledge Installments` | When `Gift Type` = `"Pledge"`: one line per installment (`Title` = `Text(seq)`, `Installment Number`, `Due Date`, `Amount`, `Submission`, `Submission Reference`) |
+| 7 | `MCHF - Payment Log` | When a payment was loaded through `paymentId` or claimed in the same-donor panel: `Submission Reference` = the SUB number |
 
 Then a popup shows the SUB number.
 
@@ -54,13 +60,17 @@ Then a popup shows the SUB number.
 | `TaxReceipt` | Boolean (`tglTaxReceipt.Value`): `true` if a tax receipt is to be issued, `false` otherwise |
 | `BenefitAmount` | Benefit amount (`Value(txtBenefitAmount.Text)`) when `TaxReceipt` is `true` and the input is non-empty; `Blank()` otherwise |
 | `ReceiptAmount` | Receipt amount (`Value(txtReceiptAmount.Text)`), defaulting to `Gift Amount - Benefit Amount` and editable when `TaxReceipt` is `true`; `Blank()` when `false` |
+| `Soft Credit` | Boolean from `tglSoftCredit.Value`, default No |
 | `Pledge Payment` | Boolean from `tglPledgePayment.Value`, default No |
+| `Installment Count` | Integer `1` to `5` (`Value(Trim(txtInstallmentCount.Text))`) when `Gift Type` = `"Pledge"`; `Blank()` otherwise |
+| `Installment Frequency` | `"Annual"` when `Gift Type` = `"Pledge"`; `Blank()` otherwise |
+| `First Installment Date` | Date from `dpFirstInstallment.SelectedDate` when `Gift Type` = `"Pledge"`; `Blank()` otherwise |
 | `Payment Reference` | The payment's `Reference` (e.g. `PAY-00012`), when there is one |
 
 ## 2. Screen
 
 `Screen1`, tablet 1366 × 1080. Most labels are in French. The new-donor question and controls are in English; the donor and
-solicitor lookup messages are the English ones of the #2 and #22 contracts.
+solicitor lookup messages are the English ones of the #2 and #22 contracts, and Sprint 4 sections (#53, #54, #55) are in English.
 
 - **Left column:** `txtConstituentId` + `btnSearchDonor` ("Lookup"); under them one
   line that shows the donor's name (`lblConstituentName`), a lookup message
@@ -72,16 +82,23 @@ solicitor lookup messages are the English ones of the #2 and #22 contracts.
   `txtReceiptAmount` ("Montant du reçu ($)") (visible only when
   `tglTaxReceipt.Value` is `true`), `lblErrTaxReceipt`.
 - **Middle column:** `dpGiftDate`, `ddGiftType`, `ddPaymentType`, `ddCampaign`,
-  `ddAppeal`, `ddFund` (hidden when the gift is split), and `txtPackage`
-  ("Package (facultatif)").
+  `ddAppeal`, `ddFund` (hidden when the gift is split), `txtPackage`
+  ("Package (facultatif)"), and below it the conditional **Pledge Installment Schedule**
+  block (#55, visible only when `ddGiftType.Selected.code = "Pledge" && !tglPledgePayment.Value`):
+  `txtInstallmentCount` ("Number of installments"), `ddFrequency` ("Frequency", `"Annual"`),
+  `dpFirstInstallment` ("First installment date"), `btnBuildSchedule` ("Build schedule"),
+  `lblScheduleError`, `galInstallments` (editable installment amounts), `lblInstallmentsTotal`,
+  and `lblErrInstallments`.
 - **Right column:** `txtSolicitor` ("Sollicitateur assigné (facultatif)") +
   `btnCheckSolicitor` ("Check"), `lblSolicitor` (active solicitor name in black or
   check error in red), `lblErrSolicitor` (Submit validation message), the toggle
   `tglSplitFunds`, then for a split: `ddLineFund` + `txtLineAmount`, `btnAddLine`
   ("Ajouter la ligne" / "Mettre à jour la ligne"), `btnCancelLine`, the gallery
   `galFundLines` (fund, amount, edit and delete icons), `lblFundTotal` and
-  `lblErrFundLines`; at the bottom, `txtNotes` ("Notes (facultatif)", multiline).
-- **Below the main columns:** the pledge payment toggle and conditional line editor (#53, section 4). Submit sits below that section.
+  `lblErrFundLines`; below that, `txtNotes` ("Notes (facultatif)", multiline), and
+  the **Soft Credit** toggle `tglSoftCredit` ("Is there a soft credit to apply?") with
+  its multi-entry lookup and gallery `galSoftCredits` (#54).
+- **Bottom-left / center:** the pledge payment toggle `tglPledgePayment` ("Is this a pledge payment?") and conditional line editor (#53, section 4). Submit sits below that section.
 - **Under every required field:** a red label `lblErr…`, visible only after a
   Submit attempt (`varTried`) while that field is invalid.
 - **Success popup:** `rectOverlay`, `rectModalCard`, `lblSuccessTitle`,
@@ -150,6 +167,13 @@ solicitor lookup messages are the English ones of the #2 and #22 contracts.
   icon removes it. The same fund cannot be on two lines. Submit is blocked until
   there is at least one line and the lines add up to the gift amount (to the cent).
   The lines are kept in the collection `colFundLines` until the submission is saved.
+- **Soft credits (#54).** `tglSoftCredit` ("Is there a soft credit to apply?") defaults
+  to `false` (No). On Yes, the fundraiser looks up a 7-digit Constituent ID (`btnCheckSoft`
+  using the #2 lookup messages), enters a credited amount > 0, and adds rows to
+  `colSoftCredits`. Duplicate constituents are blocked (`"This constituent already has a soft credit: edit its line."`).
+  Submit is blocked on Yes with zero entries (`"Add a soft credit, or answer No."`).
+  No total check is enforced and crediting the legal donor is allowed (lab assumption).
+- **Annual pledge installment schedule (#55).** Shown only when `ddGiftType.Selected.code = "Pledge"` (and `tglPledgePayment` is No). The fundraiser enters an integer count `1` to `5`, keeps `Annual` frequency, picks `First installment date`, and clicks `Build schedule` (`btnBuildSchedule`). The schedule fills `colInstallments` with annual due dates (`DateAdd(first, Value - 1, TimeUnit.Years)`) and equal amounts rounded down to 2 decimals (`RoundDown(total / n, 2)`), with the final installment absorbing any rounding difference (`Round(total - RoundDown(total / n, 2) * (n - 1), 2)`). Individual installment amounts are editable inline in `galInstallments`; Submit requires 1–5 installments, a valid start date, a built schedule matching the count, every installment > 0, and a sum matching `Gift Amount` within `0.005`. Switching `Gift Type` or closing the success popup clears `colInstallments`. For any gift type other than `"Pledge"`, no installment is saved and the three schedule columns on `MCHF Submissions` remain blank.
 - **Amounts.** Gift amount: digits with up to two decimals, more than 0. Fees: empty,
   or digits with up to two decimals and no more than the gift amount. The net amount
   shows only when both are valid. The gift amount is never changed.
@@ -163,10 +187,11 @@ solicitor lookup messages are the English ones of the #2 and #22 contracts.
   `paymentId` that matches no payment, or a payment that already has a
   `Submission Reference`, shows a warning; the second case is not blocked.
 - **After a save.** "Fermer et réinitialiser" clears every field (including
-  `txtPackage`, `txtSolicitor`, `txtNotes`, `tglTaxReceipt`, `txtBenefitAmount` and
-  `txtReceiptAmount`), `varDonor`, `varSolicitor`, the fund lines and
-  `varPaymentRecord`, so the next gift cannot be linked to the payment that was
-  just coded.
+  `txtPackage`, `txtSolicitor`, `txtNotes`, `tglTaxReceipt`, `txtBenefitAmount`,
+  `txtReceiptAmount`, `tglSoftCredit`, `tglPledgePayment`, and the pledge schedule
+  controls), `varDonor`, `varSolicitor`, `varSoftDonor`, `colFundLines`, `colSoftCredits`,
+  `colPledgeLines`, `colInstallments`, and `varPaymentRecord`, so the next gift cannot
+  be linked to the payment that was just coded.
 
 ## 4. Formulas
 
@@ -199,11 +224,34 @@ IfError(
 );
 
 // 4. Screen state; colFundLines holds the lines of a gift split across several funds
-UpdateContext({varTried: false, varSubmissionRef: "", varShowSuccessPopup: false, varEditLineId: 0, varLineError: ""});
-Set(varDonor, Blank());
+Set(varDonor, {state: "", systemId: "", lookupId: "", name: "", message: ""});
 Set(varSolicitor, Blank());
+Set(varSoftDonor, Blank());
+UpdateContext({
+    varTried: false,
+    varSubmissionRef: "",
+    varShowSuccessPopup: false,
+    varEditLineId: 0,
+    varLineError: "",
+    varPledgeEditLineId: 0,
+    varPledgeLineError: "",
+    varPledgeOwnerId: "",
+    varPledgeOwnerName: "",
+    varEditSoftId: 0,
+    varSoftLineError: "",
+    varScheduleError: "",
+    varScheduledCount: 0
+});
 ClearCollect(colFundLines, {lineId: 0, fund: "", fundLabel: "", amount: 0});
 Clear(colFundLines);
+ClearCollect(colOpenPledges, {Value: "", pledgeId: "", balance: 0});
+Clear(colOpenPledges);
+ClearCollect(colPledgeLines, {lineId: 0, pledgeId: "", pledgeLabel: "", constituentId: "", constituentName: "", balance: 0, amount: 0});
+Clear(colPledgeLines);
+ClearCollect(colSoftCredits, {lineId: 0, constituentId: "", constituentName: "", amount: 0});
+Clear(colSoftCredits);
+ClearCollect(colInstallments, {seq: 0, due: Today(), amount: 0});
+Clear(colInstallments);
 
 // 5. A prefilled donor is looked up right away (same lookup as the Lookup button, #2 contract)
 If(!IsBlank(varPaymentRecord),
@@ -216,8 +264,9 @@ If(!IsBlank(varPaymentRecord),
                         1, {state: "found", systemId: Text(First(r).id), lookupId: First(r).lookup_id, name: First(r).name, message: ""},
                         {state: "error", systemId: "", lookupId: "", name: "", message: "Several donors match. Contact Gift Processing."})),
                 {state: "error", systemId: "", lookupId: "", name: "", message: "Donor lookup unavailable. Try again in a moment."})))));
-Set(varNewIndividualUrl, "https://example.org/new-individual");
-Set(varNewOrganizationUrl, "https://example.org/new-organization")
+Set(varNewIndividualUrl, "[https://example.org/new-individual](https://example.org/new-individual)");
+Set(varNewOrganizationUrl, "[https://example.org/new-organization](https://example.org/new-organization)")
+
 ```
 
 ### New donor (#25)
@@ -408,6 +457,19 @@ If(
 )
 ```
 
+### Soft credits (#54)
+
+Add `MCHF - Soft Credits` as an app data source.
+
+| Control | Property | Formula |
+|---|---|---|
+| `tglSoftCredit` | `Default` / `OnChange` | `false`; on `false`, clears `colSoftCredits`, resets `varEditSoftId`, `varSoftLineError`, `varSoftDonor`, `txtSoftId`, and `txtSoftAmount` |
+| `txtSoftId` | `OnChange` | `Set(varSoftDonor, Blank())` |
+| `btnCheckSoft` | `OnSelect` | Same 7-digit `RENXT.SearchConstituents` lookup as `btnSearchDonor`, storing result in `varSoftDonor` |
+| `btnAddSoft` | `OnSelect` | Validates `varSoftDonor.state = "found" && varSoftDonor.lookupId = Trim(txtSoftId.Text)`, amount > 0, and uniqueness in `colSoftCredits`, then collects or patches `colSoftCredits` |
+| `galSoftCredits` | `Items` | `colSoftCredits` (displays `constituentId`, `constituentName`, `amount`, edit icon `icoEditSoft`, delete icon `icoDeleteSoft`) |
+| `lblErrSoftCredits` | `Text` / `Visible` | `"Add a soft credit, or answer No."` when `varTried && tglSoftCredit.Value && CountRows(colSoftCredits) = 0` |
+
 ### Pledge payment (#53)
 
 Add `MCHF - Pledge Payments` as an app data source. Re-add `MCHF Submissions`
@@ -525,31 +587,18 @@ Clear(colOpenPledges); Reset(ddPledge); UpdateContext({varPledgeOwnerId: "", var
                                     {Value: "Choose an open pledge", pledgeId: "", balance: 0}
                                 );
                                 ForAll(
-
                                    openPledges As pledge,
-
                                    Collect(
-
                                        colOpenPledges,
-
                                        {
-
                                            Value: "#" & Text(pledge.id) & " · " & Left(Text(pledge.date), 10) &
-
                                                " · " & Text(pledge.amount.value, "0.00") &
-
                                                " $ · balance " & Text(pledge.balance.value, "0.00") & " $",
-
                                            pledgeId: Text(pledge.id),
-
                                            balance: pledge.balance.value
-
                                        }
-
                                    );
-
                                    true
-
                                );
                                 Reset(ddPledge)
                             )
@@ -664,6 +713,88 @@ A final cash pledge payment links to the $100 pledge and fully pays it.
 Each run creates a fresh set of test data in the shared simulator.
 Enable the manual flow in Équipe after merging the change request.
 
+### Annual pledge installment schedule (#55)
+
+Add `MCHF - Pledge Installments` as an app data source.
+
+| Control | Settings |
+|---|---|
+| `txtInstallmentCount` | Integer `1` to `5`. Visible when `ddGiftType.Selected.code = "Pledge" && !tglPledgePayment.Value`. |
+| `ddFrequency` | `Items`: `["Annual"]`, `Default`: `"Annual"`. Visible when `ddGiftType.Selected.code = "Pledge" && !tglPledgePayment.Value`. |
+| `dpFirstInstallment` | Date picker for the first scheduled installment (`DefaultDate`: `Blank()`). |
+| `btnBuildSchedule` | `"Build schedule"`. Rebuilds `colInstallments` and overwrites manual edits. |
+| `galInstallments` | `Items`: `colInstallments`. Displays `"#" & Text(ThisItem.seq)`, `Text(ThisItem.due, "yyyy-mm-dd")`, and editable `txtInstAmount` (`Default`: `Text(ThisItem.amount, "0.00")`). |
+| `lblInstallmentsTotal` | `"Total scheduled: " & Text(Sum(colInstallments, amount), "$#,##0.00") & If(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0, " / " & Text(Value(txtGiftAmount.Text), "$#,##0.00"), "")` |
+
+`ddGiftType.OnChange`:
+
+```powerfx
+Clear(colInstallments);
+UpdateContext({varScheduleError: "", varScheduledCount: 0});
+Reset(txtInstallmentCount);
+Reset(dpFirstInstallment)
+```
+
+`btnBuildSchedule.OnSelect`:
+
+```powerfx
+With(
+    {
+        rawN: Trim(txtInstallmentCount.Text),
+        n: IfError(Value(Trim(txtInstallmentCount.Text)), 0),
+        total: IfError(Value(Trim(txtGiftAmount.Text)), 0),
+        first: dpFirstInstallment.SelectedDate
+    },
+    If(
+        !IsMatch(rawN, "^[1-5]$"),
+            UpdateContext({varScheduleError: "Enter a number of installments from 1 to 5."}),
+        IsBlank(first),
+            UpdateContext({varScheduleError: "Choose the first installment date."}),
+        !IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") || total <= 0,
+            UpdateContext({varScheduleError: "Enter a valid gift amount first."}),
+        ClearCollect(
+            colInstallments,
+            ForAll(
+                Sequence(n),
+                {
+                    seq: Value,
+                    due: DateAdd(first, Value - 1, TimeUnit.Years),
+                    amount: If(
+                        Value < n,
+                        RoundDown(total / n, 2),
+                        Round(total - RoundDown(total / n, 2) * (n - 1), 2)
+                    )
+                }
+            )
+        );
+        UpdateContext({varScheduleError: "", varScheduledCount: n})
+    )
+)
+```
+
+`txtInstAmount.OnChange` (inside `galInstallments`):
+
+```powerfx
+Patch(
+    colInstallments,
+    ThisItem,
+    {
+        amount: If(
+            IsMatch(Trim(Self.Text), "^\d+(\.\d{1,2})?$") && Value(Trim(Self.Text)) > 0,
+            Value(Trim(Self.Text)),
+            0
+        )
+    }
+)
+```
+
+Validation labels for the installment schedule:
+
+| Label | Text | Visible |
+|---|---|---|
+| `lblScheduleError` | `varScheduleError` | `ddGiftType.Selected.code = "Pledge" && !tglPledgePayment.Value && !IsBlank(varScheduleError)` |
+| `lblErrInstallments` | Dynamic check returning `"Enter a number of installments from 1 to 5."`, `"Choose the first installment date."`, `"Build the schedule."`, `"Each installment needs an amount above 0."`, or `"The installments must total the gift amount (<total> $)."` | `varTried && ddGiftType.Selected.code = "Pledge" && !tglPledgePayment.Value && !(IsMatch(Trim(txtInstallmentCount.Text), "^[1-5]$") && !IsBlank(dpFirstInstallment.SelectedDate) && CountRows(colInstallments) = Value(Trim(txtInstallmentCount.Text)) && CountRows(Filter(colInstallments, amount <= 0)) = 0 && Abs(Sum(colInstallments, amount) - IfError(Value(Trim(txtGiftAmount.Text)), 0)) < 0.005)` |
+
 ### `btnSubmit.OnSelect`
 
 ```powerfx
@@ -683,11 +814,19 @@ If(
     (IsBlank(Trim(txtSolicitor.Text)) || varSolicitor.state = "found") &&
     (!tglPledgePayment.Value || (ddGiftType.Selected.code = "Pledge Payment" && CountRows(colPledgeLines) > 0 && Abs(Sum(colPledgeLines, amount) - IfError(Value(txtGiftAmount.Text), 0)) < 0.005)) &&
     (!tglTaxReceipt.Value || (
-        (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtBenefitAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text)))) &&
-        (IsMatch(Trim(txtReceiptAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtReceiptAmount.Text) >= 0 && (!(IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0) || Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text)))
+        (IsBlank(Trim(txtBenefitAmount.Text)) || (IsMatch(Trim(txtBenefitAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtBenefitAmount.Text) >= 0 && Value(txtBenefitAmount.Text) <= Value(txtGiftAmount.Text))) &&
+        (IsMatch(Trim(txtReceiptAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtReceiptAmount.Text) >= 0 && Value(txtReceiptAmount.Text) <= Value(txtGiftAmount.Text))
+    )) &&
+    (!tglSoftCredit.Value || CountRows(colSoftCredits) > 0) &&
+    (ddGiftType.Selected.code <> "Pledge" || (
+        IsMatch(Trim(txtInstallmentCount.Text), "^[1-5]$") &&
+        !IsBlank(dpFirstInstallment.SelectedDate) &&
+        CountRows(colInstallments) = Value(Trim(txtInstallmentCount.Text)) &&
+        CountRows(Filter(colInstallments, amount <= 0)) = 0 &&
+        Abs(Sum(colInstallments, amount) - IfError(Value(Trim(txtGiftAmount.Text)), 0)) < 0.005
     )),
     // 1. Save with a temporary Title, 2. set the reference SUB-00001 from the new ID (#1 data dictionary),
-    // 3. save fund lines, 4. save pledge lines if applicable, 5. link the payment.
+    // 3. save fund lines, 4. save soft credits, 5. save pledge payment lines, 6. save pledge installments, 7. link the payment.
     // Stops at the first failure. The submission's Fund is the primary fund: the largest line.
     With({lines: If(tglSplitFunds.Value, colFundLines,
             Table({lineId: 1, fund: ddFund.Selected.code, fundLabel: ddFund.Selected.Value, amount: Value(txtGiftAmount.Text)}))},
@@ -701,6 +840,10 @@ If(
             'Gift Date': dpGiftDate.SelectedDate,
             'Gift Type': ddGiftType.Selected.code,
             'Pledge Payment': tglPledgePayment.Value,
+            'Soft Credit': tglSoftCredit.Value,
+            'Installment Count': If(ddGiftType.Selected.code = "Pledge", Value(Trim(txtInstallmentCount.Text)), Blank()),
+            'Installment Frequency': If(ddGiftType.Selected.code = "Pledge", "Annual", Blank()),
+            'First Installment Date': If(ddGiftType.Selected.code = "Pledge", dpFirstInstallment.SelectedDate, Blank()),
             'Gift Amount': Value(txtGiftAmount.Text),
             Fees: Coalesce(Value(txtFees.Text), 0),
             'Net Amount': Value(txtGiftAmount.Text) - Coalesce(Value(txtFees.Text), 0),
@@ -725,6 +868,25 @@ If(
                 ForAll(lines As line, Patch('MCHF Fund Lines', Defaults('MCHF Fund Lines'), {Title: line.fund, Submission: {Id: created.ID, Value: ref}, 'Submission Reference': ref, Amount: line.amount})),
                     Notify(ref & " was saved, but its fund lines were not: " & FirstError.Message, NotificationType.Error),
                 If(
+                    tglSoftCredit.Value,
+                    ForAll(
+                        colSoftCredits As sc,
+                        Patch(
+                            'MCHF - Soft Credits',
+                            Defaults('MCHF - Soft Credits'),
+                            {
+                                Title: sc.constituentId,
+                                'Constituent ID': sc.constituentId,
+                                'Constituent Name': sc.constituentName,
+                                Amount: sc.amount,
+                                Submission: {Id: created.ID, Value: ref},
+                                'Submission Reference': ref
+                            }
+                        )
+                    )
+                ),
+                    Notify(ref & " was saved, but its soft credits were not: " & FirstError.Message, NotificationType.Error),
+                If(
                     tglPledgePayment.Value,
                     ForAll(
                         colPledgeLines As pledgeLine,
@@ -745,6 +907,25 @@ If(
                     )
                 ),
                     Notify(ref & " was saved, but its pledge lines were not: " & FirstError.Message, NotificationType.Error),
+                If(
+                    ddGiftType.Selected.code = "Pledge",
+                    ForAll(
+                        colInstallments As inst,
+                        Patch(
+                            'MCHF - Pledge Installments',
+                            Defaults('MCHF - Pledge Installments'),
+                            {
+                                Title: Text(inst.seq),
+                                'Installment Number': inst.seq,
+                                'Due Date': inst.due,
+                                Amount: inst.amount,
+                                Submission: {Id: created.ID, Value: ref},
+                                'Submission Reference': ref
+                            }
+                        )
+                    )
+                ),
+                    Notify(ref & " was saved, but its pledge installments were not: " & FirstError.Message, NotificationType.Error),
                 If(!IsBlank(varPaymentRecord), Patch('MCHF - Payment Log', varPaymentRecord, {'Submission Reference': ref})),
                     Notify(ref & " was saved, but the payment could not be linked to it: " & FirstError.Message, NotificationType.Error),
                 UpdateContext({varSubmissionRef: ref, varShowSuccessPopup: true, varTried: false});
@@ -797,6 +978,7 @@ UpdateContext({varShowSuccessPopup: false, varSubmissionRef: "", varTried: false
 Set(varPaymentRecord, Blank());
 Set(varDonor, Blank());
 Set(varSolicitor, Blank());
+Set(varSoftDonor, Blank());
 Clear(colFundLines);
 Reset(txtConstituentId); Reset(rdoNewDonor); Reset(txtNewDonorName); Reset(txtGiftAmount); Reset(txtFees); Reset(dpGiftDate);
 Reset(ddGiftType); Reset(ddPaymentType); Reset(ddCampaign); Reset(ddAppeal); Reset(ddFund);
@@ -805,16 +987,28 @@ Reset(tglTaxReceipt); Reset(txtBenefitAmount); Reset(txtReceiptAmount);
 Reset(tglSplitFunds); Reset(ddLineFund); Reset(txtLineAmount);
 Clear(colPledgeLines);
 Clear(colOpenPledges);
+Clear(colSoftCredits);
+Clear(colInstallments);
 UpdateContext({
+    varEditSoftId: 0,
+    varSoftLineError: "",
     varPledgeEditLineId: 0,
     varPledgeLineError: "",
     varPledgeOwnerId: "",
-    varPledgeOwnerName: ""
+    varPledgeOwnerName: "",
+    varScheduleError: "",
+    varScheduledCount: 0
 });
 Reset(tglPledgePayment);
 Reset(txtPledgeConstituent);
 Reset(ddPledge);
-Reset(txtPledgeAmount)
+Reset(txtPledgeAmount);
+Reset(tglSoftCredit);
+Reset(txtSoftId);
+Reset(txtSoftAmount);
+Reset(txtInstallmentCount);
+Reset(ddFrequency);
+Reset(dpFirstInstallment)
 ```
 
 ### Defaults
@@ -850,6 +1044,7 @@ Reset(txtPledgeAmount)
 | `ddAppeal` | `Items` | `colAppeals` |
 | `ddFund` | `Items` | `colFunds` |
 | `ddLineFund` | `Items` | `colFunds` |
+| `ddFrequency` | `Items` / `Default` | `["Annual"]` / `"Annual"` |
 | `btnSubmit` | `DisplayMode` | `DisplayMode.Edit` |
 | `lblFundTotal` | `Text` | `"Total des lignes : " & Text(Sum(colFundLines, amount), "$#,##0.00") & If((IsMatch(Trim(txtGiftAmount.Text), "^\d+(\.\d{1,2})?$") && Value(txtGiftAmount.Text) > 0), " sur " & Text(Value(txtGiftAmount.Text), "$#,##0.00"), "")` |
 
@@ -874,6 +1069,10 @@ Reset(txtPledgeAmount)
 | `lblConstituentName` | `varDonor.name` | `(rdoNewDonor.Selected.Value = "No") && varDonor.state = "found"` | `RGBA(33, 37, 41, 1)` |
 | `lblSolicitor` | `If(varSolicitor.state = "found", varSolicitor.name, varSolicitor.message)` | `true` | `If(varSolicitor.state = "found", Color.Black, Color.Red)` |
 | `lblErrSolicitor` | `"Check the solicitor's ID, or leave it empty."` | `varTried && !IsBlank(Trim(txtSolicitor.Text)) && varSolicitor.state <> "found"` | `Color.Red` |
+| `lblSoftLineError` | `varSoftLineError` | `tglSoftCredit.Value && !IsBlank(varSoftLineError)` | `Color.Red` |
+| `lblErrSoftCredits` | `"Add a soft credit, or answer No."` | `varTried && tglSoftCredit.Value && CountRows(colSoftCredits) = 0` | `Color.Red` |
+| `lblScheduleError` | `varScheduleError` | `ddGiftType.Selected.code = "Pledge" && !tglPledgePayment.Value && !IsBlank(varScheduleError)` | `Color.Red` |
+| `lblErrInstallments` | Dynamic schedule validation message (`1 to 5`, `first installment date`, `Build the schedule.`, `above 0`, or `must total the gift amount`) | `varTried && ddGiftType.Selected.code = "Pledge" && !tglPledgePayment.Value && !(IsMatch(Trim(txtInstallmentCount.Text), "^[1-5]$") && !IsBlank(dpFirstInstallment.SelectedDate) && CountRows(colInstallments) = Value(Trim(txtInstallmentCount.Text)) && CountRows(Filter(colInstallments, amount <= 0)) = 0 && Abs(Sum(colInstallments, amount) - IfError(Value(Trim(txtGiftAmount.Text)), 0)) < 0.005)` | `Color.Red` |
 
 `lblNetAmount.Text`:
 
@@ -963,12 +1162,37 @@ In Alexandre’s personal environment:
 | Submit a $150 pledge payment split between two pledges | `SUB-00038` has two linked rows, $100 on `51308` and $50 on `51309`. Closing the success popup clears the pledge section and restores No. |
 | Add a line, switch to No, then submit a valid one-time gift | `SUB-00039` has `Pledge Payment` set to No and zero linked pledge rows. |
 
+### Soft credit tests (#54)
+
+Run on 2026-11-27 in Yasmine's personal environment:
+
+| Test | Result |
+|---|---|
+| Toggle Yes and add two soft credits (`9999002` and `9999003`), Submit | Saved with `Soft Credit = Yes` on `MCHF Submissions` and two linked rows in `MCHF - Soft Credits` |
+| Enter unknown ID `7654321` and click Look up | Shows `"No donor with this Constituent ID. Check the number."` and blocks adding the line |
+| Add the same constituent ID twice | Shows `"This constituent already has a soft credit: edit its line."` and refuses duplicate |
+| Toggle Yes with zero lines and click Submit | Blocks Submit with `"Add a soft credit, or answer No."` |
+| Toggle back to No and submit | Saves `Soft Credit = No` with zero soft credit records |
+
+### Pledge installment schedule tests (#55)
+
+Run on 2026-11-27 in Yasmine's personal environment:
+
+| Test | Result |
+|---|---|
+| $300 pledge over 3 years starting `2026-12-01` | Generates `$100.00` on `2026-12-01`, `2027-12-01`, and `2028-12-01` |
+| $100 pledge over 3 years starting `2026-12-01` | Generates `$33.33`, `$33.33`, and `$33.34` (rounding absorbed by final installment) |
+| Edit line #1 from `33.33` to `40.33` (total `$107.00 / $100.00`), click Submit | Blocks Submit with `"The installments must total the gift amount (100.00 $)."` |
+| Enter `0` or `6` installments and click Build schedule | Refused with `"Enter a number of installments from 1 to 5."` |
+| Switch Gift Type to `One-time gift` and Submit | Hides schedule block, leaves installment columns blank on `MCHF Submissions`, and saves zero rows in `MCHF - Pledge Installments` |
+| Submit valid $300 3-year pledge | Saves `Installment Count = 3`, `Installment Frequency = Annual`, `First Installment Date = 2026-12-01` on `MCHF Submissions` and three linked rows in `MCHF - Pledge Installments` |
+
 ## 6. Where it lives
 
 | What | Where |
 |---|---|
 | App | **MCHF - Coding Form**, Équipe (play: Applications › MCHF - Coding Form) |
-| Lists | `MCHF Submissions`, `MCHF Fund Lines`, `MCHF Payment Types`, `MCHF Gift Types`, `MCHF - Payment Log`, `MCHF - Pledge Payments` |
+| Lists | `MCHF Submissions`, `MCHF Fund Lines`, `MCHF Payment Types`, `MCHF Gift Types`, `MCHF - Payment Log`, `MCHF - Soft Credits`, `MCHF - Pledge Payments`, `MCHF - Pledge Installments` |
 | Test flow | `MCHF - Create test pledges`, manual flow for simulated RE NXT |
 | Connector | RE NXT (simulated), `RENXT`, with the connection of the person using the app |
 | Export | `lab/solutions/mchf-coding-form.solution.json` |
@@ -976,8 +1200,8 @@ In Alexandre’s personal environment:
 ## 7. Limits and remaining work
 
 - **Abandoned claims (#26).** A payment claimed from the panel stays Claimed if the fundraiser leaves before submitting. Gift Processing can release it manually. Automatic release is an open question for Marc.
-- **Fresh environment.** In a fresh environment, make the required lists available, including `MCHF - Pledge Payments` and the `Pledge Payment` field on `MCHF Submissions`. Populate the active gift types and payment types before testing Submit. To test the panel, add an Unclaimed payment for a donor the lookup can find.
-
+- **Fresh environment.** In a fresh environment, make the required lists available, including `MCHF - Soft Credits`, `MCHF - Pledge Payments`, `MCHF - Pledge Installments`, and the Sprint 4 fields on `MCHF Submissions`. Populate the active gift types and payment types before testing Submit. To test the panel, add an Unclaimed payment for a donor the lookup can find.
+- **First installment payment on coding date (#55).** Recording a first payment on the day the pledge is coded is out of Sprint 4 scope (lab assumption); the form only records the future installment schedule.
 - **New donor form URLs (#25).** Both buttons use placeholder addresses. When
   Marc provides the Foundation URLs, update `varNewIndividualUrl` and
   `varNewOrganizationUrl` in `Screen1.OnVisible`.
@@ -1003,7 +1227,3 @@ In Alexandre’s personal environment:
   as classic Power Apps), `Patch` returning the saved record (same with SharePoint),
   and the real connector's operation name (`SearchConstituent`, not
   `SearchConstituents`, see `DIFFERENCES.md` of the lab).
-
-
-
-
